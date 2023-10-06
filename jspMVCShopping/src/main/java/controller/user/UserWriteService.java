@@ -1,5 +1,6 @@
 package controller.user;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -11,6 +12,11 @@ import model.dto.MemberDTO;
 
 public class UserWriteService {
 	public void execute(HttpServletRequest request) {
+		try { // 한글 깨짐 방지
+			request.setCharacterEncoding("utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		String memberId = request.getParameter("memberId");
 		String memberPw = request.getParameter("memberPw");
 		String memberName = request.getParameter("memberName");

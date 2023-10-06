@@ -11,9 +11,17 @@
 <!-- 로그인되었을 때 -->
 <c:if test="${!empty auth }">
 <ul>
+<!-- 직원과 회원으로 분리 : userDAO의 메서드 loginSelect()에서 회원과 직원을 분리-->
+<!-- 직원 메뉴 -->
+<c:if test="${auth.grade == 'emp' }">
 	<li><a href="employeeList.emp">직원 목록</a></li>
 	<!-- 회원관리 -->
 	<li><a href="memberList.mem">회원 목록</a></li>
+</c:if>
+<!-- 회원 메뉴 -->
+<c:if test="${auth.grade == 'mem' }">
+	<li><a href="memberMyPage.my">내정보 보기</a></li>
+</c:if>
 	<li><a href="logout.login">로그아웃</a></li>
 </ul>
 </c:if>
@@ -30,8 +38,10 @@
 				<th rowspan="2"><input type="submit" value="로그인" /></th></tr>
 			<tr><th><input type="password" name="userPw" placeholder="비밀번호"/>
 					<div style="color:red">${errPw }</div></th></tr>
-			<tr><th colspan="2">아이디/비밀번호 찾기 | 
-								<a href="userAgree.nhn">회원가입</a></th></tr>
+			<tr><th colspan="2">
+				<a href="idInquiry.help">아이디</a>/
+				<a href="pwInquiry.help">비밀번호 찾기</a> | 
+				<a href="userAgree.nhn">회원가입</a></th></tr>
 		</table>
 	</form>
 </c:if>
