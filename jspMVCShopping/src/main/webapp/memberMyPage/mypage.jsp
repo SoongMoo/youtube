@@ -11,7 +11,9 @@
 <ul>
 	<li><a href="memberMyPage.my">내정보 보기</a></li>
 	<li><a href="memberUpdate.my">내정보 수정</a></li>
-	<li>비밀번호변경</li>
+	<!-- 먼저 시간에 회원삭제를 해서 다시 회원가입한 후에 시작해야 한다. -->
+	<!-- 이번에는 회원 비밀번호 변경만 하기로 하자. -->
+	<li><a href="userPwModify.my">비밀번호변경</a></li>
 	<li><a href="memberDrop.my">회원탈퇴</a></li>
 </ul>
 이름 : ${dto.memberName }<br />
