@@ -17,6 +17,10 @@
 	<li><a href="employeeList.emp">직원 목록</a></li>
 	<!-- 회원관리 -->
 	<li><a href="memberList.mem">회원 목록</a></li>
+	<!-- 상품관리 --><!-- 로그인 할 때 관리자아이디로 로그인 한다.  -->
+	<!-- 관리자 계정인 없는 경우 아래 url로 접속하면 직원목록이 열린다. -->
+	<!--  http://localhost:8080/jspMVCShopping/employeeList.emp -->
+	<li><a href="goodsList.goods">상품리스트</a></li>
 </c:if>
 <!-- 회원 메뉴 -->
 <c:if test="${auth.grade == 'mem' }">
