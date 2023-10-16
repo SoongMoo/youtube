@@ -19,15 +19,15 @@
 		    <td>상품가격</td><td>등록일</td></tr>
 	<c:forEach items="${dtos }" var="dto" varStatus="status">
 	<tr><td>${status.count }</td>
-		<td>${dto.goodsNum }</td>
+		<td><a href="goodsDetail.goods?goodsNum=${dto.goodsNum }">${dto.goodsNum }</a></td>
 		<td>${dto.goodsName }</td>
 		<td>${dto.goodsPrice }</td><td>${dto.goodsRegist }</td></tr>
 	</c:forEach>	  
 </table>
 </body>
 </html>
-
-
+<!-- 먼저 관리자로 로그인을 한다. -->
+<!-- 상품 상세보기 | 상품 정보 수정 | 상품 삭제를 해보자. -->
 
 
 
