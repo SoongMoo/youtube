@@ -3,8 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
+<script type="text/javascript">
+// script를 이용해서 checkbox를 하나이상 선택하도록 하자.
+$(function(){
+	$("#frm").submit(function(){
+		if($("input:checkbox[name=memDels]:checked").length < 1 ){
+			alert("하나이상 선택하세요.");
+			return false;
+		}
+	});
+	// checkBoxs를 선택을 하면 모두 선택이 되게 한다.
+	$("#checkBoxs").click(function(){
+		if($("#checkBoxs").prop("checked")){
+			$("input:checkbox[name=memDels]").prop("checked",true);
+		}else{
+			$("input:checkbox[name=memDels]").prop("checked",false);
+		}
+	});
+	//memDels를 체크를 하나씩 없애면 checkBoxs에 체크가 없어지고 모두 체크를 하면 checkBoxs도 체크가 되게
+	$("input:checkbox[name=memDels]").click(function(){
+		//먼저 체크박스의 개수를 가지고 온다.
+		var tot = $("input:checkbox[name=memDels]").length;
+		// 체크된 체크박스의 개수를 가지고 온다.
+		var checked = $("input:checkbox[name=memDels]:checked").length;
+		//두개를 비교한다.
+		if(tot == checked){
+			// 같으면 checkBoxs에 체크를한다.
+			$("#checkBoxs").prop("checked",true);
+		}else{
+			$("#checkBoxs").prop("checked",false);
+		}
+	});
+	
+});
+</script>
 </head>
 <body>
+<!-- 등록된 회원들을 출력 -->
 <a href="memberRegist">회원 등록</a><br />
+<table border=1 width="600">
+<!-- 회원조회하기 -->
+<form  action="memberList" method="get" >
+	<!--  --> 
+	<tr><td colspan="5">검색 : 
+			<input type="search" name="searchWord" size="60" th:value="${searchWord}"/>
+			<input type="submit" value="검색" />
+		</td></tr>
+</form>
+<!-- 체크한 사람들을 삭제 -->
+<form action="membersDelete" method="post" id="frm">
+	<!-- CHECKBOX를 이용해서 원하는 회원들을 선택하여 삭제를 해보자 -->
+	<tr><td>번호</td><td>이름</td><td>아이디</td><td>등록일</td>
+		<td><input type="checkbox" id="checkBoxs"/>
+			<input type="submit" value="삭제" /> 
+		</td></tr>
+	<!-- 상세보기 및 회원정보 수정 그리고  @Validated를 이용한 유효성 검사 와 회원 강제 탈퇴를 해보자-->
+	<tr th:each="dto : ${dtos}">
+	<!-- 타임리프를 사용해서 href를 사용할 경우 두가지 방법이 있다. 하나는 "|"를 사용하는 방법 또하나는 @{}를 사용한다.  -->
+		<td><a th:href="|memberDetail?memberNum=${dto.memberNum}|">[[${dto.memberNum}]]</a></td>
+		<td><a th:href="@{memberDetail(memberNum=${dto.memberNum})}">[[${dto.memberName}]]</a></td>
+		<td>[[${dto.memberId}]]</td>
+		<td>[[${#dates.format(dto.memberRegistDate,'yyyy-MM-dd')}]]</td>
+		<td><input type="checkbox" name="memDels" th:value="${dto.memberNum}" /></td>
+	</tr>
+	<tr align="center"><td colspan="5">
+	<th:block th:if="${page <= 1}">
+	[이전]
+	</th:block>
+	<th:block th:if="${page > 1}">
+	<a th:href="@{memberList(page=${page - 1},searchWord=${searchWord})}">[이전]</a>
+	</th:block>
+	<th:block th:each=" i : ${#numbers.sequence(startPage, endPage)}">
+	<a th:href="@{memberList(page=${i},searchWord=${searchWord})}">[[${i}]]</a>
+	</th:block>
+	<th:block th:if="${page >= maxPage}">
+	[다음]
+	</th:block>
+	<th:block th:if="${page < maxPage}">
+	<a th:href="@{memberList(page=${page + 1},searchWord=${searchWord})}">[다음]</a>
+	</th:block>
+	</td></tr>
+</form>
+</table>
 </body>
 </html>
+
+
+
+

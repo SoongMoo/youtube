@@ -3,6 +3,88 @@
 	"-//mybatis.org//DTD Mapper 3.0//EN" 
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="springBootMVCShopping.mapper.MemberMapper">
+<delete id="memberDelete" parameterType="string">
+delete from members
+<trim prefix="where" prefixOverrides="AND | OR">
+	and member_num = #{memberNum}
+</trim><!-- where 다음에  AND 또는 OR가 있다면 삭제 해라. 그러므로 and는 실행될 때 자동 삭제-->
+</delete>
+<update id="memberUpdate" parameterType="mem">
+		update members
+		<trim prefix="set" suffixOverrides=","><!-- 뒤에 남아 있을 ,삭제 -->
+			member_Name = #{memberName}, 
+			member_ADDR = #{memberAddr},
+			<if test="memberAddrDetail != null">
+			member_Addr_Detail = #{memberAddrDetail},
+			</if>
+			<if test="memberAddrDetail == null">
+			member_Addr_Detail = null,
+			</if>
+			member_Post = #{memberPost},
+			gender = #{gender},
+			member_Phone1 = #{memberPhone1},
+			<choose>
+				<when test="memberPhone2 != null">
+				member_Phone2 =#{memberPhone2},
+				</when>
+				<when test="memberPhone2 == null">
+				member_Phone2 =null,
+				</when>
+			</choose>
+			member_Email =#{memberEmail},
+			member_Birth = #{memberBirth},
+			point = #{point},
+	</trim>
+	<where>
+		member_num = #{memberNum}
+	</where>
+</update>
+
+
+<select id="memberSelectOne" parameterType="string" resultType="mem">
+	select <include refid="memberColumnsBase" />
+	from members
+	where member_num = #{memberNum}
+</select>
+<!-- 여러 회원을 동시에 삭제를 해야 하므로 in연산자를 사용한다. -->
+<!-- in연산자를 사용하기 위해서는 마이바티스에서 foreach을 사용해야 한다. -->
+<delete id="membersDelete" parameterType="string">
+delete from members
+where member_num in
+<foreach collection="membersNum" item="memberNum" open="(" close=")" index="index" separator=",">
+	#{memberNum}
+</foreach>
+</delete>
+<!-- 컬럼을 정의 하도록 하겠습니다. -->
+<sql id="memberColumnsBase">
+	member_num memberNum,member_id memberId,member_pw memberPw
+	  ,member_name memberName,member_addr memberAddr
+	  ,member_addr_detail memberAddrDetail,member_post memberPost
+	  ,member_phone1 memberPhone1,member_phone2 memberPhone2
+	  ,member_regist memberRegistDate ,member_birth memberBirth
+	  ,member_email memberEmail ,member_email_conf memberEmailConf
+	  ,point ,gender
+</sql>
+<select id="selectAll" resultType="mem" parameterType="startEndPageDTO">
+<!-- 컬럼의 값을 dto에 자동으로 저장되게 하기 위해 컬럼명을 dto에 있는 멤버필드 명으로 별칭을 준다. -->
+<!-- 페이징을 하기 위해 순서 번호를 가지고 와야 하므로 서브쿼리를 사용합니다. -->
+select * from 
+		( select ROW_NUMBER() over (order by member_num) as rn,
+				<include refid="memberColumnsBase" />
+		from members
+		<where>
+			<!-- searchWord에 값이 없으므로 값이 있을 때만 사용하게 조건을 주자. -->
+			<if test="searchWord != null">
+				<!-- 검색 데이터가 일부만 사용할 수 있으므로 like를 사용하고 여러 컬럼을 검사하도록 한다. -->
+				MEMBER_NAME like '%' || #{searchWord} || '%'
+			  or member_id like '%' || #{searchWord} || '%'
+			  or member_num like '%' || #{searchWord} || '%'
+			</if>
+		</where>
+		)sub1
+where rn between #{startRow}  and #{endRow}
+</select>
+
 <select id="memberAutoNum" resultType="string">
 select concat('mem', coalesce(max(substring(member_num,4)::integer),100000) + 1)
 from members;
@@ -16,4 +98,23 @@ from members;
 		  ,#{memberAddr},#{memberAddrDetail},#{memberPost},#{memberPhone1}
 		  ,#{memberPhone2},now(),#{memberBirth},#{gender},#{memberEmail},null,0)
 </insert>
+<select id="memberCount" parameterType="string" resultType="integer">
+	select count(*) from members
+	<if test='searchWord != null'>
+		<where>
+		MEMBER_NAME like '%' || #{searchWord} || '%'
+		or member_id like '%' || #{searchWord} || '%'
+		or member_num like '%' || #{searchWord} || '%'
+		</where>
+	</if>
+</select>
+
+
 </mapper>
+
+
+
+
+
+
+
