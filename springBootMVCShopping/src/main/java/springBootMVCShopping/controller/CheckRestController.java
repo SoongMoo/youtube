@@ -7,12 +7,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import springBootMVCShopping.service.EmailCheckService;
+import springBootMVCShopping.service.UserEmailCheckService;
 
 // 같은 방법 다른 형식으로 @ResponseBody를 사용했다면 @RestController를 사용하겠습니다.
 @RestController
 public class CheckRestController {
 	@Autowired
 	EmailCheckService emailCheckService;
+	@Autowired
+	UserEmailCheckService userEmailCheckService;
 	@RequestMapping(value="checkRest/userEmailCheck", method = RequestMethod.POST)
 	public String userEmailCheck(@RequestParam(value="userEmail") String userEmail) {
 		String resultEmail = emailCheckService.execute(userEmail);
@@ -22,4 +25,22 @@ public class CheckRestController {
 			return "사용중인 Email입니다.";
 		}
 	}
+//@RestAPI를 이용해보자..	
+	@RequestMapping("userConfirm")
+	public String userConfirm(@RequestParam(value="chk") String chk) {
+		int i = userEmailCheckService.execute(chk);;
+		if(i == 0) 
+			return "이미 인증되었습니다. ";
+		else	return "인증되었습니다.";
+	}
 }
+
+
+
+
+
+
+
+
+
+
