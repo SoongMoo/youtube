@@ -5,25 +5,45 @@
 <title>Insert title here</title>
 </head>
 <body>
+<!-- 로그인 되었을 때와 로그인 되지 않았을 때 구분하기  -->
+<!-- 로그인 되었을 때 -->
+<div th:if="${session.auth != null}"  >
 <ul>
 	<li><a href="member/memberList">회원목록</a></li>
+	<!-- 로그아웃하기 -->
+	<li><a href="login/logout">로그아웃</a></li>
 </ul>
-<!-- 회원가입만 하겠습니다.. ^^  -->
-<form action="/login/login" method="post" >
+</div>
+<!-- 로그인 | 아이디 찾기 | 비밀번호 찾기 -->
+<!-- 로그인은 직원과 회원의 테이블이 나눠져 있는 경우 직원과 회원이 같은 페이지에서 로그인 할 수 있게 해 보겠습니다. -->
+<!--  /login/login에서 회원도 직원도 같이 로그인 할 수 있다. -->
+
+<!-- 오류가 있는 경우 COMMAND가 가지고 있는 값을 받아오자. -->
+<!--  th:object="${loginCommand}"를 사용하면 첫 페이지에 오류 발생-->
+<!-- 처음시작 할 때 COMMAND가 없어서 생기는 현상. -->
+<!-- 오류가 있는 경우 RESULT에 정의한 오류 메시지 가져오기.. -->
+
+<!-- 로그인이 되지 않았을 때 -->
+<div th:if="${session.auth == null}"  >
+<form action="/login/login" method="post" th:object="${loginCommand}">
 	<table border="1" align="center">
 		<tr><td colspan="2">
 				자동로그인<input type="checkbox" name="autoLogin" />
 				아이디저장<input type="checkbox" name="idStore" />
 			</td></tr>
-		<tr><td><input type="text" name="userId" placeholder="아이디" /></td>
+		<tr><td><input type="text" name="userId" placeholder="아이디" th:value="${loginCommand.userId}"/><br />
+				<span th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}" ></span></td>
 			<td rowspan="2">
 				<input type="image" src="/static/images/sbmt.png" width="60">
 			</td></tr>
-		<tr><td><input type="password" name="userPw" placeholder="비밀번호" /></td></tr>
+		<tr><td><input type="password" name="userPw" placeholder="비밀번호" /><br />
+				<span th:if="${#fields.hasErrors('userPw')}" th:errors="*{userPw}" ></span></td></tr>
 		<tr><td colspan="2">
 					<a href="/register/userAgree">회원가입</a> | 
-					아이디/비밀번호 찾기</td></tr>
+					<a href="/help/findId">아이디</a> /
+					<a href="/help/findPassword">비밀번호 찾기</a></td></tr>
 	</table>
 </form>
+</div>
 </body>
 </html>
