@@ -12,8 +12,11 @@
 	<!-- 먼저 회원과 직원의 메뉴를 나누도록한다. -->
 	<!-- 로그인을 할 때 직원은 emp를 회원은 mem을 grade에 저장했다. -->
 	<th:block th:if="${session.auth.grade == 'emp'}"  >
-		<!-- 이번시간에는 회원 내정보 수정을 하였습니다. 다음시간에는 관리자 페이지에서 직원등록을 하겠습니다. -->
+		<!-- 오늘은 직원관리를 하겠습니다. 많은 내용이 2일차에 했던 회원관리와 비슷하므로 같은 내용은 설명 없이 가겠습니다.-->
+		<li><a href="employee/employeeList">직원 목록</a></li>
 		<li><a href="member/memberList">회원목록</a></li>
+		<!-- 이번시간에는 직원 마이페이지를 해보겠습니다. -->
+		<li><a href="employee/empMyPage">마이페이지</a></li>
 	</th:block>
 	<!-- 저번 시간에 비밀번호 찾기에서 이메일로 임시비밀번호를 전달 했으므로 내정보 수정에서 내 비밀번호 변경을 해야할 것이다. -->
 	<th:block th:if="${session.auth.grade == 'mem'}"  >
