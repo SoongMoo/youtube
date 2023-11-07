@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 	
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springBootMVCShopping.mapper.GoodsMapper">
+<select id="ipgoAndGoodsAutoNum" resultType="string">
+select
+concat(#{sep} , coalesce(max(substr(${columnName},${seq}))::integer,1000000) + 1)
+from ${tableName}
+</select>
+<sql id="goodsColumnsBase">
+	   goods_Num , goods_name , goods_price ,goods_content , delivery_cost , emp_num  
+	  ,goods_regist , goods_main_store ,goods_main_store_img , goods_images 
+	  ,goods_images_img , visit_count ,update_Emp_Num , goods_Update_Date
+</sql>
+<insert id="goodsInsert" parameterType="goods">
+insert into goods ( <include refid="goodsColumnsBase" /> )
+values(#{goodsNum}, #{goodsName}, #{goodsPrice}, #{goodsContent}, #{deliveryCost}, #{empNum}, now()
+		, '1','1','1','1',0,null,null)<!-- 이미지는 아직 저장하지 않으므로 임의의 값 "1"을 주었습니다. -->
+</insert>
+<select id="allSelect" resultType="goods">
+select * from (
+	select ROW_NUMBER() over (order by goods_num desc) as rn,
+			goods_Num goodsNum, goods_name goodsName, goods_price goodsPrice 
+		  ,goods_content goodsContent, delivery_cost deliveryCost, emp_num empNum 
+		  ,goods_regist goodsRegist, goods_main_store goodsMainStore 
+		  ,goods_main_store_img goodsMainStoreImg, goods_images goodsImages
+		  ,goods_images_img goodsImagesImg, visit_count visitCount
+		  ,update_Emp_Num updateEmpNum, goods_Update_Date goodsUpdateDate
+	from goods
+	<where>
+		<if test="searchWord != null">
+			goods_name like '%' || #{searchWord} || '%'
+			or goods_num like '%' || #{searchWord} || '%'
+		</if>
+	</where>
+)sub1
+where rn between #{startRow}  and #{endRow}
+</select>
+<select id="goodsCount" parameterType="string" resultType="integer">
+	select count(*) from goods
+	<where>
+		<if test="searchWord != null">
+			goods_name like '%' || #{searchWord} || '%'
+			or goods_num like '%' || #{searchWord} || '%'
+		</if>
+	</where>
+</select>
+
+</mapper>

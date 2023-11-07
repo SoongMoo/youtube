@@ -70,7 +70,7 @@ $(function(){
 회원비밀번호 확인 :  <input type="password" name="memberPwCon" /><br />
 <span style="color:red" th:if="${#fields.hasErrors('memberPwCon')}" 
 									th:errors="*{memberPwCon}"></span><br />
-회원이름 : <input type="text" name="memberName" th:value="${memberCommand.memberName}"/><br />
+회원이름 : <input type="text" name="memberName" th:field="*{memberName}"/><br />
 <span style="color:red" th:if="${#fields.hasErrors('memberName')}" 
 													th:errors="*{memberName}"></span><br />
 회원주소 : <input type="text" name="memberAddr" id="sample4_roadAddress" onclick="execDaumPostcode();"

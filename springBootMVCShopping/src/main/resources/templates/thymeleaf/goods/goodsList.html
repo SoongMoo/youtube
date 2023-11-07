@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<!-- 다음시간에는 상세보기부터 수정 삭제를 한 후 그 다음시간에 파일 upload하겠습니다. -->
+<ul><!-- 단순히 CRUD 만을하는 것이 아니라 single page를 하는 방법도 같이 해보겠습니다. -->
+	<li><a href="goodsForm">상품 추가</a></li>
+	<li><a href="#">상품 입고</a></li>
+	<li><a href="#">상품 입고 현황</a></li>
+</ul>
+<!-- 검색과 페이징을 이전에 만든 것을 이용해서 추가합니다. -->
+<table border=1 width="600" align="center">
+<form  action="goodsList" method="get" >
+	<tr><td colspan="6">검색 : 
+		<input type="search" name="searchWord" size="60" th:value="${searchWord}"/>
+		<input type="submit" value="검색" />
+		</td></tr>
+</form>
+	<tr><td>번호</td><td>상품번호</td><td>상품명</td>
+		    <td>상품가격</td><td>등록일</td>
+		<td><input type="checkbox" id="checkBoxs"/>
+			<input type="submit" value="삭제" /> 
+		</td>
+	</tr>
+	<tr th:each="dto, cnt : ${dtos}">
+		<td>[[${cnt.count }]]</td>
+		<td>[[${dto.goodsNum}]]</td>
+		<td>[[${dto.goodsName}]]</td>
+		<td>[[${dto.goodsPrice}]]</td>
+		<td>[[${#dates.format(dto.goodsRegist,'yyyy-MM-dd')}]]</td>
+		<td><input type="checkbox" name="memDels" th:value="${dto.goodsNum}" /></td>
+	</tr>
+	<tr align="center"><td colspan="6">
+		<th:block th:if="${page <= 1}">
+		[이전]
+		</th:block>
+		<th:block th:if="${page > 1}">
+		<a th:href="@{goodsList(page=${page - 1},
+						searchWord=${searchWord})}">[이전]</a>
+		</th:block>
+		
+		<th:block th:each=" i : ${#numbers.sequence(startPage, endPage)}">
+		<a th:href="@{goodsList(page=${i},searchWord=${searchWord})}">[[${i}]]</a> 
+		</th:block>
+		<th:block th:if="${page >= maxPage}">
+		[다음]
+		</th:block>
+		<th:block th:if="${page < maxPage}">
+		<a th:href="@{goodsList(page=${page + 1},
+						searchWord=${searchWord})}">[다음]</a>
+		</th:block>
+	</td></tr>
+</table>
+</body>
+</html>

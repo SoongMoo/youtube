@@ -17,6 +17,9 @@
 		<li><a href="member/memberList">회원목록</a></li>
 		<!-- 이번시간에는 직원 마이페이지를 해보겠습니다. -->
 		<li><a href="employee/empMyPage">마이페이지</a></li>
+		<!-- 이번에는 파일upload를 할 수 있는 상품괸리를 하겠습니다. -->
+		<!-- 파일upload를 하기전에 먼저 지금까지 했던 것 처럼 CRUD를 먼저 진행한 후에 파일upload를 하겠습니다. -->
+		<li><a href="goods/goodsList">상품리스트</a></li><!-- 직원관리 회원관리 회원가입등과 코드는 일치합니다. -->
 	</th:block>
 	<!-- 저번 시간에 비밀번호 찾기에서 이메일로 임시비밀번호를 전달 했으므로 내정보 수정에서 내 비밀번호 변경을 해야할 것이다. -->
 	<th:block th:if="${session.auth.grade == 'mem'}"  >

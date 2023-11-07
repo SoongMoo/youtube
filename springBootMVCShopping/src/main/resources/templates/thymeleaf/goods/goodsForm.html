@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- ajax를 이용해서 값을 넘겨주도록합니다. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.js"></script>
+<script type="text/javascript">
+$(function(){
+	$("#btn").click(function(){
+		$("#frm").ajaxSubmit({
+			url:"goodsWrite",
+			type:"post",
+			success:function(result){
+				if(result.trim() == 200){ // 정상으로 처리 되었다면 200이면
+					location.href="goodsList";
+				}else{ // 오류가 있으면 goodsForm.html을 goodsWrite.html의 writeForm에 출력
+					$("#writeForm").html(result);
+				}
+			},
+			error:function(){
+				alert("로그인을 다시 시도해 주세요.")
+				location.href="/";
+			}
+		});
+	});
+});
+</script>
+</head>
+<body>
+<!-- 오류가 발생한 경우 오류 메시지를 가져오기 위해서는 command가 필요합니다.  -->
+<!-- 오류 메시지가 출력할 수 있게 span을 사용하겠습니다. -->
+<!-- 오류가 발생하여 현 페이지로 돌아 왔을 때 이전에 작성한 값을 출력하려면 command에 저장된 값을 불러오면 된다. -->
+<!-- 이때 value대신 field를 사용할 수도 있다. -->
+<form action="goodsWrite" method="post" id = "frm" th:object="${goodsCommand}">
+	<table border = "1" width ="600" align="center">
+		<tr><th width="100">상품번호</th>
+			<td><input type="text" name="goodsNum" th:value="${goodsCommand.goodsNum}" readonly="readonly"/>자동부여</td></tr>
+		<tr><th>상품명</th>
+			<td><input type="text" name="goodsName"  th:value="${goodsCommand.goodsName}" /><br />
+		<span style="color:red" th:if="${#fields.hasErrors('goodsName')}" th:errors="*{goodsName}"></span></td></tr>
+		<tr><th>상품가격</th>
+			<td><input type="number" name="goodsPrice" min="0" th:field="*{goodsPrice}" /><br />
+		<span style="color:red" th:if="${#fields.hasErrors('goodsPrice')}" th:errors="*{goodsPrice}"></span></td></tr>
+		<tr><th>배송비</th>
+			<td><input type="number" name="deliveryCost" min="0" max="5000" step="50" th:field="*{deliveryCost}"  /><br />
+		<span style="color:red" th:if="${#fields.hasErrors('deliveryCost')}" th:errors="*{deliveryCost}"></td></tr>
+		<tr><th>상품설명</th>
+			<td><textarea rows="10" cols="50" name="goodsContent" >[[${goodsCommand.goodsContent}]]</textarea><br />
+		<span style="color:red" th:if="${#fields.hasErrors('goodsContent')}" th:errors="*{goodsContent}"></span></td></tr>
+		<tr><th colspan="2"><input type="button" id="btn" value="상품 등록" /></th></tr>
+	</table>
+</form>
+</body>
+</html>
