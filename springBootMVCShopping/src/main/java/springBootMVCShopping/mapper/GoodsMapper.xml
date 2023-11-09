@@ -16,7 +16,11 @@ from ${tableName}
 <insert id="goodsInsert" parameterType="goods">
 insert into goods ( <include refid="goodsColumnsBase" /> )
 values(#{goodsNum}, #{goodsName}, #{goodsPrice}, #{goodsContent}, #{deliveryCost}, #{empNum}, now()
-		, '1','1','1','1',0,null,null)<!-- 이미지는 아직 저장하지 않으므로 임의의 값 "1"을 주었습니다. -->
+		, #{goodsMainStore},#{goodsMainStoreImg} 
+		<!-- 이미지가 있는 경우에만 저장하도록 if문을 사용합니다. -->
+	  	<if test="goodsImages != null">,#{goodsImages},#{goodsImagesImg}</if>
+	  	<if test="goodsImages == null">,null,null</if>
+	  	,0,null,null)<!-- 이제 이미지를 추가 하겠습니다. -->
 </insert>
 <select id="allSelect" resultType="goods">
 select * from (
@@ -46,5 +50,57 @@ where rn between #{startRow}  and #{endRow}
 		</if>
 	</where>
 </select>
+<delete id="productsDelete" parameterType="string">
+delete from goods <!-- foreach문을 사용해서 in연산자를 사용합니다. -->
+where goods_num in <foreach collection="products" item="goodsNum" open="(" close=")" index="index"
+					separator=",">
+						#{goodsNum}
+					</foreach>
+</delete>
+<!-- dto에 직접 넣어 가지고 오는 것이 아니라 setter를 이용해서 가져오겠습니다. -->
+<resultMap type="goods" id="goodsResultMap">
+	<constructor><!-- 멤버필드가 추가가 되었으므로 생성자를 사용하기 위해서도 추가를 해야 합니다.  -->
+		<idArg column="goods_Num" javaType="string"/>
+		<arg column="goods_Name" javaType="string"/>
+		<arg column="goods_Price" javaType="integer"/>
+		<arg column="delivery_Cost" javaType="integer"/>
+		<arg column="goods_Content" javaType="string"/>
+		<arg column="emp_Num" javaType="string"/>
+		<arg column="visit_Count" javaType="integer"/>
+		<arg column="goods_Regist" javaType="java.util.Date"/>
+		<arg column="update_Emp_Num" javaType="string"/>
+		<arg column="goods_Update_Date" javaType="java.util.Date"/>
+		<arg column="goods_main_store" javaType="string"/>
+		<arg column="goods_main_store_img" javaType="string"/>
+		<arg column="goods_images" javaType="string"/>
+		<arg column="goods_images_img" javaType="string"/>
+	</constructor>
+</resultMap> 
+<select id="selectOne" parameterType="string" resultMap="goodsResultMap">
+select <include refid="goodsColumnsBase" />
+from goods  
+where goods_Num = #{goodsNum}
+</select>
+<update id="goodsUpdate" parameterType="goods"> 
+update goods
+set GOODS_NAME = #{goodsName}, GOODS_PRICE = #{goodsPrice}
+	,delivery_cost =#{deliveryCost}, GOODS_CONTENT = #{goodsContent}
+    ,update_emp_num = #{updateEmpNum}, goods_update_date = now()
 
+where goods_num = #{goodsNum}
+</update>
+<delete id="goodsDelete" parameterType="string">
+delete from goods
+where goods_num = #{goodsNum}
+</delete>
 </mapper>
+
+
+
+
+
+
+
+
+
+
