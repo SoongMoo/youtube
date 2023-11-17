@@ -31,6 +31,7 @@ function fileDel(orgFile, storeFile, btn, kind ){
 </script>
 </head>  <!-- 파일을 추가하는 경우에는 enctype이  multipart/form-data이 어야 합니다.-->
 <body> <!-- goodsUpdate에가서 파일을 수정할 때 삭제 파일은 디비와 파일을 삭제할 코드를 작성 --> <!-- 파일이 잘 변경되네요.. -->
+															<!-- 단 파일명에 하이픈(-)가 있으면 오류가 있을 수 있으니 조심하세요.. -->
 <form action="goodsUpdate" method="post" name="frm" id="frm" th:object="${goodsCommand}" enctype="multipart/form-data">
 <table border=1 align="center" width="600" >
 <caption>상품 상세보기</caption>

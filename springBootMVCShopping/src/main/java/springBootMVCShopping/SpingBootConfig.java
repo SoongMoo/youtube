@@ -6,9 +6,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 @Component
 public class SpingBootConfig {
+	// ModelAndView객체를 만들어주겠습니다.
+	@Bean(value = "jsonView")
+    public MappingJackson2JsonView jsonView() {
+        return new MappingJackson2JsonView();
+    }
 	//  암호화하기 위한 객체생성
 	@Bean
 	public PasswordEncoder passwordEncoder() {

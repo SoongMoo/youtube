@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- 계속 single페이지 작업을 해보겠습니다.여기에 리스트와 상세 보기 페이지를 만들겠습니다. -->
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	$.ajax({
+		type:"post",
+		url:"goodsIpgoList",
+		datatype: "json",
+		success:function(result){ // ModelAndView를 이용해서 가져오겠습니다.
+			var item = "";
+				item +='<table width=600 border=1>';
+				item +='	<tr><th>번호</th><th>상품 번호</th><th>수량</th><th>입고일</th><th>가격</th></tr>';
+				// ModelAndView로 가져온 데이터를 result로 받아 출력합니다. 
+				
+				$.each( result.list, function(idx , dto){
+					// 날짜를 yyyy-MM-dd형식으로 변경합니다. 
+					var date = new Date(dto.ipgoDate); // dto가 each문에 있으므로 each안에 작성해야 합니다.
+					var year = date.getFullYear(); 
+					// 1은 01로 출력하기 위해 문자 "0"을 붙였고 10은 010이 되므로 뒤에서 2글자만 가져오게 했다.
+					// 달은 0부터 11이므로 현재달을 나타내기 위해 1을 더함.
+					var month = ("0"+(date.getMonth() + 1)).slice(-2);
+					var day = ("0" + date.getDate()).slice(-2);
+					item +='	<tr>';
+					item +='		<th>' + eval(idx + 1) +'</th>';
+					// 입고번호 누루면 상세보기 페이지로 가도록하겠습니다. 실행 함수를 정의해야 합니다.
+					// 함수를 실행시키는 코드를 작성합니다.
+					item +='        <th><a href="javascript:goodsIpgoDetail(\''+dto.ipgoNum +'\',\''+ dto.goodsNum+'\')">' + dto.goodsNum + '</a></th>';
+					item +='        <th>' + dto.ipgoQty +' </th>';
+					// 이제 날짜를 위 변수로 변경합니다.
+					item +='		<th>' + year + '-' + month + '-' + day + '</th>';
+					item +='		<th>' + dto.ipgoPrice + '</th>';
+					item +='    </tr>';
+				})
+				item +='</table>';
+			$("#list").html(item);
+		},
+		error:function(){
+			alert("서버오류");
+		}
+	});
+});
+
+						/// 여기서 잠깐 goodsIpgo.html로 다시 가보겠습니다
+function goodsIpgoDetail(ipgoNum,goodsNum){ // 입고시 여러개의 상품을 입력할 수 있어서 입고번호와 상품번호가 필요합니다.
+	// 이제 상세보기 페이지로 갈 코드를 짜겠습니다. 상세보기도 이 페이지에서 보일 것입니다.
+	$.ajax({
+		type:"post",
+		url:"goodsIpgoDetail",
+		data:{"ipgoNum":ipgoNum,"goodsNum":goodsNum},
+		success : function(dto){ // 이제 controllse에서 dto로 전달한 것을  dto로 ajax에서 받았다.
+			var item="";
+			item += '입고번호 : ' + dto.ipgoNum +'<br />';
+			item += '상품번호 : ' + dto.goodsNum+'<br />';
+			item += '입고일 : ' + dto.ipgoDate +'<br />';
+			item += '입고 수량 : ' + dto.ipgoQty +'<br />';
+			item += '제조일 : ' + dto.madeDate +'<br />';
+			item += '가격 : ' + dto.ipgoPrice +'<br />' ;
+			item += '<button type="button" onclick="ipgoUpdate(\''+ dto.ipgoNum + '\',\''+ dto.goodsNum +'\');" >입고 수정</button>'; 
+			item += '<button type="button" onclick="ipgoDelte(\''+ dto.ipgoNum + '\',\''+ dto.goodsNum +'\');">입고 삭제</button>';
+			$("#list").html(item);
+		},
+		error:function(){
+			alert("서버오류");
+		}
+	})
+}
+// update하기 위한 함수작성
+function ipgoUpdate(ipgoNum, goodsNum){
+	// 동적 페이지로 이동하겠습니다.
+	location.href="goodsIpgoUpdate?ipgoNum="+ipgoNum+"&num="+goodsNum;
+}
+//삭제할 함수를 작성합니다.
+function ipgoDelte(ipgoNum, goodsNum){
+	location.href="goodsIpgoDelete?ipgoNum="+ipgoNum+"&num="+goodsNum;
+}
+</script>
+</head>
+<body>
+입고리스트<br />
+<div id="list"></div>
+</body>
+</html>

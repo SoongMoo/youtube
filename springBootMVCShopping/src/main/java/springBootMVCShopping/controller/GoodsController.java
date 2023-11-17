@@ -83,7 +83,10 @@ public class GoodsController {
 	}
 	@GetMapping("goodsUpdate")
 	public String goodsUpdate(@RequestParam("goodsNum") String goodsNum, Model model
-			) {
+			, HttpSession session) {
+		// 삭제할 파일을 선택한 후 다시 수정페이지로 오면 삭제할 파일정보를 가진 session이 존재하여 오류의 소지가 있다.
+		// 그래서 수정 페이지에 오면 삭제할 파일정보를 가진 session을 제거 하는 것이 좋다. 
+		session.removeAttribute("fileList"); // 삭제할 파일 정보를 가지고 있는 session삭제
 		goodsDetailService.execute(goodsNum, model);//수정을 하려면 기본 정보를 가져와야 하므로 goodsDetailService를 사용
 		return "thymeleaf/goods/goodsModify";
 	}
