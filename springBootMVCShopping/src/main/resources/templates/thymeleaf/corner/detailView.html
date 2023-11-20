@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	$("#wish").click(function(){
+		//먼저 로그인 한 사람만 관심상품을 등록 할 수 있게 하겠습니다.
+		if([[${session.auth == null}]]){ // auth라는 로그인인증 seesion이 없다면
+			window.open("/login/item.login","login","width=315, height=200,top = 100, left=100");
+		// 먼저 popup부터 처리 후 관심 상품으로 가겠습니다.
+		}else{
+			// 이제 관심상품 등록을 하겠습니다.
+			$.ajax({
+				type:"post",
+				url:"../goodsWishAdd", // 현 주소가 pathValiable이므로 '../' 를 해줘야합니다.
+				dataType:"text",
+				data:{"goodsNum" : "[[${dto.goodsDTO.goodsNum}]]"}, // 관심상품은 상품번호만 있으면 됩니다.
+				success:function(result){ // 관심상품이 등록되면 1, 취소하면 0
+					if(result.trim() == "1"){
+						// 등록되면 채워진 하트
+						$("#wish").attr("src","/static/images/hart.jpg");
+					}else if(result.trim() == "0"){
+						// 취소하면 빈하트
+						$("#wish").attr("src","/static/images/hart1.jpg");
+					}else if(result.trim() == "999"){
+						alert("관리자는 사용할 수 없습니다.");
+					}
+				},
+				error:function(){
+					alert("서버오류!!!!");
+				}
+			});
+		}
+	});
+});
+//메인페이지들어왔다가 다시 들어오면 관심상품이 등록되어 있어도 표시가 안된다.
+//구매페이지들어올때 관심상품이 있는 회원인지 확인을 해야 한다.
+// 현재 우리는 회원만 등록 가능하고 직원은 등록할 수 없다. 직원인 경우 코드를 추가해준다.
+</script>
+</head>
+<body>
+<table width="800" align="center">
+	<tr><td colspan="2">([[${dto.goodsDTO.goodsName}]]) 상품정보 입니다. | 상품 조회수 : [[${dto.goodsDTO.visitCount}]]</td></tr>
+	<tr><td rowspan="6" width="300px">
+			<img th:src="|/static/upload/${dto.goodsDTO.goodsMainStore}|" alt="상품이미지"/></td>
+		<td>상품명 : [[${dto.goodsDTO.goodsName}]]</td>
+	</tr>
+	<tr><td>가격 : [[${#numbers.formatCurrency(dto.goodsDTO.goodsPrice)+'원'}]]</td></tr>
+	<tr><td>배송비 <span th:if="${dto.goodsDTO.deliveryCost == 0}">무료배송</span>
+				 <span th:if="${dto.goodsDTO.deliveryCost != 0}">
+				 		[[${#numbers.formatCurrency(dto.goodsDTO.deliveryCost) + '원'}]]</span></td></tr>
+	<tr><td>수량 : <input type="number" min=1 step="1" value="1" id="qty" name="qty" /></td></tr>
+	<tr><td>총 상품금액 : [[${#numbers.formatCurrency(dto.goodsDTO.goodsPrice) + '원'}]]<span id="tot"></td></tr>
+	<tr><td>
+			<!--  재고가 있을 때만 버튼이 보이게  -->
+			<button type="button" id="cartBtn" th:if="${dto.stock > 0 }">  장바구니 </button> |
+			<button type="button" id="buyItem" th:if="${dto.stock > 0 }"> 바로구매  </button> |
+			<span th:if="${dto.stock <= 0 }" >입고될 때까지 잠시만 기다려 주세요  | </span>  
+			찜 <!-- 하트이미지를 추가하겠습니다. 이미지를 클릭하면 관심상품 등록이 될 수 있게 합니다.-->
+			<th:block th:if="${wish == null}">
+				<img src="/static/images/hart1.jpg" id="wish" width="20" />
+			</th:block>
+			<!-- wish 가 있으면 관심상품 -->
+			<th:block th:if="${wish != null}">
+				<img src="/static/images/hart.jpg" id="wish" width="20" />
+			</th:block>
+			<!-- 이번 시간에는 관심상품을 하겠습니다. -->
+		</td>
+	</tr>
+	<tr><td colspan="2">남은 수량 :[[${dto.stock}]] 개</td></tr>
+	<tr><td colspan="2"><p>
+				<span id="descript">제품 상세 설명</span> | 
+				<span id="review">리뷰</span> | 
+				<span id="inquire" >상품문의</span>
+			</p>
+		</td>
+	</tr>
+</table>
+</body>
+</html>

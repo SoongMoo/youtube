@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 	
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springBootMVCShopping.mapper.WishMapper">
+<select id="wishGoodsSelect" resultType="integer">
+select 1 from wish
+where goods_num = #{arg0} and member_num = #{arg1}
+</select>
+<insert id="wishInsert">
+	insert into wish (goods_num, member_num , wish_date )
+	values(#{arg0},#{arg1},now())
+</insert>
+<delete id="wishDelete">
+	DELETE FROM wish
+	where goods_num = #{arg0} and member_num = #{arg1}
+</delete>
+<delete id="wishGoodsDeletes" >
+	delete from wish 
+	where member_num = #{memberNum} 
+	and goods_num in 
+	<foreach collection="goodsNums" item="goodsNum" close=")" open="(" index="index" separator=",">
+		#{goodsNum}	
+	</foreach>
+</delete>
+</mapper>
+
+
+

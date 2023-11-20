@@ -24,6 +24,7 @@
 	<!-- 저번 시간에 비밀번호 찾기에서 이메일로 임시비밀번호를 전달 했으므로 내정보 수정에서 내 비밀번호 변경을 해야할 것이다. -->
 	<th:block th:if="${session.auth.grade == 'mem'}"  >
 		<li><a href="/mypage/myDetail">내정보 보기</a></li><!-- 회원내정보 보기 -->
+		<li><a href="/corner/wishList">관심 목록</a></li> <!-- 관심상품 목록 보기 -->
 	</th:block>
 	<!-- 로그아웃하기 -->
 	<li><a href="login/logout">로그아웃</a></li>
@@ -61,5 +62,36 @@
 	</table>
 </form>
 </div>
+<!-- 이번 시간은 상품 구매를 하기위해 index페이지에 상품목록 출력과 관심상품을 해 보겠습니다 -->
+
+<!-- MainGoodsListService에서 model로 받아온 list를 출력합니다. -->
+<table align="center" width="600">
+	<tr><!-- 상품정보를 옆으로 출력해야 하므로 TD를 반복하겠습니다. -->
+	<th:block th:each="dto , idx : ${list}">
+	<!-- list로 받아온 값을 하나씩 변수 dto에 전달하고 index는 idx로 받는다, index는 반복할때마다 0부터 시작하는값이다, 1씩증가  -->
+		<td><!-- 이제 구매 페이지로 이동합니다 -->
+			<a th:href="|corner/detailView/${dto.goodsNum}|">
+			<img th:src="|/static/upload/${dto.goodsMainStore}|"/><br />
+			[[${dto.goodsName}]]<br />
+			[[${dto.goodsPrice}]] <br />
+			<!-- 배송비가 0이면 무료배송으로 출력한다. -->
+			<span th:if="${dto.deliveryCost == 0}" >무료배송</span>
+			<span th:if="${dto.deliveryCost != 0}" th:text="${dto.deliveryCost}"></span>
+			</a>
+		</td>
+		<!-- 옆으로 만 출력되기 때문에 3개마다 행을 변경할 수 있게 3개마다 </tr>로 막아주고 다시 <tr>을 열어준다. -->
+		<!-- idx에서 count를 불러올 수 있는데 count는 1부터 시작하는 값을 가져온다 idx를 3으로 나눈 나머지가 0일 때마다 
+		     </tr><tr>을 출력-->
+		<th:block th:if="${idx.count % 3 == 0}" th:utext="'</tr><tr>'" />
+	</th:block>
+	</tr>
+</table>
 </body>
 </html>
+
+
+
+
+
+
+
