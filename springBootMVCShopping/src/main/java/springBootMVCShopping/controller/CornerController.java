@@ -1,5 +1,7 @@
 package springBootMVCShopping.controller;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,7 +13,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import springBootMVCShopping.domain.CartGoodsDTO;
+import springBootMVCShopping.service.corner.CartInsertService;
+import springBootMVCShopping.service.corner.CartListService;
+import springBootMVCShopping.service.corner.CartQtyDownService;
+import springBootMVCShopping.service.corner.GoodsCartDelService;
+import springBootMVCShopping.service.corner.GoodsCartDelsService;
 import springBootMVCShopping.service.corner.GoodsWishListService;
 import springBootMVCShopping.service.corner.GoodsWishService;
 import springBootMVCShopping.service.corner.WishDelService;
@@ -31,7 +43,70 @@ public class CornerController {
 	WishGoodsDelsService wishGoodsDelsService;
 	@Autowired
 	WishDelService wishDelService;
+	@Autowired
+	CartInsertService cartInsertService;
+	@Autowired
+	CartListService cartListService;
+	@Autowired
+	GoodsCartDelsService goodsCartDelsService;
+	@Autowired
+	GoodsCartDelService goodsCartDelService;
+	@Autowired
+	CartQtyDownService cartQtyDownService;
 	
+	@GetMapping("cartQtyDown")
+	public void cartQtyDown(
+			@RequestParam(value="goodsNum") String goodsNum,
+			HttpSession session,HttpServletResponse response) {
+		CartGoodsDTO dto = cartQtyDownService.execute(goodsNum, session);
+		// 이번에는 DTO를  model로 전달하지 않고 ObjectMapper를 사용해 보겠습니다.
+		ObjectMapper mapper = new ObjectMapper();
+		response.setCharacterEncoding("utf-8");
+		// response를 통해 ObjectMapper를 ajax에 전달하면 됩니다.
+		try {
+			response.getWriter().print(mapper.writeValueAsString(dto));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@GetMapping("cartDel")
+	public String cartDel(
+			@RequestParam("goodsNum") String goodsNum,
+			HttpSession session) {
+		goodsCartDelService.execute(goodsNum, session);
+		return "redirect:cartList";
+	}
+	
+	
+	@PostMapping(value = "cartDels")
+	@ResponseBody
+	public String cartdel(// javascript 배열을 받을 이름에 배열 표시를 해줘야합니다.
+			@RequestParam("goodsNums[]") String goodsNums[], //배열이므로 배열로 받아오겠습니다.
+			HttpSession session) {
+		return goodsCartDelsService.execute(goodsNums, session);
+	}
+	
+	
+	@GetMapping("cartList")
+	public String cartList(Model model, HttpSession session) {
+		cartListService.execute(model, session);
+		return "thymeleaf/corner/cartList";
+	}
+	
+	@GetMapping("cartAdd")
+	// 비동기식이므로 ajax에 값을 전달하기 위해서는 ResTAPI 또는 @ResponseBody를 사용해야한다.
+	@ResponseBody
+	public String cartAdd(
+			@RequestParam(value="goodsNum") String goodsNum,
+			@RequestParam(value="qty") Integer qty,
+			HttpSession session) {
+		return cartInsertService.execute(goodsNum, qty, session);
+	}
 	@GetMapping("wishDel")
 	public String wishDel(@RequestParam("goodsNum")String goodsNum,
 			HttpSession session) {

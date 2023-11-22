@@ -6,6 +6,49 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
 <script type="text/javascript">
 $(function(){
+	$("#cartBtn").click(function(){
+		//장바구니에 담으려면 누구의 것인지 알기 위해서는 먼저 로그인이되어 있어야 하므로 로그인이 안되어 있다면 로그인화면이 뜨게 합니다.
+		if([[${session.auth == null}]]){ // auth라는 로그인인증 seesion이 없다면
+			window.open("/login/item.login","login","width=315, height=200,top = 100, left=100");
+		}else{
+			// ajax를 사용해서 비동기식으로 전달하겠습니다.
+			$.ajax({
+				type:"get",
+				url:"../cartAdd", // 이제 cartAdd주소로 제품번호와 수량을 전달하도록합니다. 
+				dataType:"text",
+				// 데이터를 전달하기 위해서는 상품번호와 갯수가 있어야 합니다
+				data:{"goodsNum" : "[[${dto.goodsDTO.goodsNum}]]","qty":$("#qty").val()},
+				success:function(result){
+					if(result.trim() == "200"){
+						//return값이 200이면 정상적으로 저장된것이므로 장바구니로 갈지 계속 쇼핑할지 물어봅니다.
+						if(confirm("계속 쇼핑하려면 '취소'를 클릭하세요.")){
+							// 확인을 누르면 장바구니 페이지로 이동합니다.
+							location.href="../cartList"; // 장바구니로 이동하겠습니다.
+						}else if(result.trim() == "999"){
+							alert("관리자는 사용할 수 없는 페이지입니다.");
+						}else if(result.trim() == "000"){
+							alert("로그인을 해야합니다.");
+						}
+					}
+				},
+				error:function(){
+					alert("관리자는 사용할 수 없는 페이지입니다.");
+				}
+			});
+		}
+	});
+	
+	$("#qty").click(function(){
+		// model로 전달된 dto에 있는 goodsPrice값을 받아올 수 있다
+		const money = [[${dto.goodsDTO.goodsPrice}]] * $("#qty").val();
+		//₩xxx,xxx,xxx원 형식으로 값을 전달해야 한다. 형식을 적용시킬 변수를 만들어 준다
+		const moneyFormatter = new Intl.NumberFormat('ko-KR',{style:'currency',currency:'KRW'});
+		// money를 moneyFormatter형식에 적용시켜준다.
+		const formattedMoney = moneyFormatter.format(money);
+		// 합계금액을 총 상품금액에 적용시킨다.
+		$("#tot").text(formattedMoney + '원');
+	});
+	
 	$("#wish").click(function(){
 		//먼저 로그인 한 사람만 관심상품을 등록 할 수 있게 하겠습니다.
 		if([[${session.auth == null}]]){ // auth라는 로그인인증 seesion이 없다면
@@ -30,7 +73,7 @@ $(function(){
 					}
 				},
 				error:function(){
-					alert("서버오류!!!!");
+					alert("관리자는 사용할 수 없습니다.");
 				}
 			});
 		}
@@ -52,21 +95,24 @@ $(function(){
 	<tr><td>배송비 <span th:if="${dto.goodsDTO.deliveryCost == 0}">무료배송</span>
 				 <span th:if="${dto.goodsDTO.deliveryCost != 0}">
 				 		[[${#numbers.formatCurrency(dto.goodsDTO.deliveryCost) + '원'}]]</span></td></tr>
+				 <!-- 먼저 수량을 변경할 때마다 상품금액이 변하도록 해야할 것입니다. -->
 	<tr><td>수량 : <input type="number" min=1 step="1" value="1" id="qty" name="qty" /></td></tr>
-	<tr><td>총 상품금액 : [[${#numbers.formatCurrency(dto.goodsDTO.goodsPrice) + '원'}]]<span id="tot"></td></tr>
+	<tr><td>총 상품금액 : <span id="tot">[[${#numbers.formatCurrency(dto.goodsDTO.goodsPrice) + '원'}]]</span></td></tr>
 	<tr><td>
 			<!--  재고가 있을 때만 버튼이 보이게  -->
-			<button type="button" id="cartBtn" th:if="${dto.stock > 0 }">  장바구니 </button> |
-			<button type="button" id="buyItem" th:if="${dto.stock > 0 }"> 바로구매  </button> |
+								            <!-- 이번 시간에는 장바구니 관련해서 보도록 하겠습니다. -->
+								            <!-- cartBtn버튼을 클릭하면 장바구니에 담기도록하셌습니다. -->
+			<button type="button" id="cartBtn" th:if="${dto.stock > 0 }">  장바구니 </button> &nbsp;&nbsp; 
+			<button type="button" id="buyItem" th:if="${dto.stock > 0 }"> 바로구매  </button> &nbsp;&nbsp;
 			<span th:if="${dto.stock <= 0 }" >입고될 때까지 잠시만 기다려 주세요  | </span>  
-			찜 <!-- 하트이미지를 추가하겠습니다. 이미지를 클릭하면 관심상품 등록이 될 수 있게 합니다.-->
+			<!-- 하트이미지를 추가하겠습니다. 이미지를 클릭하면 관심상품 등록이 될 수 있게 합니다.-->
 			<th:block th:if="${wish == null}">
 				<img src="/static/images/hart1.jpg" id="wish" width="20" />
 			</th:block>
 			<!-- wish 가 있으면 관심상품 -->
 			<th:block th:if="${wish != null}">
 				<img src="/static/images/hart.jpg" id="wish" width="20" />
-			</th:block>
+			</th:block> 찜 
 			<!-- 이번 시간에는 관심상품을 하겠습니다. -->
 		</td>
 	</tr>
