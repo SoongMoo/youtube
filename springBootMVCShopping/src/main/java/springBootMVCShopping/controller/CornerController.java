@@ -1,6 +1,7 @@
 package springBootMVCShopping.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -53,6 +54,34 @@ public class CornerController {
 	GoodsCartDelService goodsCartDelService;
 	@Autowired
 	CartQtyDownService cartQtyDownService;
+	
+	@GetMapping("buyItem")
+	public String buyItem( // 바로구매할 상품을 장바구니에 넣고 결제정보 페이지로 이동하면 바로구매가 된다.
+			@RequestParam(value="goodsNum") String goodsNum,
+			@RequestParam(value="qty") Integer qty,
+			HttpSession session,HttpServletResponse response) {
+		// 먼저 장바구니에 넣는다. 
+		String result = cartInsertService.execute(goodsNum, qty, session);
+		if(result == "999") {
+			response.setContentType("text/html; charset=utf-8");
+			PrintWriter out;
+			try {
+				out = response.getWriter();
+				String str = "<script>"
+						+ "alert('관리자는 구매할 수 없습니다.');"
+						+ "location.href='/corner/detailView/"+goodsNum+"';" //장바구니에 안들어 갔으면 상품페이지
+						+ "</script>";
+				out.print(str);
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}else if(result == "000") {
+			return "redirect:/"; //아니면 홈으로 
+		}
+		//정산적으로 처리 되었다면 결제정보 입력페이지로 이동하면 됩니다
+		return "redirect:/purchase/goodsBuy?prodCk="+goodsNum;
+	}
 	
 	@GetMapping("cartQtyDown")
 	public void cartQtyDown(

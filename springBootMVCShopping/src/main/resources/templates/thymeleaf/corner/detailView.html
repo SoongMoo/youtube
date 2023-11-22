@@ -6,6 +6,10 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
 <script type="text/javascript">
 $(function(){
+	$("#buyItem").click(function(){
+		location.href="../buyItem?goodsNum=[[${dto.goodsDTO.goodsNum}]]&qty="+$("#qty").val();
+	});
+	
 	$("#cartBtn").click(function(){
 		//장바구니에 담으려면 누구의 것인지 알기 위해서는 먼저 로그인이되어 있어야 하므로 로그인이 안되어 있다면 로그인화면이 뜨게 합니다.
 		if([[${session.auth == null}]]){ // auth라는 로그인인증 seesion이 없다면

@@ -20,12 +20,14 @@
 		<!-- 이번에는 파일upload를 할 수 있는 상품괸리를 하겠습니다. -->
 		<!-- 파일upload를 하기전에 먼저 지금까지 했던 것 처럼 CRUD를 먼저 진행한 후에 파일upload를 하겠습니다. -->
 		<li><a href="goods/goodsList">상품리스트</a></li><!-- 직원관리 회원관리 회원가입등과 코드는 일치합니다. -->
+		<li><a href="/purchase/purchaseList">주문 내역</a></li><!-- 고객이 주문한 내역 확인 -->
 	</th:block>
 	<!-- 저번 시간에 비밀번호 찾기에서 이메일로 임시비밀번호를 전달 했으므로 내정보 수정에서 내 비밀번호 변경을 해야할 것이다. -->
 	<th:block th:if="${session.auth.grade == 'mem'}"  >
 		<li><a href="/mypage/myDetail">내정보 보기</a></li><!-- 회원내정보 보기 -->
 		<li><a href="/corner/wishList">관심 목록</a></li> <!-- 관심상품 목록 보기 -->
 		<li><a href="/corner/cartList" >장바구니</a></li> <!-- 장바구니로 가기 -->
+		<li><a href="/purchase/orderList" >주문목록</a></li><!-- 주문한 내역을 확인 하기 -->
 	</th:block>
 	<!-- 로그아웃하기 -->
 	<li><a href="login/logout">로그아웃</a></li>

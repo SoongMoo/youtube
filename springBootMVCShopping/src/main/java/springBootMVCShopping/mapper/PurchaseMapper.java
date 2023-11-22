@@ -1,8 +1,11 @@
 package springBootMVCShopping.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import springBootMVCShopping.domain.OrderListDTO;
 import springBootMVCShopping.domain.PaymentDTO;
 import springBootMVCShopping.domain.PurchaseDTO;
 import springBootMVCShopping.domain.PurchaseListDTO;
@@ -19,4 +22,7 @@ public interface PurchaseMapper {
 	public int paymentInsert(PaymentDTO dto);
 	public int purchaseStatusUpdate(@Param("status") String status,
 			@Param("purchaseNum") String purchaseNum);
+	public List<OrderListDTO> orderList(@Param("memberNum")String memberNum,
+			@Param("purchaseNum")String purchaseNum);
+	public int paymentDelete(String purchaseNum);
 }

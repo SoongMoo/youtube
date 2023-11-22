@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import springBootMVCShopping.domain.CartDTO;
 import springBootMVCShopping.domain.CartGoodsDTO;
 import springBootMVCShopping.domain.GoodsDTO;
-
+// mapper는 interface입니다.
 @Mapper
 public interface CartMapper {
 	public List<GoodsDTO> goodsSelectAll();
