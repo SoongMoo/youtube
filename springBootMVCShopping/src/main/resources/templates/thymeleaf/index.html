@@ -50,7 +50,8 @@
 	<table border="1" align="center">
 		<tr><td colspan="2">
 				자동로그인<input type="checkbox" name="autoLogin" />
-				아이디저장<input type="checkbox" name="idStore" />
+				아이디저장<input type="checkbox" name="idStore" 
+					th:checked="${loginCommand.idStore != null && loginCommand.idStore}"/>
 			</td></tr>
 		<tr><td><input type="text" name="userId" placeholder="아이디" th:value="${loginCommand.userId}"/><br />
 				<span th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}" ></span></td>

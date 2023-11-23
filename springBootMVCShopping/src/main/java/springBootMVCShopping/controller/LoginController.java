@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import springBootMVCShopping.command.LoginCommand;
@@ -40,8 +41,9 @@ public class LoginController {
 	}
 	@PostMapping("login")
 	// 아이디와 비밀번호를 command로 받아온다.
-	public String login(@Validated LoginCommand loginCommand, BindingResult result, HttpSession session) {
-		userLoginService.execute(loginCommand, session, result);
+	public String login(@Validated LoginCommand loginCommand, BindingResult result, HttpSession session
+			, HttpServletResponse response) {
+		userLoginService.execute(loginCommand, session, result, response);
 		// 오류가 있으면 index.html페이지 열리게 만들자.
 		if(result.hasErrors()) {
 			return "thymeleaf/index";
@@ -49,9 +51,15 @@ public class LoginController {
 		return "redirect:/";
 	}
 	@GetMapping("logout")
-	public String logout(HttpSession session) {
+	public String logout(HttpSession session, HttpServletResponse response) {
+		//로그아웃에서 해당 쿠키만 삭제합니다.
+		Cookie cookie = new Cookie("autoLogin", "");
+		cookie.setPath("/");
+		cookie.setMaxAge(0); // 해당쿠키 이름에 수명을 0으로 줘서 다시 사용자에게 보냅니다.
+		response.addCookie(cookie);	
 		session.invalidate(); // 로그아웃시 모든 session삭제
 		return "redirect:/"; // 그리고 첫 페이지로
+		// 자동로그인은 로그아웃 하기 전 까지는 계속 로그인이 됩니다./
 	}
 	
 	@RequestMapping(value="item.login",method= RequestMethod.GET)
@@ -62,7 +70,7 @@ public class LoginController {
 	public String item(@Validated LoginCommand loginCommand,BindingResult result  , //유효성검사를 합니다.
 			HttpSession session, HttpServletResponse response) {
 		//이전에 사용했던 로그인service를 사용합니다.
-		userLoginService.execute(loginCommand, session, result);
+		userLoginService.execute(loginCommand, session, result, response);
 		if(result.hasErrors()) { 
 			// 입력하지 않은 값이 있으면 다시 페이지를 로딩
 			return "thymeleaf/login";
