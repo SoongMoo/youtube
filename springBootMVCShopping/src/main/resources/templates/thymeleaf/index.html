@@ -21,6 +21,7 @@
 		<!-- 파일upload를 하기전에 먼저 지금까지 했던 것 처럼 CRUD를 먼저 진행한 후에 파일upload를 하겠습니다. -->
 		<li><a href="goods/goodsList">상품리스트</a></li><!-- 직원관리 회원관리 회원가입등과 코드는 일치합니다. -->
 		<li><a href="/purchase/purchaseList">주문 내역</a></li><!-- 고객이 주문한 내역 확인 -->
+		<li><a href="/inquire/goodsQuestion">상품 문의</a></li>
 	</th:block>
 	<!-- 저번 시간에 비밀번호 찾기에서 이메일로 임시비밀번호를 전달 했으므로 내정보 수정에서 내 비밀번호 변경을 해야할 것이다. -->
 	<th:block th:if="${session.auth.grade == 'mem'}"  >

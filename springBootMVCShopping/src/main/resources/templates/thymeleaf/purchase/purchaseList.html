@@ -39,10 +39,10 @@ function detail(purchaseNum){
 			/[[${orderListDTO.purchaseDTO.purchaseNum}]]</td> 
 		<td>
 			<a th:href="|javascript:detail('${orderListDTO.purchaseDTO.purchaseNum}')|">주문상세보기</a>
-			<span th:if="${orderListDTO.purchaseDTO.purchaseStatus == '입급대기중'}">
+			<span th:if="${orderListDTO.purchaseDTO.purchaseStatus == '입금대기중'}">
 				결제대기중
 			</span>
-			<span th:if="${orderListDTO.purchaseDTO.purchaseStatus != '입급대기중'}">
+			<span th:if="${orderListDTO.purchaseDTO.purchaseStatus != '입금대기중'}">
 				<!-- 결제 완료가 된 것은 성품준비중으로 변경. 배송종보가 null이어야 한다는 조건을 추거-->
 				<span th:if="${orderListDTO.deliveryDTO.deliveryState == null}">
 				<a th:href="@{purchaseStatus(

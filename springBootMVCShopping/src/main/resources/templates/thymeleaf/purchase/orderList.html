@@ -35,8 +35,49 @@
 			</th:block>
 		/ [[${orderListDTO.purchaseDTO.purchaseNum}]]</td>	
 		<td>
+		<!-- 상품준비중인 경우 결제취소는 안보이고 상품준비중으로 표시되게 한다. -->
 			<th:block th:if="${orderListDTO.paymentDTO.appltime != null}">
-			<a th:href="|paymentDel?purchaseNum=${orderListDTO.purchaseDTO.purchaseNum}|">결제취소</a> 
+				<th:block th:if="${orderListDTO.deliveryDTO.deliveryNumber == null}">
+				<!-- 두개가 같은 조건이어야 하므로 하나로 묶었습니다. -->
+					<span th:if="${orderListDTO.purchaseDTO.purchaseStatus =='결제완료'}">
+					<!-- 배송정보가 있으면 결제 취소가 되서는 안되네요.. -->
+						<a th:href="|paymentDel?purchaseNum=${orderListDTO.purchaseDTO.purchaseNum}|">결제취소</a> 
+					</span>
+					<!-- 배송정보가 입력이 되었다면 상품준비중이 뜨면 안되겠지요.. -->
+					<span th:if="${orderListDTO.purchaseDTO.purchaseStatus =='상품준비중' }">
+						상품준비중
+					</span>
+				</th:block >
+				<!-- 구매확정을 하였으니 구매확정이 아닐 때만 표시를 하고 구매 확정인 경우에 표시되지 않게 합니다. -->
+				<th:block th:if="${orderListDTO.purchaseDTO.purchaseStatus !='구매확정' }">
+				<!-- 배송정보가 있는 경우에는 배송중이나 배송완료가 출력되게 변경합니다. -->
+				<span th:if="${orderListDTO.deliveryDTO.deliveryNumber != null }">[[${orderListDTO.deliveryDTO.deliveryState}]]</span>
+				<!-- 이제 주문상태에 따라 상태정보가 다 출력되게 하였습니다. -->
+				<!-- 이제 배송완료가 되면 구매확정을 하도록합니다. -->
+				<span th:if="${orderListDTO.deliveryDTO.deliveryState == '배송완료'}">
+					<a th:href="@{/purchase/purchaseOk(purchaseNum=${orderListDTO.purchaseDTO.purchaseNum})}">주문확정</a>
+				</span>
+				</th:block>
+				<!-- 구매확정이면 구매확정이라고 출력되고 후기를 작성하도록합니다. -->
+				<th:block th:if="${orderListDTO.purchaseDTO.purchaseStatus =='구매확정' }">
+				<!-- 후기를 쓰려면 후기가 있는지 알아야 하므로 후기를 가지고와야합니다. -->
+				구매확정 | 
+				<!-- 후기는 주문번호 하나에 여러개의 상품이고 각 상품별로 후기를 달아야 하므로 collection으로 받아왔습니다. -->
+				<th:block th:each="dto : ${orderListDTO.purchaseListGoodsDTOs}">
+					<!-- 후기는 구매확정이고 후기가 없어야 합니다. -->
+					<a th:if="${dto.review == null}" th:href="@{/review/goodsReview(goodsNum=${dto.goods.goodsNum}
+				   								,purchaseNum=${orderListDTO.purchaseDTO.purchaseNum})}">후기쓰기</a>
+					<!-- 이제 후기를 등록했으니 수정 또는 삭제를 해야지요. -->
+					<th:block th:if="${dto.review != null}">
+						<a th:href="@{/review/goodsReviewUpdate(reviewNum=${dto.review.reviewNum},
+															goodsNum=${dto.goods.goodsNum})}">후기 수정</a> | 
+						<a th:href="@{/review/goodsReviewDelete(reviewNum=${dto.review.reviewNum},
+															goodsNum=${dto.goods.goodsNum})}">후기 삭제</a>
+					</th:block>
+				</th:block>
+				
+				</th:block>
+				
 			</th:block>
 			<th:block th:if="${orderListDTO.paymentDTO.appltime == null}">
 				<!-- 이미 만들어져 있어서 경로만 잡아주면 됩니다. -->

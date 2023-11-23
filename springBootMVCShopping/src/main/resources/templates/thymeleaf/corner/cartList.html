@@ -138,6 +138,7 @@ function checkQty(goodsNum){
 	<!-- 선택한 상품을 삭제할 수 있는 버튼을 만들어 주겠습니다. -->
 	<td><input type="button"  value="선택 상품 삭제" onclick="del1();"/></td>
 </tr>
+[[${list.size}]]
 <tr th:each=" dto: ${list}">
 	<td><input type="checkbox" name="prodCk" checked="checked"
 										 th:value="${dto.goodsDTO.goodsNum}"/></td>

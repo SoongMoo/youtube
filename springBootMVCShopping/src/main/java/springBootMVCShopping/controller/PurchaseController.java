@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import springBootMVCShopping.command.PurchaseCommand;
+import springBootMVCShopping.mapper.PurchaseMapper;
 import springBootMVCShopping.service.IniPayReqService;
 import springBootMVCShopping.service.purchase.GoodsBuyService;
 import springBootMVCShopping.service.purchase.GoodsOrderService;
@@ -34,6 +35,17 @@ public class PurchaseController {
 	OrderProcessListService orderProcessListService;
 	@Autowired
 	PaymentDeleteService paymentDeleteService;
+	
+	//이번에는 service를 만들지 않고 바로 interfase를 가져오겠습니다.
+	@Autowired
+	PurchaseMapper purchaseMapper ;
+	@RequestMapping("purchaseOk")
+	public String purchaseOk(
+			@RequestParam(value="purchaseNum")String purchaseNum) {
+		purchaseMapper.purchaseOk(purchaseNum);
+		return "redirect:orderList";
+	}
+	
 	@RequestMapping("paymentDel")
 	public String paymentDel(
 			@RequestParam("purchaseNum") String purchaseNum) {

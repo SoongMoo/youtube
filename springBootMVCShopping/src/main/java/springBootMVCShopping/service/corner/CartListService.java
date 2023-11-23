@@ -29,5 +29,6 @@ public class CartListService {
 		Integer sumPrice = cartMapper.sumPrice(memDto.getMemberNum());
 		model.addAttribute("list", list);
 		model.addAttribute("sumPrice", sumPrice);
+		System.out.println("list.size() : " + list.size());
 	}
 }

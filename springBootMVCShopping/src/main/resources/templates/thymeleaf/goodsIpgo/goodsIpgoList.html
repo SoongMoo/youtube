@@ -14,7 +14,7 @@ $(function(){
 		success:function(result){ // ModelAndView를 이용해서 가져오겠습니다.
 			var item = "";
 				item +='<table width=600 border=1>';
-				item +='	<tr><th>번호</th><th>상품 번호</th><th>수량</th><th>입고일</th><th>가격</th></tr>';
+				item +='	<tr><th>번호</th><th>입고 번호</th><th>상품 번호</th><th>수량</th><th>입고일</th><th>가격</th></tr>';
 				// ModelAndView로 가져온 데이터를 result로 받아 출력합니다. 
 				
 				$.each( result.list, function(idx , dto){
@@ -29,6 +29,7 @@ $(function(){
 					item +='		<th>' + eval(idx + 1) +'</th>';
 					// 입고번호 누루면 상세보기 페이지로 가도록하겠습니다. 실행 함수를 정의해야 합니다.
 					// 함수를 실행시키는 코드를 작성합니다.
+					item +='        <th>' + dto.ipgoNum +' </th>';
 					item +='        <th><a href="javascript:goodsIpgoDetail(\''+dto.ipgoNum +'\',\''+ dto.goodsNum+'\')">' + dto.goodsNum + '</a></th>';
 					item +='        <th>' + dto.ipgoQty +' </th>';
 					// 이제 날짜를 위 변수로 변경합니다.

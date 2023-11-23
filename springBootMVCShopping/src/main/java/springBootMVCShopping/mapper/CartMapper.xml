@@ -42,6 +42,7 @@ values(#{memberNum},#{goodsNum},now(),#{cartQty})
 	  		,goods_regist , goods_main_store ,goods_main_store_img , goods_images 
 	  		,goods_images_img , visit_count ,update_Emp_Num , goods_Update_Date
 	from goods 
+	order by goods_Num desc
 </select>
 
 <resultMap type="cartGoods" id="CartListResultMap">
@@ -49,6 +50,8 @@ values(#{memberNum},#{goodsNum},now(),#{cartQty})
 	<association property="goodsDTO" javaType="goods" resultMap="goodsResultMap" /><!-- goodsDTO는  map이 있으므로 map사용 -->
 	<association property="cartDTO" javaType="cart"><!-- cart에 대한 타입을 정의 해줘야 합니다. -->
 		<!-- cart는 map이 없으므로 직접 적어준다. -->
+		<id column="goods_Num" jdbcType="VARCHAR" property="goodsNum"/>
+		<id column="member_Num" jdbcType="VARCHAR" property="memberNum"/>
 		<result column="CART_QTY" jdbcType="BIGINT" property="cartQty"/>
 		<result column="CART_DATE" jdbcType="DATE" property="cartDate"/>
 		<result column="MEMBER_NUM" jdbcType="VARCHAR" property="memberNum"/>

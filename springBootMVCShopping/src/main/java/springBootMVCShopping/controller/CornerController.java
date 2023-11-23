@@ -29,6 +29,7 @@ import springBootMVCShopping.service.corner.GoodsWishListService;
 import springBootMVCShopping.service.corner.GoodsWishService;
 import springBootMVCShopping.service.corner.WishDelService;
 import springBootMVCShopping.service.corner.WishGoodsDelsService;
+import springBootMVCShopping.service.goods.GoodsDetailService;
 import springBootMVCShopping.service.goods.GoodsDetailViewService;
 
 @Controller
@@ -54,6 +55,16 @@ public class CornerController {
 	GoodsCartDelService goodsCartDelService;
 	@Autowired
 	CartQtyDownService cartQtyDownService;
+	@Autowired
+	GoodsDetailService goodsDetailService;
+	
+	@RequestMapping("goodsDescript")
+	public String goodsDescript(
+			@RequestParam(value="goodsNum") String goodsNum,
+			Model model) {
+		goodsDetailService.execute(goodsNum, model);
+		return "thymeleaf/corner/goodsDescript";
+	}
 	
 	@GetMapping("buyItem")
 	public String buyItem( // 바로구매할 상품을 장바구니에 넣고 결제정보 페이지로 이동하면 바로구매가 된다.

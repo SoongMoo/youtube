@@ -24,6 +24,7 @@ IPGO_NUM , GOODS_NUM , IPGO_QTY , IPGO_DATE , MADE_DATE , ipgo_PRICE , EMP_NUM
 <select id="goodsIpgoAllSelect" resultMap="goodsIpgoResultMap"><!-- 여기서도 resultMap에서 생성자를 사용하겠습니다. -->
 	select <include refid="baseColumns"/>
 	from goodsipgo
+	order by IPGO_NUM desc , GOODS_NUM
 </select>
 <select id="selectIpgoGoods" resultMap="goodsIpgoResultMap">
 	select <include refid="baseColumns"/>

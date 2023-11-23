@@ -72,7 +72,7 @@ $(function(){
 	<tr><td>택배사</td><td>[[${dto.deliveryDTO.deliveryCompany}]]</td></tr>
 	<tr><td>송장번호</td><td>[[${dto.deliveryDTO.deliveryNumber}]]</td></tr>
 	<!-- 구매 확정이 되면 삭제 할 수 없게 합니다. -->
-	<th:block th:if="${dto.purchaseDTO.purchaseStatus != '구매확정'} ">
+	<th:block th:if="${dto.purchaseDTO.purchaseStatus != '구매확정' and dto.deliveryDTO.deliveryState != '배송완료'} ">
 	<tr><td colspan="2"><input type="submit" value="배송정보삭제" /></td></tr>
 	</th:block>
 </table>

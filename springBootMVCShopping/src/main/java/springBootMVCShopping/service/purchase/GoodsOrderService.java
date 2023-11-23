@@ -42,7 +42,7 @@ public class GoodsOrderService {
 		dto.setMemberNum(memDto.getMemberNum());
 		dto.setMessage(purchaseCommand.getMessage());
 		dto.setPurchasePrice(purchaseCommand.getSumPrice());
-		dto.setPurchaseStatus("입급대기중");
+		dto.setPurchaseStatus("입금대기중");
 		// 구매정보를 데이블에 저장합니다.
 		purchaseMapper.purchaseInsert(dto);
 		// 이제 구매한 상품정보들을 입력할 차례입니다.
