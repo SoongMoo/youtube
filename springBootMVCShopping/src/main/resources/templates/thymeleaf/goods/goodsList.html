@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	$("#checkBoxs").click(function(){
+		if($("#checkBoxs").prop("checked")){
+			$("input:checkbox[name=memDels]").prop("checked",true);
+		}else{
+			$("input:checkbox[name=memDels]").prop("checked",false);
+		}
+	});
+	//name=memDels가 적어도 하나가 해지가 되면 checkBoxs도 해지가 되도록 합니다.
+	$("input:checkbox[name=memDels]").click(function(){
+		//먼저 name=memDels의 체크박스의 크기를 가지고 옵니다.
+		var tot = $("input:checkbox[name=memDels]").length;
+		//체크된 체크박스의 개수를 가지고 옵니다.
+		var checked = $("input:checkbox[name=memDels]:checked").length;
+		//두개의 개수가 같으면 checkBoxs에 체므 하니면 해지 시킵니다.
+		if(tot == checked){
+			$("#checkBoxs").prop("checked",true);
+		}else{
+			$("#checkBoxs").prop("checked",false);
+		}
+	});
+	// 선택삭제 버튼을 클릭하면 체크박스에 선택된 항목들은 모두 삭제합니다.
+	// 먼저 한개 이상을 선택해야 하는 조건을 주도록하겠습니다.
+	$("#frm").submit(function(){
+		if($("input:checkbox[name=memDels]:checked").length < 1){
+			alert("하나이상 선택하세요.");
+			return false;
+		}
+	});
+});
+</script>
+</head>
+<body>
+<!-- 다음시간에는 상세보기부터 수정 삭제를 한 후 그 다음시간에 파일 upload하겠습니다. -->
+<ul><!-- 단순히 CRUD 만을하는 것이 아니라 single page를 하는 방법도 같이 해보겠습니다. -->
+	<li><a href="goodsForm">상품 추가</a></li>
+	<li><a href="goodsIpgo">상품 입고</a></li><!-- 이번시간에는 상품 입고에 대해서 보겠습니다. -->
+	<li><a href="goodsIpgoList">상품 입고 현황</a></li>
+</ul>
+<!-- 검색과 페이징을 이전에 만든 것을 이용해서 추가합니다. -->
+
+<!-- 먼저 checkbox선택하는 것부터 하겠습니다. -->
+<!-- checkbox인 checkBoxs를 선택하면 checkbox가 모두 선택이 되도록한다. -->
+<!-- checkBoxs를 클릭하면 아래에 있는  name="memDels"인 checkbox가 모두선택이 되도록 합니다. -->
+<table border=1 width="600" align="center">
+<form  action="goodsList" method="get" > 
+	<tr><td colspan="6">검색 : 
+		<input type="search" name="searchWord" size="60" th:value="${searchWord}"/>
+		<input type="submit" value="검색" />
+		</td></tr>
+</form>
+<form action="productsDelete" method="post" id="frm"> <!-- submit을 하면 삭제가 되는 쿠드를 작성합니다. -->
+	<tr><td>번호</td><td>상품번호</td><td>상품명</td>
+		    <td>상품가격</td><td>등록일</td>
+		<td><input type="checkbox" id="checkBoxs"/>
+			<input type="submit" value="선택 삭제" /> 
+		</td>
+	</tr>
+	<tr th:each="dto, cnt : ${dtos}">
+		<td>[[${cnt.count }]]</td> <!-- href에 "| |"와 @{}가 같은 의미 입니다.  -->
+		<td><a th:href="|goodsDetail?goodsNum=${dto.goodsNum}|">[[${dto.goodsNum}]]</a></td> <!-- 상세보기 및 수정 삭제를 하겠습니다. -->
+		<td><a th:href="@{goodsDetail(goodsNum=${dto.goodsNum})}">[[${dto.goodsName}]]</a></td>
+		<td>[[${dto.goodsPrice}]]</td>
+		<td>[[${#dates.format(dto.goodsRegist,'yyyy-MM-dd')}]]</td>
+		<td><input type="checkbox" name="memDels" th:value="${dto.goodsNum}" /></td>
+	</tr>
+</form>
+	<tr align="center"><td colspan="6">
+		<th:block th:if="${page <= 1}">
+		[이전]
+		</th:block>
+		<th:block th:if="${page > 1}">
+		<a th:href="@{goodsList(page=${page - 1},
+						searchWord=${searchWord})}">[이전]</a>
+		</th:block>
+		
+		<th:block th:each=" i : ${#numbers.sequence(startPage, endPage)}">
+		<a th:href="@{goodsList(page=${i},searchWord=${searchWord})}">[[${i}]]</a> 
+		</th:block>
+		<th:block th:if="${page >= maxPage}">
+		[다음]
+		</th:block>
+		<th:block th:if="${page < maxPage}">
+		<a th:href="@{goodsList(page=${page + 1},
+						searchWord=${searchWord})}">[다음]</a>
+		</th:block>
+	</td></tr>
+</table>
+</body>
+</html>

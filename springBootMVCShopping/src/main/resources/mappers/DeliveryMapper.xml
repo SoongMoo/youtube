@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 	
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DeliveryRepositorySql"><!-- namespace를 패키지명.interface명으로 했는데 여기서는 고유의 이름을 부여하면 된다. -->
+<insert id="deliveryInsert" parameterType="delivery">
+	insert into delivery(PURCHASE_NUM, DELIVERY_NUM, delivery_date, delivery_state
+						,delivery_Company )
+	values(#{purchaseNum},#{deliveryNumber}, now(), '배송중', #{deliveryCompany})
+</insert>
+<delete id="deliveryDelete" parameterType="string">
+	delete from delivery
+	where purchase_num = #{purchaseNum}
+</delete>
+<update id="deliveryStateUpdate" parameterType="string">
+	update delivery
+	set delivery_state = '배송완료'
+	where purchase_num = #{purchaseNum}
+</update>
+</mapper>	

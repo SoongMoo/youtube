@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- ajax를 이용해서 값을 넘겨주도록합니다. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.js"></script>
+<script type="text/javascript">
+//ajax를 이용해서 파일을 전송하겠습니다. ajaxSubmit에서 ajax로 바꾸겠습니다.
+$(function(){
+	$("#btn").click(function(){
+		var formData = new FormData($("#frm")[0]); //form태그안에 있는 input에 있는 값을 받아올 수 있게 설정했습니다.
+		$.ajax({ // 파일을 전송하기 위한 옵션을 추가합니다. //  ajaxSubmit이 아니므오 form태그 id는 필요하지 않습니다.
+			url:"goodsWrite",
+			type:"post",
+			data:formData, 
+			// 파일을 전송하기 위한 설정 입니다.
+			enctype:"multipart/form-data",
+			contentType : false,
+			processData : false,
+			//
+			success:function(result){
+				if(result.trim() == 200){ // 정상으로 처리 되었다면 200이면
+					location.href="goodsList";
+				}else{ // 오류가 있으면 goodsForm.html을 goodsWrite.html의 writeForm에 출력
+					$("#writeForm").html(result);
+				}
+			},
+			error:function(){
+				alert("로그인을 다시 시도해 주세요.")
+				location.href="/";
+			}
+		});
+	});
+});
+</script>
+</head>
+<body>
+<!-- 파일을 전송하려면 enctype="multipart/form-data"로 지정해 주어야 합니다. -->
+<form action="goodsWrite" method="post" id = "frm" th:object="${goodsCommand}" enctype="multipart/form-data">
+	<table border = "1" width ="600" align="center">
+		<tr><th width="100">상품번호</th>
+			<td><input type="text" name="goodsNum" th:value="${goodsCommand.goodsNum}" readonly="readonly"/>자동부여</td></tr>
+		<tr><th>상품명</th>
+			<td><input type="text" name="goodsName"  th:value="${goodsCommand.goodsName}" /><br />
+		<span style="color:red" th:if="${#fields.hasErrors('goodsName')}" th:errors="*{goodsName}"></span></td></tr>
+		<tr><th>상품가격</th>
+			<td><input type="number" name="goodsPrice" min="0" th:field="*{goodsPrice}" /><br />
+		<span style="color:red" th:if="${#fields.hasErrors('goodsPrice')}" th:errors="*{goodsPrice}"></span></td></tr>
+		<tr><th>배송비</th>
+			<td><input type="number" name="deliveryCost" min="0" max="5000" step="50" th:field="*{deliveryCost}"  /><br />
+		<span style="color:red" th:if="${#fields.hasErrors('deliveryCost')}" th:errors="*{deliveryCost}"></td></tr>
+		<tr><th>상품설명</th>
+			<td><textarea rows="10" cols="50" name="goodsContent" >[[${goodsCommand.goodsContent}]]</textarea><br />
+		<span style="color:red" th:if="${#fields.hasErrors('goodsContent')}" th:errors="*{goodsContent}"></span></td></tr>
+		<!-- 이번 시간은 먼저 시간에 이어 상품을 정보만 입력을 했는데 상품설명 이미지도 넣을 수 있게 하겠다. -->
+		<tr><th>대문이미지</th>
+		<td><input type="file" name="goodsMainStore" /><br /><!-- 오류메시지를 받습니다. -->
+		<span style="color:red" th:if="${#fields.hasErrors('goodsMainStore')}" 
+										th:errors="*{goodsMainStore}"></span></td>
+		</tr>
+		<tr><th>이미지</th><!-- multiple은 파일 선택시 ctrl키를 눌러 여러개를 선택할 수 있게 해줍니다. -->
+		<td><input type="file" name="goodsImages" multiple="multiple"/></td>
+		</tr>
+		<tr><th colspan="2"><input type="button" id="btn" value="상품 등록" /></th></tr>
+	</table>
+</form>
+</body>
+</html>

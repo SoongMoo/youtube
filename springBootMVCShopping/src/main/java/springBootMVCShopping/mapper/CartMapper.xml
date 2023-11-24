@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 	
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springBootMVCShopping.mapper.CartMapper">
+
+<!-- 장바구니에 있으면 update를 하고 없으면 insert를 할 수 있게 merge를 사용하겠습니다. -->
+<insert id="cartInsert" parameterType="cart"  >
+merge into cart c
+using (select goods_Num from goods where goods_num = #{goodsNum}) g
+on (c.goods_num = g.goods_num and c.member_num = #{memberNum})
+WHEN MATCHED THEN
+update set
+cart_qty = cart_qty + #{cartQty}
+WHEN not MATCHED THEN
+insert (MEMBER_NUM, GOODS_NUM, CART_DATE, CART_QTY)
+values(#{memberNum},#{goodsNum},now(),#{cartQty})
+</insert>
+<!-- 이전에는 생성자를 이용한 map을 했다면 이번에는 setter를 이용한 map을 해보겠습니다. -->
+<resultMap type="goods" id="goodsResultMap">
+<!-- id는 primary key컬럼을 result는 일반 컬럼을 적어줍니다. -->
+<!-- column은 테이블의 컬럼명을, jdbcType은 컬럼의 type을, property는 컬럼에 해당하는 멤버필드를 적어줍니다. -->
+	<id column="goods_Num" jdbcType="VARCHAR" property="goodsNum"/>
+	<result column="goods_name" jdbcType="VARCHAR" property="goodsName"/>
+	<!-- 컬럼타입이 integer나  number와 같은 경우 BIGINT를 적어줍니다. -->
+	<result column="goods_price" jdbcType="BIGINT" property="goodsPrice"/>
+	<result column="goods_content" jdbcType="VARCHAR" property="goodsContent"/>
+	<result column="delivery_cost" jdbcType="BIGINT" property="deliveryCost"/>
+	<result column="emp_num" jdbcType="VARCHAR" property="empNum"/>
+	<!-- 컬럼타입이 date인경우 DATE를 적어주며 timestamp인 경우 TIMESTAMP를 적어줍니다. -->
+	<result column="goods_regist" jdbcType="DATE" property="goodsRegist"/>
+	<result column="goods_main_store" jdbcType="VARCHAR" property="goodsMainStore"/>
+	<result column="goods_main_store_img" jdbcType="VARCHAR" property="goodsMainStoreImg"/>
+	<result column="goods_images" jdbcType="VARCHAR" property="goodsImages"/>
+	<result column="goods_images_img" jdbcType="VARCHAR" property="goodsImagesImg"/>
+	<result column="visit_count" jdbcType="BIGINT" property="visitCount"/>
+	<result column="update_Emp_Num" jdbcType="VARCHAR" property="updateEmpNum"/>
+	<result column="goods_Update_Date" jdbcType="DATE" property="goodsUpdateDate"/>
+</resultMap>
+<select id="goodsSelectAll" resultMap="goodsResultMap">
+	select goods_Num , goods_name , goods_price ,goods_content , delivery_cost , emp_num  
+	  		,goods_regist , goods_main_store ,goods_main_store_img , goods_images 
+	  		,goods_images_img , visit_count ,update_Emp_Num , goods_Update_Date
+	from goods 
+	order by goods_Num desc
+</select>
+
+<resultMap type="cartGoods" id="CartListResultMap">
+	<result column="total_price" jdbcType="BIGINT"  property="totalPrice"/> <!-- 일반 속성부터 적어줘야 한다. -->
+	<association property="goodsDTO" javaType="goods" resultMap="goodsResultMap" /><!-- goodsDTO는  map이 있으므로 map사용 -->
+	<association property="cartDTO" javaType="cart"><!-- cart에 대한 타입을 정의 해줘야 합니다. -->
+		<!-- cart는 map이 없으므로 직접 적어준다. -->
+		<id column="goods_Num" jdbcType="VARCHAR" property="goodsNum"/>
+		<id column="member_Num" jdbcType="VARCHAR" property="memberNum"/>
+		<result column="CART_QTY" jdbcType="BIGINT" property="cartQty"/>
+		<result column="CART_DATE" jdbcType="DATE" property="cartDate"/>
+		<result column="MEMBER_NUM" jdbcType="VARCHAR" property="memberNum"/>
+	</association>
+</resultMap>
+<select id="cartList" parameterType="string" resultMap="CartListResultMap">
+select c.GOODS_NUM, goods_name, goods_price, goods_main_store, delivery_Cost <!-- 상품정보 --> 
+	   ,CART_QTY , CART_DATE, MEMBER_NUM 	<!-- 장바구니 정보 -->
+	   , goods_price * CART_QTY total_price<!-- 각 상품별 수량에 따른 금액 -->
+from cart c, goods g
+<trim prefix="where" prefixOverrides="AND | OR"> <!-- where절에 만약 AND 나 OR가 있다면 삭제  -->
+c.GOODS_NUM = g.GOODS_NUM and MEMBER_NUM = #{memberNum}
+	<if test="goodsNums != null">
+		and g.goods_num in 
+		<foreach collection="goodsNums" item="goodsNum" close=")" index="index" open="(" separator=",">
+			#{goodsNum}
+		</foreach>
+	</if>
+</trim>
+
+</select>
+<select id="sumPrice" parameterType="string" resultType="integer">
+	select sum(goods_price * CART_QTY + delivery_Cost) 
+	from goods g, cart c
+	where g.goods_num = c.goods_num and member_num = #{memberNum}
+	group by member_num <!-- 합계이므로 group by를 해준다. -->
+</select>
+<delete id="goodsNumsDelete" parameterType="hashmap">
+	delete from cart
+	where member_num = #{memberNum}
+	and goods_num in
+	<foreach collection="goodsNums" item="goodsNum" close=")" open="(" index="index" separator=",">
+	 	#{goodsNum}
+	</foreach>
+</delete>
+<delete id="goodsNumDelete" >
+	delete from cart
+	where goods_num = #{goodsNum} and member_num = #{memberNum}
+</delete>
+
+<update id="cartQtyDown" >
+	update cart
+	set cart_qty = cart_qty - 1
+	where goods_num = #{goodsNum} and member_num = #{memberNum}
+</update>
+<!-- 두개의 쿼리문을 추가하겠습니다. --> <!-- 상품을 검색하기 위한 쿼리문 -->
+<select id="goodsSelect" parameterType="string" resultMap="goodsResultMap">
+	select goods_Num , goods_name , goods_price ,goods_content , delivery_cost , emp_num  
+	  		,goods_regist , goods_main_store ,goods_main_store_img , goods_images 
+	  		,goods_images_img , visit_count ,update_Emp_Num , goods_Update_Date
+	from goods  
+	where goods_Num = #{goodsNum} <!-- 전달 -->
+</select> 
+<resultMap type="cart" id="cartResultMap">
+	<id column="goods_num" jdbcType="VARCHAR" property="goodsNum"/>
+	<id column="member_num" jdbcType="VARCHAR" property="memberNum"/>
+	<result column="cart_Num" jdbcType="BIGINT" property="cartNum"/>
+	<result column="cart_date" jdbcType="DATE" property="cartDate"/>
+	<result column="cart_qty" jdbcType="BIGINT" property="cartQty"/>
+</resultMap>
+<select id="cartSelect" resultMap="cartResultMap"> <!-- 카트번호에 따라 검색하는 쿼리문 -->
+	select cart_num , goods_num,member_num,cart_date,cart_qty
+	from cart
+	where cart_num = #{cartNum} <!-- 전달  -->
+</select>
+<!-- goodsPriceMulCartQty를 통해 결과를 받아올 resultMap을 만들어주겠습니다. -->
+<!-- 받아올 값들은 두개의 테이블이므로 cartGoodsDTO로 받아오면 됩니다. -->
+<resultMap type="cartGoods" id="cartGoodsResultMap" >
+	<!-- 위 두개의 select문을 이용해서 데이터를 불러오겠습니다. --><!-- select는 위 id에 해당하는 쿼리문을 실행시킵니다. -->
+	<association property="goodsDTO" javaType="goods" select="goodsSelect" column="goodsNum" /><!-- 여기까지는 다 알거구요.. -->
+	<association property="cartDTO" javaType="cart" select="cartSelect" column="cartNum" />
+	<!-- 각각의 쿼리문을 실행 시키기 위해서는 조건절에 필요한 값이 있어야 할 것입니다. -->
+</resultMap>
+<select id="goodsPriceMulCartQty" resultMap="cartGoodsResultMap">
+<!-- 위 두개의 쿼리문에 전달해 줄 컬럼을 가지고 오면 됩니다. -->
+select GOODS_NUM goodsNum, cart_num cartNum
+from cart <!-- 조건에 해당하는  goodsNum과 cartNum을 cart로 부터 가지고 오겠습니다.-->
+where goods_num = #{goodsNum} and member_num = #{memberNum}
+</select>
+<!-- 다소 복잡해 보이지만 이미 두개의 쿼리문이 존재한다면 굳이 조인문 없이 사용할 수 있어서 무척 편합니다. -->
+<delete id="cartGoodsDeletes" parameterType="cart">
+delete from cart 
+where goods_num in <foreach collection="goodsNums" item="goodsNum" close=")" open="("
+					separator="," index="index">
+						#{goodsNum}
+					</foreach>
+and member_num = #{memberNum}
+</delete>
+</mapper>
+
+
+

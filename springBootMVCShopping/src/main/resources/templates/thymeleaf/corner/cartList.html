@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- 체크박스 모두선택 모두해지 및 체크 박스 관련은 여러번 했으므로 설명은 생략합니다. -->
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	$("#checkBoxs").click(function(){
+		if($("#checkBoxs").prop("checked")){
+			$("input:checkbox[name=prodCk]").prop("checked", true);
+		}else{
+			$("input:checkbox[name=prodCk]").prop("checked", false);
+		}
+		goodsChk();
+	});
+	$("input:checkbox[name=prodCk]").click(function(){
+		var tot = $("input:checkbox[name=prodCk]").length;
+		var checked = $("input:checkbox[name=prodCk]:checked").length;
+		if(tot == checked){
+			$("#checkBoxs").prop("checked",true);
+		}else{
+			$("#checkBoxs").prop("checked",false);
+		}
+		//체크할때마다 이므로 여기서 함수 실행
+		goodsChk();
+	});
+});
+// 선택항목 삭제를 하겠습니다
+function del1(){
+	// 선택항목들을 배열에 저장하겠습니다.
+	var chk_arr = [];
+	// 체크박스들 중 체크가 되어 있는 항목을 찾기 위해 반복문을 사용하겠습니다.
+	$("input[name='prodCk']:checked").each(function(){
+		//체크가 되어 있는 체크박스의 값을 배열에 저장하겠습니다. 체크박스의 값은 상품번호입니다.
+		chk_arr.push($(this).val());
+	});
+	// 배열을 ajax를 통해 서버쪽으로 전달하겠습니다.
+	$.ajax({
+		url: "cartDels" ,
+		type : "post",
+		dataType:"text",
+		// 배열 데이터를 전송합니다.
+		data:{"goodsNums" : chk_arr},
+		success : function(result){
+			// 정상적으로 처리가 되면 200값을 받아오도록합니다.
+			if(result == "200"){
+				// 정상적으로 처리가 되었다면 새로고침하겠습니다.
+				location.reload();
+			}else{
+				alert("삭제되지 않았습니다.");
+			}
+		},
+		error : function () {
+			alert("삭제할 상품을 하나 이상 선택하여 주세요.");
+		}
+	});
+}
+function del(goodsNum){
+	// location.reload()를 할 것 같으면 그냥 동기식이 더 편할 것 같아요... 이번에 그냥 동기식으로 하겠습니다.
+	location.href="cartDel?goodsNum="+goodsNum;
+}
+function goodsChk(){
+	// 먼저 체크 되어 있는 테크박스를 확인 해야 하겠지요..
+	// 체크박스를 가지고 오겠습니다.
+	var chkLeng  = $("input[name=prodCk]");
+	// 몇개가 체크되어 있는지 변수 선언
+	var cnt = 0;
+	// 총합계 금액 변수 선언
+	var sumPrice = 0;
+	// 체크박스 를 돌리면서 체크된 것을 찾아 수량과 금액을 더합니다.
+	for(var i = 0; i < chkLeng.length; i++){
+		if(chkLeng[i].checked == true){ // 체크가 되어 있는 체크박스를 확인
+			cnt++; // 수량증가 , i번째 값들을 더하겠습니다. 이때 배송비도 같이
+			sumPrice += Number($(".totalPrice:eq("+i+")").text()) 
+			  		 +  Number($(".deliveryCost:eq("+i+")").text());
+		}
+	}
+	$("#prodCnt").text(cnt);
+	$("#sumPrice").text(sumPrice);
+}
+function cartAdd(goodsNum , goodsPrice){
+	$.ajax({
+		type : "get",
+		// 수량증가는 이미 코드가 만들어져 있습니다. 주소가 cartAdd입니다.
+		url : "cartAdd",
+		dataType : "text", // 수량은 한개씩 넘기면 됩니다.
+		data : {"goodsNum" : goodsNum , "qty" : 1},
+		success : function(result){
+			if(result.trim() == "200"){
+				// 정상적으로 처리되면 수량과 금액이 바뀌어야 한다. 문자를 숫자로 변환
+				$("#"+goodsNum).text(Number($("#"+goodsNum).text()) + 1);
+				$("#t_"+goodsNum).text(Number($("#t_"+goodsNum).text()) + Number(goodsPrice));
+			}
+		},
+		error : function(){
+			alert('에러가 나왔다 홀홀홀~');
+		}, // 수량의 변화에 따라 합계금액을 다시 계산 하려면 goodsChk()함수를 실행 시킵니다.
+		complete:goodsChk //complete은 successe되고 나서 실행됩니다.
+	});
+}
+function checkQty(goodsNum){
+	// 수량이 최소 하나를 초과해야 감소시킬 수 있습니다.
+	if($("#"+goodsNum).text() > 1 ){
+		$.ajax({
+			type : "get",
+			dataType : "text",
+			url : "cartQtyDown",
+			data : {"goodsNum" : goodsNum},
+			success : function(result){// ObjectMapper객체를 받아오겠습니다.
+				var data = JSON.parse(result);// ObjectMapper를 JSON으로 변환합니다.
+				$("#"+goodsNum).text(data.cartDTO.cartQty);
+				$("#t_"+goodsNum).text(data.cartDTO.cartQty * data.goodsDTO.goodsPrice);
+			},
+			error : function(){
+				alert('에러가 나왔다 홀홀홀~');
+			}, // 감소시킨 후 금액을 다시 계산해야 합니다.
+			complete:goodsChk
+		});
+	}else{
+		alert("최소 수량이 1이어야 합니다.");
+		return false;
+	}
+}
+
+
+</script>
+</head>
+<body>
+<!-- 이번 시간에는 구매하기를 하겠습니다. -->
+<form action="/purchase/goodsBuy" method="post" >
+<!-- 구매할 상품을 선택해주거나 장바구니에서 삭제할 상품을 선택할 수 있게 checkbox를 설정하겠습니다. -->
+<table width="800" align="center" >
+<!-- 체크박스를 모두 선택 해제할 수있는 체크박스를 둡니다. -->
+<tr><td><input type="checkbox" id="checkBoxs" checked="checked"/></td>
+	<td>이미지</td><td>제품명</td><td>수량</td><td>합계금액</td><td>배송비</td>
+	<!-- 선택한 상품을 삭제할 수 있는 버튼을 만들어 주겠습니다. -->
+	<td><input type="button"  value="선택 상품 삭제" onclick="del1();"/></td>
+</tr>
+[[${list.size}]]
+<tr th:each=" dto: ${list}">
+	<td><input type="checkbox" name="prodCk" checked="checked"
+										 th:value="${dto.goodsDTO.goodsNum}"/></td>
+	<td><img th:src="|/static/upload/${dto.goodsDTO.goodsMainStore}|" /></td>
+	<td>[[${dto.goodsDTO.goodsName}]]</td>
+	<!-- 장바구니에 있는 상품 수량변경을 해보겠습니다. 수량을 변경할 때도 체크박스에 따라 금액이 달라지게 합니다.-->
+	<!--  수량 감소  -->
+	<td><a th:href="|javascript:checkQty('${dto.goodsDTO.goodsNum}');|"> - </a>
+		<span th:id="${dto.goodsDTO.goodsNum}">[[${dto.cartDTO.cartQty}]]</span>
+		<a th:href="|javascript:cartAdd('${dto.goodsDTO.goodsNum}','${dto.goodsDTO.goodsPrice}')|"> + </a> 
+	</td>
+	<td><span th:id="${'t_'+ dto.goodsDTO.goodsNum}" class="totalPrice">[[${dto.totalPrice}]]</span></td>
+	<td><span class="deliveryCost">[[${dto.goodsDTO.deliveryCost}]]</span></td>
+	<!-- 각 항목을 삭제 할 수 있는 버튼을 만들어 주겠습니다. -->
+	<td><input type="button"  value="삭제" th:attr="onclick=|del('${dto.goodsDTO.goodsNum}');|"/></td>
+</tr>
+<tr>
+	<!-- 체크박스를 선택할 때마다 상품수와 상품의 전체 금액이 달라지도록 합니다. -->
+	<td colspan="7" align="right">
+		상품수 : <span id="prodCnt">[[${list.size}]]</span>개<br />
+		전체 금액 : <span id="sumPrice">[[${sumPrice}]]</span>원<br />
+		
+		<input type="submit" value="구매하기" />
+	</td>
+</tr>
+</table>
+</form>
+</body>
+</html>

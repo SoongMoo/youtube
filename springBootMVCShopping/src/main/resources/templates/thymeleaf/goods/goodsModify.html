@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
+<script type="text/javascript">
+function fileDel(orgFile, storeFile, btn, kind ){
+	$.ajax({
+		type:'post',
+		url:'fileDel',
+		dataType:'text',
+		data:{"orgFile": orgFile , "storeFile" : storeFile , "kind" : kind},
+		success:function(result){
+			if(result.trim() == "1"){ //삭제
+				$(btn).text("삭제취소"); // 버튼의 텍스트가 "삭제"이면  "삭제취소"로 변경하고 
+				if(kind == 'main'){
+					$("#main").css("display","none");
+					$("#mainFile").css("display","");
+				}
+			}else{ // 삭제취소
+				$(btn).text("삭제"); // 버튼의 텍스트가 "삭제취소"이면  "삭제"로 변경하고 
+				if(kind == 'main'){
+					$("#main").css("display","");
+					$("#mainFile").css("display","none");
+				}
+			}
+		}
+	});
+}
+</script>
+</head>  <!-- 파일을 추가하는 경우에는 enctype이  multipart/form-data이 어야 합니다.-->
+<body> <!-- goodsUpdate에가서 파일을 수정할 때 삭제 파일은 디비와 파일을 삭제할 코드를 작성 --> <!-- 파일이 잘 변경되네요.. -->
+															<!-- 단 파일명에 하이픈(-)가 있으면 오류가 있을 수 있으니 조심하세요.. -->
+<form action="goodsUpdate" method="post" name="frm" id="frm" th:object="${goodsCommand}" enctype="multipart/form-data">
+<table border=1 align="center" width="600" >
+<caption>상품 상세보기</caption>
+<tr><th width="150">상품번호</th>
+	<td><input type="text" name="goodsNum"  th:field="*{goodsNum}"  readonly="readonly"/></td></tr>
+<tr><th>상품명</th>
+	<td><input type="text" name="goodsName" th:field="*{goodsName}" /><br />
+		<span style="color:red" th:if="${#fields.hasErrors('goodsName')}" th:errors="*{goodsName}"></span></td></tr>
+<tr><th>상품가격</th>
+	<td><input type="number" name="goodsPrice" th:field="*{goodsPrice}"/><br />
+		<span style="color:red" th:if="${#fields.hasErrors('goodsPrice')}" th:errors="*{goodsPrice}"></span></td></tr>
+<tr><th>배송비</th>
+	<td><input type="number" name="deliveryCost" th:field="*{deliveryCost}"/><br />
+		<span style="color:red" th:if="${#fields.hasErrors('deliveryCost')}" th:errors="*{deliveryCost}"></span></td></tr>
+<tr><th>상품설명</th>
+	<td><textarea rows="5" cols="50" name="goodsContent">[[${goodsCommand.goodsContent}]]</textarea><br />
+		<span style="color:red" th:if="${#fields.hasErrors('goodsContent')}" th:errors="*{goodsContent}"></span></td></tr>
+<tr><th>조회수</th>
+	<td><input type="number"  min = "0" name="visitCount" th:field="*{visitCount}"/></td></tr>
+<tr><th>등록한 사원</th><td>[[${goodsCommand.empNum }]]</td></tr>
+<tr><th>등록일</th><td>[[${#dates.format(goodsCommand.goodsRegist,'yyyy-MM-dd' )}]]</td></tr>
+<tr><th>마지막 수정 사원</th><td>[[${goodsCommand.updateEmpNum }]]</td></tr>
+<tr><th>마지막 수정일</th><td>[[${#dates.format(goodsCommand.goodsUpdateDate,'yyyy-MM-dd' )}]]</td></tr>
+<!-- 오늘은 upload한 파일을 수정하는 작업을 하겠습니다. -->
+<tr><th>대문이미지</th>
+	<td><input type="file" name="goodsMainStore" id="mainFile" style="display:none"/>
+		<span id="main">[[${goodsCommand.goodsMainStoreImg}]]</span>
+		<button type="button" th:attr="onclick=|fileDel('${goodsCommand.goodsMainStoreImg}'
+											           ,'${goodsCommand.goodsMainStore}'
+											           , this,'main')|">삭제</button>
+		<br /><span style="color:red"  >[[${error}]]</span>
+											           </td>
+</tr>
+<tr><th>설명이미지</th>
+	<td>
+		<div th:each="file , idx : ${#strings.arraySplit(goodsCommand.goodsImagesImg,'-')}">
+			[[${file}]]<button type="button" th:attr="onclick=|fileDel('${file}'
+											 ,'${#strings.arraySplit(goodsCommand.goodsImages,'-')[idx.index]}'
+											 , this)|">삭제</button>
+		</div>
+		<input type ="file" name="goodsImages" multiple="multiple"/><br />
+	</td>
+</tr>
+<tr><th colspan="2"><input type="submit" value="수정완료" /></th></tr>
+</table>
+</form>
+</body>
+</html>

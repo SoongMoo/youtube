@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- ajax를 이용해서 비밀번호를 변경해 보겠습니다. -->
+<script 
+	src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.js"></script>
+<script type="text/javascript">
+$(function(){
+	$("#frm").submit(function(){
+		$(this).ajaxSubmit({
+			type:'post',
+			url:'myPwUpdate',
+			dataType:'text',
+			beforeSubmit: passwordChecked , //passwordChecked()실행, submit하기전에 실행합니다.
+			success:resultOk, //resultOk()실행 // 서버가 실행된후에 실행됩니다. 
+			error:function(){
+				alert("서버오류")	
+			}
+		});
+		return false;
+	});
+});
+
+
+//status은 서버 실행이 잘되었는지 확인,  result는 서버로 부터 넘어온 값(여기서는 true나 false로 받겠습니다.)
+function resultOk(result, status, xhr, $form ){
+	if(status == 'success'){
+		if(result == "true"){ // 정상적으로 서버가 실행되었으면 내 정보 페이지로
+			location.href="myDetail";
+		}else{ // 현재 비밀번호가 틀렸다면 오류메시지와 다시 입력 하게합니다.
+			$("#oldPw").val("");
+			$("#pwErr").text("비밀번호가 틀렸습니다.");
+			$("#pwErr").css("color","red");
+			$("#newPwErr").text("");
+			$("#pwConErr").text("");
+			$("#oldPw").focus();
+		}
+	}
+}
+function passwordChecked(){//서버에 전송하기전에 값을 모두 입력했는지 유효성 검사하기
+	if($("#oldPw").val() == ""){
+		$("#pwErr").text("현재 비밀번호를 입력해 주세요.");
+		$("#pwErr").css("color","red");
+		return false;
+	}
+	if($("#newPw").val() != ""){ // 새 비밀번호를 입력했는지 유효성검사하기
+		// 새 비밀번호를 입력했다면 비밀번호확인과 비교.
+		if($("#newPw").val() != $("#newPwCon").val()){
+			$("#newPwErr").text("");
+			$("#pwConErr").text("비밀번호확인이 틀립니다.");
+			$("#pwConErr").css("color","red");
+			$("#newPw").val("");
+			$("#newPwCon").val("");
+			$("#newPw").focus();
+			return false;
+		}
+	}else{
+		$("#newPwErr").text("새 비밀번호를 입력해주세요.");
+		$("#newPwErr").css("color","red");
+		return false;
+	}
+}
+</script>
+</head>
+<body>
+<ul>
+	<li><a href="myDetail">내정보 보기</a></li>
+	<li><a href="memberUpdate">내정보 수정</a></li>
+	<li><a href="userPwModify">비밀번호변경</a></li>
+	<li><a href="memberDrop">회원탈퇴</a></li>
+	<li><a href="/">홈</a></li>
+</ul>
+내 비밀번호 변경<br />
+<form action="myPwUpdate" method="post" name="from" id="frm">
+현재비밀번호 : <input type="password" name="oldPw" id="oldPw" />
+									<span id="pwErr"></span><br />
+새 비밀번호 : <input type="password" name="newPw" id="newPw" />
+									<sapn id="newPwErr"></sapn><br />
+새 비밀번호 확인 : <input type="password" name="newPwCon" id="newPwCon" />
+									<sapn id="pwConErr"></sapn><br />
+<input type="submit"  value="비밀번호 변경"/>
+</form>
+</body>
+</html>

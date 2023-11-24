@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 	
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springBootMVCShopping.mapper.PurchaseMapper">
+
+<update id="purchaseOk" parameterType="string">
+update purchase
+set purchase_Status = '구매확정'
+where purchase_num = #{purchaseNum}
+</update>
+
+<select id="selectNum" resultType="string">
+select concat(to_char(now(), 'YYYYMMDD'), coalesce(max(substr(PURCHASE_NUM,9))::integer,10000) + 1)
+from PURCHASE
+where substr(PURCHASE_NUM,1,8) = to_char(now(), 'YYYYMMDD') <!-- 오늘날짜에서만 가져오기 -->
+</select>
+<insert id="purchaseInsert" parameterType="purchase">
+insert into purchase(purchase_num,purchase_date,purchase_price,delivery_addr,delivery_addr_detail
+					,delivery_post,delivery_phone,message,purchase_status,member_num
+					,delivery_name)
+values(#{purchaseNum},now(),#{purchasePrice},#{deliveryAddr},#{deliveryAddrDetail}
+		,#{deliveryPost},#{deliveryPhone},#{message},#{purchaseStatus},#{memberNum}
+		,#{deliveryName})
+</insert>
+<!-- cart에 있는 정보를 불러와서 구매리스트에 저장합니다.  select 절에 구매번호를 적어줍니다.-->
+<insert id="purchaseListInsert" parameterType="purchaseList">
+insert into purchase_List(goods_num,purchase_num,purchase_qty,total_price)
+select c.goods_num, #{purchaseNum}, cart_qty , goods_price * cart_qty
+from goods g , cart c
+where g.goods_num = c.goods_num and member_num = #{memberNum}
+and g.goods_num in 
+<foreach collection="goodsNums" item="goodsNum" close=")" open="(" index="index" separator=",">
+ 	#{goodsNum}
+</foreach>
+</insert>
+<resultMap type="purchase" id="purchaseResultMap">
+<!-- 생성자 -->
+<constructor>
+		<idArg column="purchase_Num" javaType="string" />
+		<arg column="purchase_Date" javaType="java.util.Date"/>
+		<arg column="purchase_Price" javaType="integer"/>
+		<arg column="delivery_Addr" javaType="string"/>
+		<arg column="delivery_Addr_Detail" javaType="string"/>
+		<arg column="delivery_Post" javaType="string"/>
+		<arg column="delivery_Phone" javaType="string"/>
+		<arg column="message" javaType="string"/>
+		<arg column="purchase_Status" javaType="string"/>
+		<arg column="member_num" javaType="string"/>
+		<arg column="delivery_name" javaType="string"/>
+</constructor>
+</resultMap>
+<select id="purchaseSelect" parameterType="string" resultMap="purchaseResultMap">
+select  PURCHASE_NUM, PURCHASE_date, PURCHASE_PRICE, delivery_Addr
+	   ,delivery_Addr_Detail, delivery_Post,delivery_Phone,  message, purchase_Status
+	   ,delivery_name, member_num
+from purchase
+where purchase_num = #{purchaseNum}
+</select>
+<select id="purchaseGoodsCount" parameterType="string" resultType="integer">
+	select count(*) from purchase_list 
+	where purchase_num = #{purchaseNum}
+</select>
+<select id="firstGoods" parameterType="string" resultType="string">
+	select goods_name from goods
+	where goods_num = ( select goods_num from (				
+				select ROW_NUMBER() over(order by goods_num ) rn , goods_num from purchase_list
+				where purchase_num = #{purchaseNum} 
+				) sub 
+				where rn = 1
+	)
+</select>
+<insert id="paymentInsert" parameterType="payment">
+insert into payment(purchase_num,confirmnumber,cardnum,tid,totalprice,resultmessage,paymethod
+					,appldate,appltime,purchasename)
+values(#{purchaseNum},#{confirmnumber},#{cardnum},#{tid},#{totalprice},#{resultmessage}
+	  ,#{paymethod},#{appldate},#{appltime},#{purchasename})
+</insert>
+<update id="purchaseStatusUpdate" parameterType="string">
+update purchase
+set purchase_status = #{status}
+where purchase_num = #{purchaseNum}
+</update>
+<!-- 여기서 설명해야 하는 것은 객체내에 개체를 받을 때는 association이고 
+                          객체내에서 list로 받을 때는 collection으로 받아야 한다 -->
+<resultMap type="orderList" id="orderListResultMap">
+	<association property="purchaseDTO" javaType="purchase" resultMap="purchaseResultMap"/>
+	<association property="paymentDTO" javaType="payment"><!-- resultMap이 없어 직접정의 -->
+		<!-- setter 사용 -->
+		<id  column="purchase_num" jdbcType="VARCHAR" property="purchaseNum"/>
+		<result column="confirmnumber" jdbcType="VARCHAR" property="confirmnumber"/>
+		<result column="paymethod" jdbcType="VARCHAR" property="paymethod"/>
+		<result column="totalprice" jdbcType="VARCHAR" property="totalprice"/>
+		<result column="appldate" jdbcType="VARCHAR" property="appldate"/>
+		<result column="appltime" jdbcType="VARCHAR" property="appltime"/>
+		<result column="cardnum" jdbcType="VARCHAR" property="cardnum"/>
+	</association>
+	<!-- 배송정보도 추가합니다. -->
+	<association property="deliveryDTO" javaType="delivery">
+		<id  column="purchase_num" jdbcType="VARCHAR" property="purchaseNum"/>
+		<result column="delivery_num" jdbcType="VARCHAR" property="deliveryNumber"/>
+		<result column="delivery_date" jdbcType="DATE" property="deliveryDate"/>
+		<result column="delivery_state" jdbcType="VARCHAR" property="deliveryState"/>
+		<result column="delivery_Company" jdbcType="VARCHAR" property="deliveryCompany" />
+	</association>
+	<!-- list로 받을 때는 collection을 사용해야 한다. -->
+	<collection property="purchaseListGoodsDTOs" ofType="purchaseListGoods">
+		<association property="purchaseList" javaType="purchaseList">
+			<result column="purchase_qty" jdbcType="BIGINT" property="purchaseQty"/>
+			<result column="total_price" jdbcType="BIGINT" property="totalPrice"/>
+		</association>
+		<association property="goods" javaType="goods"><!-- resultMap이 없으므로 작성해야합니다. -->
+			<id column="goods_Num" jdbcType="VARCHAR" property="goodsNum"/>
+			<result column="goods_name" jdbcType="VARCHAR" property="goodsName"/>
+			<result column="goods_price" jdbcType="BIGINT" property="goodsPrice"/>
+			<result column="goods_content" jdbcType="VARCHAR" property="goodsContent"/>
+			<result column="delivery_cost" jdbcType="BIGINT" property="deliveryCost"/>
+			<result column="emp_num" jdbcType="VARCHAR" property="empNum"/>
+			<result column="goods_regist" jdbcType="DATE" property="goodsRegist"/>
+			<result column="goods_main_store" jdbcType="VARCHAR" property="goodsMainStore"/>
+			<result column="goods_main_store_img" jdbcType="VARCHAR" property="goodsMainStoreImg"/>
+			<result column="goods_images" jdbcType="VARCHAR" property="goodsImages"/>
+			<result column="goods_images_img" jdbcType="VARCHAR" property="goodsImagesImg"/>
+			<result column="visit_count" jdbcType="BIGINT" property="visitCount"/>
+			<result column="update_Emp_Num" jdbcType="VARCHAR" property="updateEmpNum"/>
+			<result column="goods_Update_Date" jdbcType="DATE" property="goodsUpdateDate"/>
+		</association>
+		<!-- 값을 받아올 수 있게 collection안에 후기를 추가해야합니다. -->
+		<association property="review" javaType="review" >
+			<result column="review_Date" jdbcType="DATE" property="reviewDate"/>
+			<result column="review_Content" jdbcType="VARCHAR" property="reviewContent"/>
+			<result column="score" jdbcType="BIGINT" property="score"/>
+			<result column="member_Id" jdbcType="VARCHAR" property="memberId"/>
+			<result column="review_Num" jdbcType="BIGINT" property="reviewNum"/>			
+		</association>
+	</collection>
+</resultMap>
+<!-- 여기에 후기를 추가하면 됩니다. -->
+<select id="orderList" parameterType="string" resultMap="orderListResultMap">
+	select 	  p.PURCHASE_NUM, PURCHASE_date, PURCHASE_PRICE, delivery_Addr
+			  , delivery_Addr_Detail, delivery_Post,delivery_Phone,  message, purchase_Status
+	 		  , member_num, delivery_name
+	 		  , CONFIRMNUMBER, appltime , paymethod, totalprice, appldate, cardnum
+	 		  , purchase_qty, total_price
+	 		  , g.goods_Num, goods_Name, goods_main_store, delivery_Cost, goods_Price
+			  , goods_Content
+			  , delivery_num, delivery_date, delivery_state, delivery_Company<!-- 배송정보 추가 --> 
+			  , review_Date, review_Content, score, member_Id, review_Num
+	from purchase p left outer join payment pm <!-- 결제할 때 취소를 하면 구매정보는 있지만 결제는 없을 수 있다. 구매내역을 확인하 수 있어야 한다.-->
+	on p.PURCHASE_NUM = pm.PURCHASE_NUM join purchase_list pl
+	on p.PURCHASE_NUM = pl.PURCHASE_NUM join goods g
+	on pl.goods_num = g.goods_num left outer join delivery d <!-- 배송정보는 없어도 구매정보는 출력되야 합니다. -->
+	on p.PURCHASE_NUM = d.PURCHASE_NUM  left outer join review r <!-- 후기가 없어도 출력되야 합니다. -->
+	on p.PURCHASE_NUM = r.PURCHASE_NUM and pl.goods_num = r.goods_num	
+	<where>
+		<if test="memberNum != null"> <!--  null이 전달되므로 null이 아닐때 실행 -->
+			member_num = #{memberNum}
+		</if>
+		<if test="purchaseNum != null">
+		 	p.purchase_Num = #{purchaseNum}
+		</if>
+	</where>
+
+</select>
+<delete id="paymentDelete" parameterType="string">
+	delete from payment
+	where purchase_num = #{purchaseNum}
+</delete>
+
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 	
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springBootMVCShopping.mapper.UserMapper">
+<insert id="userInsert" parameterType="mem">
+insert into members(member_num,member_id,member_pw,member_name,member_addr
+					,member_addr_detail,member_post,member_phone1,member_phone2
+					,member_regist,member_birth,gender,member_email
+					,member_email_conf,point)
+values((select concat('mem', coalesce(max(substring(member_num,4)::integer),100000) + 1)
+		from members)<!-- 회원번호 자동부여 -->
+      ,#{memberId},#{memberPw},#{memberName}
+	  ,#{memberAddr},#{memberAddrDetail},#{memberPost},#{memberPhone1}
+	  ,#{memberPhone2},now(),#{memberBirth},#{gender},#{memberEmail},null,0)
+</insert>
+<update id="userCkeckUpdate" parameterType="string">
+	update members
+	set member_email_conf = 'T' <!-- 이메일 인증을 하면 member_email_conf을 null에서 T로 -->
+	where member_email_conf is null 
+	and  member_email = #{email}
+</update>
+<select id="loginSelect" parameterType="string" resultType="authInfo">
+<!-- 직원과 회원 중 아이디를 가지고 있는 사람을 첮기 위해 union사용 -->
+<!-- grade는 회원인지 직원인지 구별하기 위해서 사용 -->
+<!-- userEmailCheck는 이메일 인증을 한 사람인지 아닌지 확인 이메일 인증을 한 경우 T값을 가짐 -->
+select member_id userId,member_pw userPw,member_name userName
+	  ,'mem' grade ,member_email userEmail,member_email_conf userEmailCheck
+from members
+where member_id = #{userId}
+union 
+select emp_id, emp_pw, emp_name, 'emp', emp_email  , 'T'
+from employees
+where emp_id = #{userId}
+</select>
+</mapper>	
+
+
+
+
+
+
+
+
+

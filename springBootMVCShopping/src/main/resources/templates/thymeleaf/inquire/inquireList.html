@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	$("#btn").click(function(){
+		//상품문의를 하는 사람이 누구인지 알아야 하므로 로그인이 안되어 있으면 로그인 창이 떠야 합니다.
+		if([[${session.auth == null}]]){
+			window.open("/login/item.login","login","width=315, height=200,top = 100, left=100");
+		}else{
+			//상품문의도 popup 으로 하겠습니다..
+			window.open("/inquire/inquireWrite?goodsNum=[[${goodsNum}]]"
+					,"inquireWrite","width=700, height=650, top = 100, left=100");
+		}
+	})
+});
+function contentOpen(id){
+	if($("."+id).css("display") == "none"){ // 답글이 안보인 다면 
+		$("."+id).css("display", "");  // 답글을 보이게 하고 
+		$("#"+id).text("답변닫기"); // 버큰은 닫기로 변경
+	}else{  // 답글이 보이면 안보이게 하고
+		$("."+id).css("display", "none"); 
+		$("#"+id).text("답변열기");  // 버큰은 열기로 변경
+	}
+}
+function inquireUpdate(inquireNum){
+	window.open("/inquire/inquireUpdate?inquireNum="+inquireNum, "", 
+			"width=700, height=650, top=100, left=100")
+}
+function inquireDelete(inquireNum){
+	$.ajax({ // ajax를 사용해서 삭제한 후에 inquire함수를 실행시킨다.
+		type:'post',
+		url:'/inquire/inquireDelete',
+		data: {'inquireNum':inquireNum},
+		success:function(){
+			inquire();
+		}
+	});
+}
+
+</script>
+</head>
+<body>
+<table width="600" align="center" border="1">
+	<tr><td align="right" colspan="6" ><button type="button"  id="btn">문의하기</button></td></tr>
+<th:block th:each=" dto , idx : ${list}">		
+	<tr><td>[[${idx.count}]]</td>
+		<td><!-- 답변 내용이 없으면 검토, 답변 내용이 있으면 답변완료 -->
+			<span th:if="${dto.inquireAnswer == null}" >검토</span> 
+			<span th:if="${dto.inquireAnswer != null}" >답변완료</span>
+		</td>
+		<td>[[${dto.memberId}]]</td>
+		<td>[[${#dates.format(dto.inquireDate,'yyyy-MM-dd')}]]</td>
+		<td>[[${dto.inquireKind}]]</td><td>[[${dto.inquireSubject}]]</td>
+	</tr>
+	<tr><td colspan="6">
+	<span th:utext="${#strings.replace(dto.inquireContent,newLineChar,'&lt;br /&gt;')}"></span><br />
+	<!-- 질문 당자자만 이 기능을 사용할 수 있습니다. -->
+	<th:block th:if="${session.auth != null}">
+		<th:block th:if="${session.auth.userId == dto.memberId}">
+			<button type="button" th:attr="onclick=|inquireUpdate('${dto.inquireNum}');|">문의수정</button>
+			<button type="button" th:attr="onclick=|inquireDelete('${dto.inquireNum}');|">문의삭제</button>
+		</th:block>
+	</th:block>	
+	<!-- 비밀글이 아니면 누구나 답변을 볼 수 있습니다. -->
+	<button type="button" th:id="inq_+${dto.inquireNum}"
+						th:attr="onclick=|contentOpen('inq_${dto.inquireNum}');|"
+						>답변열기</button> <!-- 열고 닫고를 해보자 -->
+		
+		</td></tr>
+	<tr  th:if="${dto.inquireAnswer != null}" style="display:none;" th:class="inq_+${dto.inquireNum}"> <!-- 답변내용이 안보인다. -->
+	<!-- 답변이 있어야 보이게 합니다. -->
+		<td  colspan="6">답변일 : [[${#dates.format(dto.inquireAnswerDate,'yyyy-MM-dd')}]]<br />
+		<span th:utext="${#strings.replace(dto.inquireAnswer,newLineChar,'&lt;br /&gt;')}"></span></td>
+	</tr>
+</th:block>
+</table>	
+</body>
+</html>
+
+
+
+
+

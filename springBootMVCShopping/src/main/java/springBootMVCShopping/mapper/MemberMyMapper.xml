@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 	
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springBootMVCShopping.mapper.MemberMyMapper">
+<!-- 컬럼명이 dto에 있는 멤버필드 명과 같아야 자동으로 dto에 값이 저장된다. -->
+<!--  컬럼을 반복적으로 사용할 수 있으므로 정의 해놓고 사용하면 편합니다. -->
+<sql id="memberBaseColumns">
+		member_num memberNum,member_id memberId,member_pw memberPw
+	  ,member_name memberName,member_addr memberAddr
+	  ,member_addr_detail memberAddrDetail,member_post memberPost
+	  ,member_phone1 memberPhone1,member_phone2 memberPhone2
+	  ,member_regist memberRegistDate ,member_birth memberBirth
+	  ,member_email memberEmail ,member_email_conf memberEmailConf
+	  ,point ,gender
+</sql>
+<select id="memberInfo" parameterType="string" resultType="mem">
+select <include refid="memberBaseColumns" /> <!-- 정의한 컬럼을 불러올 수 있습니다. -->
+from members 
+where member_id = #{memberId} 
+</select>
+<update id="memberPwUpdate" >
+	update members
+	set member_pw = #{arg0}
+	where member_id = #{arg1}
+</update>
+<delete id="memberDrop" parameterType="string">
+delete from members
+where member_id = #{memberId}
+</delete>
+<update id="memberInfoUpdate" parameterType="mem">
+		update members
+		<trim prefix="set"  suffixOverrides=",">
+			member_Name = #{memberName}, 
+			member_ADDR = #{memberAddr},
+			<choose>
+				<when test="memberAddrDetail != null"> <!-- null이아닐 경우에만 수정 -->
+					member_Addr_Detail = #{memberAddrDetail},
+				</when>
+				<otherwise> <!-- null인경우에는 null로 : else와 같은 의미이다.-->
+				member_Addr_Detail = null,
+				</otherwise>
+			</choose>
+			member_Post = #{memberPost},
+			gender = #{gender},
+			member_Phone1 = #{memberPhone1},
+			<choose>
+				<when test="memberPhone2 != null">
+					member_Phone2 =#{memberPhone2},
+				</when>
+				<when test="memberPhone2 == null">
+					member_Phone2 = null,
+				</when>	
+			</choose>
+			member_Email =#{memberEmail},
+			member_Birth = #{memberBirth},
+		</trim>
+		<where>		
+		member_id = #{memberId}
+		</where>
+</update>
+
+
+
+
+
+</mapper>

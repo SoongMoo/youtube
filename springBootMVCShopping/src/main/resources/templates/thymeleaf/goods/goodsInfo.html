@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<table border=1 align="center" width="600">
+<caption>상품 상세보기</caption>
+<tr><th width="150">상품번호</th><td>[[${goodsCommand.goodsNum }]]</td></tr>
+<tr><th>상품명</th><td>[[${goodsCommand.goodsName }]]</td></tr>
+<tr><th>상품가격</th><td>[[${goodsCommand.goodsPrice }]]</td></tr>
+<tr><th>배송비</th><td>[[${goodsCommand.deliveryCost }]]</td></tr>
+<tr><th>상품설명</th><td><!-- \n을 <br />로 변경합니다. -->
+<span th:utext="${#strings.replace(goodsCommand.goodsContent,newLine,'&lt;br /&gt;')}"></span>
+</td></tr>
+<tr><th>조회수</th><td>[[${goodsCommand.visitCount }]]</td></tr>
+<th:block th:if="${session.auth.grade == 'emp'}">
+<!-- 회원이 봐서는 안되는 부분에 조건을 주겠습니다. -->
+<tr><th>등록한 사원</th><td>[[${goodsCommand.empNum }]]</td></tr>
+<tr><th>등록일</th><td>[[${#dates.format(goodsCommand.goodsRegist,'yyyy-MM-dd') }]]</td></tr>
+<tr><th>마지막 수정 사원</th><td>[[${goodsCommand.updateEmpNum }]]</td></tr>
+<tr><th>마지막 수정일</th><td>[[${#dates.format(goodsCommand.goodsUpdateDate,'yyyy-MM-dd') }]]</td></tr>
+</th:block>
+<!-- 등록한 이미지 추가합니다. -->
+<tr><td colspan="2">
+	<img th:src="|/static/upload/${goodsCommand.goodsMainStore }|" />
+</td></tr>
+<tr><td colspan="2">
+	<th:block th:each="goodsImage : ${#strings.arraySplit(goodsCommand.goodsImages,'-') }">
+		<img th:src="|/static/upload/${goodsImage}|" /><br />
+	</th:block>
+</td></tr>
+<!-- 서버가 커졌다 다시 켜질 때 파일이 삭제가 됩니다. src에 있는 파일은 삭제가 되지 않아 복사르 해두면 좋습니다. -->
+<tr><th colspan="2"><!-- 수정부터 하겠습니다. -->
+		<th:block th:if="${session.auth.grade == 'emp'}">
+		<a th:href="@{goodsUpdate(goodsNum=${goodsCommand.goodsNum })}">상품 수정</a> | 
+		<!-- 삭제는 pathValiable로 하겠습니다. -->
+		<!-- 삭제시 디비만 삭제되는 것이아니라 파일도 삭제가 되어야 합니다. 단 src에 있는 파일은 삭제되지 않습니다.
+			주의하세요..
+		 -->
+		<a th:href="@{'goodsDel/'+${goodsCommand.goodsNum }}">상품 삭제</a> | 
+		<a href="goodsList">상품목록</a> |
+		</th:block>
+		<a href="javascript:history.back();">뒤로가기</a>		
+		</th></tr>
+</table>
+</body>
+</html>
