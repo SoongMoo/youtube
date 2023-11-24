@@ -25,6 +25,7 @@
 <!-- 회원 메뉴 -->
 <c:if test="${auth.grade == 'mem' }">
 	<li><a href="memberMyPage.my">내정보 보기</a></li>
+	<li><a href="wishList.item">관심상품</a></li><!-- 찜한 상품들을 보로가자 -->
 </c:if>
 	<li><a href="logout.login">로그아웃</a></li>
 </ul>
@@ -49,6 +50,43 @@
 		</table>
 	</form>
 </c:if>
+<!-- 메인페이지에 상품 출력하기 -->
+<table align = "center">
+	<colgroup>
+		<col span="3" width="300" height="300"/>
+	</colgroup>
+	<tr>
+		<!-- 행으로 반복하는 것이 아니라 열을 반복한다. -->
+		<c:forEach items="${dtos }" var="dto" varStatus="status">
+		<td> <!-- td를 클릭하면 상품상세페이지로 이동 -->
+			<a href="detailView.item?goodsNum=${dto.goodsNum }">
+				<img src="goods/images/${dto.goodsMainStore }" width="300" height="150"/><br />
+				${dto.goodsName }<br />
+				${dto.goodsPrice }<br />
+				<c:if test="${dto.deliveryCost == 0 }">무료배송</c:if>
+				<c:if test="${dto.deliveryCost != 0 }">${dto.deliveryCost }</c:if>
+			</a>
+		</td>
+		<!-- td가 3번마다 </tr><tr>을 주어야 상품 3개 마다 행이변경될 것입니다. 3으로나눈 나머지가 0일 때마다 </tr><tr>출력 -->
+		<c:if test="${status.count % 3 == 0  }"></tr><tr></c:if>
+		</c:forEach>
+	</tr>
+</table>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

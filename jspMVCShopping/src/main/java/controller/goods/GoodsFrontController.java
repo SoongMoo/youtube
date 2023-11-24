@@ -53,6 +53,13 @@ implements Servlet {
 			GoodsDeleteService action = new GoodsDeleteService();
 			action.execute(request);
 			response.sendRedirect("goodsList.goods");
+		}else if(command.equals("/goodsItem.goods")) {
+			// 상품 검색을 하기 위해서는 상품리스트가 있어야 합니다.
+			GoodsListService action = new GoodsListService();
+			action.execute(request);
+			RequestDispatcher dispatcher =
+					request.getRequestDispatcher("goods/goodsItem.jsp");
+			dispatcher.forward(request, response);
 		}
 	}
 	@Override

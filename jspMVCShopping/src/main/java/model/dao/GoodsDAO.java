@@ -7,17 +7,19 @@ import java.util.List;
 import model.dto.GoodsDTO;
 
 public class GoodsDAO extends DataBaseInfo{
-	public void goodsDelete(String goodsNum) {
+	public int goodsDelete(String goodsNum) {
+		int i = 0;
 		con = getConnection();
 		sql = " delete from goods where goods_num = ? ";
 		try {
 			pstmt = con.prepareStatement(sql);
 			pstmt.setString(1, goodsNum);
-			int i = pstmt.executeUpdate();
+			i = pstmt.executeUpdate();
 			System.out.println(i + "개 행이(가) 삭제되었습니다.");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {close();}
+		return i;
 	}
 	public void visitCount(String goodsNum) {
 		con = getConnection();
@@ -93,8 +95,12 @@ public class GoodsDAO extends DataBaseInfo{
 		}
 		return dto;
 	}
-	public List<GoodsDTO> allSelect(){
+	public List<GoodsDTO> allSelect(String goodsWord){
 		List<GoodsDTO> list = new ArrayList<GoodsDTO>();
+		String search = "";
+		if(goodsWord != null) {
+			search = " and goods_name like '%" + goodsWord + "%'";
+		}
 		con = getConnection();
 		sql = " select goods_num, goods_name, goods_price"
 				+ "       ,goods_content, goods_main_store"
@@ -102,7 +108,8 @@ public class GoodsDAO extends DataBaseInfo{
 				+ "       ,goods_images_img, delivery_cost"
 				+ "       ,visit_count, emp_num, goods_regist"
 				+ "       ,update_emp_num, goods_update_date"
-				+ " from goods ";	
+				+ " from goods "
+				+ " where 1 = 1 " + search ;	
 		try {
 			pstmt = con.prepareStatement(sql);
 			rs = pstmt.executeQuery();
@@ -157,8 +164,7 @@ public class GoodsDAO extends DataBaseInfo{
 				+ " goods_main_store, goods_main_store_img, "
 				+ " goods_images, goods_images_img, visit_count "
 				+ " ) "
-				+ " values(?, ?, ?, ?, ?, ?, now(), "
-				+ "        '1','1','1','1',0)";
+				+ " values(?, ?, ?, ?, ?, ?, now(), ?,?,?,?,0)";
 		//아직 이미지를 저장하는 것이 아니므로 임의의 값을 저장하기로 한다.
 		try {
 			pstmt = con.prepareStatement(sql);
@@ -168,6 +174,10 @@ public class GoodsDAO extends DataBaseInfo{
 			pstmt.setString(4, dto.getGoodsContent());
 			pstmt.setInt(5, dto.getDeliveryCost());
 			pstmt.setString(6, dto.getEmployeeNum());
+			pstmt.setString(7, dto.getGoodsMainStore());
+			pstmt.setString(8, dto.getGoodsMainStoreImg());
+			pstmt.setString(9, dto.getGoodsImages());
+			pstmt.setString(10, dto.getGoodsImagesImg());
 			int i = pstmt.executeUpdate();
 			System.out.println(i + "개행이(가) 삽입되었습니다.");
 		} catch (SQLException e) {
