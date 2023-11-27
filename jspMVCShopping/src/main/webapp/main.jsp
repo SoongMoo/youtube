@@ -26,6 +26,7 @@
 <c:if test="${auth.grade == 'mem' }">
 	<li><a href="memberMyPage.my">내정보 보기</a></li>
 	<li><a href="wishList.item">관심상품</a></li><!-- 찜한 상품들을 보로가자 -->
+	<li><a href="cartList.item">장바구니</a></li> <!--  장바구니 페이지로 이동합니다. -->
 </c:if>
 	<li><a href="logout.login">로그아웃</a></li>
 </ul>
