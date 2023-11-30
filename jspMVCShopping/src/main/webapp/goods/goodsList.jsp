@@ -8,7 +8,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-<ul>
+<ul><!-- 이번에는 상품 입고를 보겠습니다. -->
 	<li><a href="goodsWrite.goods">상품 추가</a></li>
 	<li><a href="goodsIpgo.ipgo">상품 입고</a></li>
 	<li><a href="goodsIpgoList.ipgo">상품 입고 현황</a></li>

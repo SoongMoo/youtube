@@ -38,7 +38,7 @@ $(function(){
 	아이디 중복확인<!-- 아이디 중복확인은 로그인 알고리즘과 같으므로 로그인 후에..-->
 	</td></tr>
 <tr><th >*회원비밀번호</th>
-	<td ><input type="password" name="memberPw" required="memberPw" /></td></tr>
+	<td ><input type="password" name="memberPw" id="memberPw"  required="memberPw" /></td></tr>
 <tr><th >*회원비밀번호확인</th>
 	<td ><input type="password" name="memberPwCon" id="memberPwCon" required="required"/></td></tr>
 <tr><th >*회원명</th>
