@@ -18,6 +18,7 @@ public class WebMvcConfig  implements WebMvcConfigurer{
 			// TODO Auto-generated method stub
 			List<String> excludeList = new ArrayList<String>();//로그인 하지 않아도 되는 페이지 저장
 			excludeList.add("/register/**/*");
+			excludeList.add("/checkRest/**/*");
 			excludeList.add("/help/**/*");
 			excludeList.add("/login/**/*");
 			excludeList.add("/corner/**/*");
