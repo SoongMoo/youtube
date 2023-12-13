@@ -25,9 +25,19 @@ use video
 
 movie={"title":"star wars","director":"george" ,"year":1997}
 db.movies.insertOne(movie)
+db.movies.updateOne({ "title": "star wars" }, { $set: { reviews: [] } })
+db.movies.find()
+[
+  {
+    _id: ObjectId('657947749b982be1bf6c2ccc'),
+    title: 'star wars',
+    director: 'george',
+    year: 1997,
+    reviews: []
+  }
+]
 
 db.movies.insertOne({"title":"star wars","director":"george" ,"year":1997})
-
 db.movies.updateOne({ "title": "star wars" }, { $set: { "title": "star wars- IV" } })
 db.movies.insertMany([{ "id": 0, "title": "Top Gun" }, { "id": 1, "title": "백투더 퓨처" }, { "id": 2, "title": "Gremnlins" }, { "id": 4, "title": "Aliens" }])
 db.movies.insertMany([{ "id": 5, "title": "Top Gun" }, { "id": 6, "title": "백투더 퓨처" }, { "id": 6, "title": "Gremnlins" }, { "id": 7, "title": "Aliens" }])
@@ -41,8 +51,6 @@ db.movies.insertMany([{ "_id": 5, "title": "Top Gun" }, { "_id": 4, "title": "�
 db.movies.find()
 db.movies.deleteOne({"_id":4})
  
-var joe = db.movies.findOne({"name":"joe"})
-
 db.movies.insertOne({
  "_id" : ObjectId("4b2b9f67a1f631733d917a7a"),
  "name" : "joe",
@@ -50,11 +58,80 @@ db.movies.insertOne({
  "enemies" : 2
 })
 
+///// 아래 처럼 서브 도큐먼트로 변경
+{
+  _id: ObjectId('4b2b9f67a1f631733d917a7a'),
+  relationships: { friends: 32, enemies: 2 },
+  userNane: 'joe'
+}
+////
+
+var joe = db.movies.findOne({"name":"joe"})
 joe.relationships = {"friends":joe.friends, "enemies":joe.enemies };
 joe.userNane = joe.name
 delete joe.friends;
 delete joe.enemies;
+
 delete joe.name;
 
 db.movies.replaceOne({"name":"joe"}, joe)
 
+db.people
+
+db.people.insertMany([{
+ "_id" : ObjectId("4b2b9f67a1f631733d917a7a"),
+ "name" : "joe",
+ "age" : 65
+},
+{
+ "_id" : ObjectId("4b2b9f67a1f631733d917a7b"),
+ "name" : "joe",
+ "age" : 20
+},
+{
+ "_id" : ObjectId("4b2b9f67a1f631733d917a7c"),
+ "name" : "joe",
+ "age" : 49
+}])
+
+db.people.find()
+
+joe  = db.people.findOne({
+ "name" : "joe",
+ "age" : 20
+})
+joe.age++
+db.people.replaceOne({"name":"joe"}, joe)   --- MongoServerError: After applying the update
+db.people.replaceOne({"_id" : ObjectId("4b2b9f67a1f631733d917a7b")}, joe)
+///
+db.people.find()
+[
+  { _id: ObjectId('4b2b9f67a1f631733d917a7a'), name: 'joe', age: 65 },
+  { _id: ObjectId('4b2b9f67a1f631733d917a7b'), name: 'joe', age: 21 },
+  { _id: ObjectId('4b2b9f67a1f631733d917a7c'), name: 'joe', age: 49 }
+]
+///
+
+
+db.analyties.insertOne({
+ "_id" : ObjectId("4b2b9f67a1f631733d917a7a"),
+ "url" : "wwww.example.com",
+ "pageViews" : 52
+})
+///1증가
+db.analyties.updateOne({"url" : "wwww.example.com"},
+  {"$inc" : {"pageViews" : 1}
+})
+
+db.users.insertMany([
+  { "_id": ObjectId('4b2b9f67a1f631733d917a7a'), "name": 'joe', "age": 65 , "sex" : "male", "location" : "wisconsin"},
+  { "_id": ObjectId('4b2b9f67a1f631733d917a7b'), "name": 'joe', "age": 21 , "sex" : "male", "location" : "wisconsin"},
+  { "_id": ObjectId('4b2b9f67a1f631733d917a7c'), "name": 'joe', "age": 49 , "sex" : "male", "location" : "wisconsin"}
+])
+
+db.users.updateOne({"_id": ObjectId('4b2b9f67a1f631733d917a7a')},
+  {"$set" : {"favorite book" : "war and peace"}})
+
+
+db.users.updateOne({"name": 'joe'},
+  {"$set" : {"favorite book" : "Green Eggs and Ham"}})
