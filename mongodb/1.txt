@@ -1,0 +1,44 @@
+brew services start mongodb-community@6.0
+
+mongosh
+use admin
+use admin
+db.createUser({user:'rhee',pwd:'1234',roles:['root']})
+
+
+--mongodb 재시작
+brew services restart mongodb-community@6.0
+
+---mongosh 계정으로 접속
+mongosh admin -u rhee -p 1234
+
+
+new Date()
+
+db.movies.stats()
+
+function factorial(n) { if (n <= 1) return 1; return n * factorial(n - 1); }
+factorial(5)
+
+
+use video
+
+movie={"title":"star wars","director":"george" ,"year":1997}
+db.movies.insertOne(movie)
+
+db.movies.insertOne({"title":"star wars","director":"george" ,"year":1997})
+
+db.movies.updateOne({ "title": "star wars" }, { $set: { "title": "star wars- IV" } })
+db.movies.insertMany([{ "id": 0, "title": "Top Gun" }, { "id": 1, "title": "백투더 퓨처" }, { "id": 2, "title": "Gremnlins" }, { "id": 4, "title": "Aliens" }])
+db.movies.insertMany([{ "id": 5, "title": "Top Gun" }, { "id": 6, "title": "백투더 퓨처" }, { "id": 6, "title": "Gremnlins" }, { "id": 7, "title": "Aliens" }])
+
+db.movies.find().pretty()
+db.movies.findOne()
+
+db.movies.drop()
+db.movies.insertMany([{ "_id": 5, "title": "Top Gun" }, { "_id": 4, "title": "백투더 퓨처" }, { "_id": 6, "title": "Gremnlins" }, { "_id": 7, "title": "Aliens" }])
+
+db.movies.find()
+db.movies.deleteOne({"_id":4})
+ 
+var joe = db.movies.deleteOne({"_id":4})
