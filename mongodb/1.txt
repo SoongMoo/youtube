@@ -41,4 +41,20 @@ db.movies.insertMany([{ "_id": 5, "title": "Top Gun" }, { "_id": 4, "title": "ë°
 db.movies.find()
 db.movies.deleteOne({"_id":4})
  
-var joe = db.movies.deleteOne({"_id":4})
+var joe = db.movies.findOne({"name":"joe"})
+
+db.movies.insertOne({
+ "_id" : ObjectId("4b2b9f67a1f631733d917a7a"),
+ "name" : "joe",
+ "friends" : 32,
+ "enemies" : 2
+})
+
+joe.relationships = {"friends":joe.friends, "enemies":joe.enemies };
+joe.userNane = joe.name
+delete joe.friends;
+delete joe.enemies;
+delete joe.name;
+
+db.movies.replaceOne({"name":"joe"}, joe)
+
