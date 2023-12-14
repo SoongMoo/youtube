@@ -138,3 +138,116 @@ db.users.updateOne({"name": 'joe'},
 
 db.users.updateOne({"name": 'joe'},
   {"$set" : {"favorite book" : 1}})
+
+
+db.users.updateOne({"_id": ObjectId('4b2b9f67a1f631733d917a7a')},
+  {"$set" : {"favorite book" : "War and Peace"}})
+
+db.users.updateOne({"name": 'joe'},
+  {"$set" : {"favorite book" : "Green Eggs and Ham"}})
+
+db.users.updateOne({"name": 'joe'},
+  {"$set" : {"favorite book" : ["Green Eggs and Ham","War and Peace","Car's Cadle"]}})
+
+
+// "favorite book" 삭제
+db.users.updateOne({"name": 'joe'},
+  {"$unset" : {"favorite book" : 1 }})
+키를 추가, 삭제, 변경할 때는 항상 $제한자를 사용해야 한다.
+
+// 증가 및 감소
+db.games.insertOne({"game":"pinball", "user" : "joe"})
+
+// 도큐먼트에 키 추가
+db.games.updateOne({"game":"pinball", "user" : "joe"},
+{"$inc": {"score" : 50}})
+
+// 갱신
+db.games.updateOne({"game":"pinball", "user" : "joe"},
+{"$inc": {"score" : 100000}})
+//// 기존에 있던 숫자형 값을 갖는 "score"키에 서버가 10000을 더한다.
+[
+  {
+    _id: ObjectId('657a6c86add257455351ede9'),
+    game: 'pinball',
+    user: 'joe',
+    score: 100050
+  }
+]
+///
+
+$inc는 int , long, double, decimal타입값에만 사용할 수 있다. 키 값은 무조건 숫자여야 한다,
+null, 불리언, 문자열로 나타낸 숫자와 같이 여러 언어에서 숫자로 자종 변환되는 데이터형의 값에서는 사용할 수 없다.
+
+배열 연산자
+db.blog.posts.insertOne(
+{ "_id": ObjectId('657a6c86add257455351ede9'),
+  "title" : "A blog post",
+  "content" : "...."}
+)
+db.blog.posts.findOne()
+
+db.blog.posts.updateOne(
+{ "title" : "A blog post"},
+{"$push" : { "contents" : 
+  {"name" : "joe", "email" : "joe@example.com", "content" : "nice post."}}})
+
+/// 댓글 추가
+db.blog.posts.updateOne(
+{ "title" : "A blog post"},
+{"$push" : { "contents" : 
+  {"name" : "bob", "email" : "bob@example.com", "content" : "good post."}}})
+
+// $each를 사용하여 한번에 여러개의 값을 추가할 수 있다.
+db.movies.findOne({"userNane": 'joe'})
+db.movies.updateOne({"userNane": 'joe'},
+  {"$set" : {"top10" : ["Green Eggs and Ham"]}}) /// 꼭 배열이어야 함
+
+db.movies.updateOne({ "userNane": 'joe'},
+  {"$push" : { "top10" : {"$each" : ["Nightmare on Elm Street", "Saw"],  
+                        "$slice" : - 10 }}})
+// -10은 배열의 요소의 갯수가 10보다 작으면 모든 요소를 유지 하고 10요소보다 크면 10까지만 유지
+// $slice는 도큐먼트 내에 큐를 생성하는 데 사용할 수 있다.
+
+db.movies.findOne({"userNane": 'joe'})
+db.movies.updateOne({"userNane": 'joe'},
+  {"$set" : {"top10" : []}})
+
+db.movies.updateOne({ "userNane": 'joe'},
+  {"$push" : { "top10" : {"$each" : [{ "name" : "Nightmare on Elm Street", "rating" : 6.6 },
+                                     { "name" : "Saw", "rating" : 4.3 }],  
+                          "$slice" : - 10 ,
+                          "$sort" : {"rating":-1}}}})
+$slice와 $sort를 사용하려면 $each와 같이 사용해야 한다.
+
+// 배열을 집합으로 사용
+//특정 한 값이 배열에 존재하지 않았을 때... 배열을 집합처럼 처리할 때
+db.movies.updateOne({ "top10": {"$ne" : "Richie"}},
+  {"$push" : {"top10" : {"name" : "Richie", "rating" : 5.3  }}})
+
+db.users.findOne( {"_id": ObjectId('4b2b9f67a1f631733d917a7a') } )
+db.users.updateOne({"_id": ObjectId('4b2b9f67a1f631733d917a7a') },
+  {"$set" : {"email" : ["joe@example.com", "joe@gmail.com" , "joe@yahoo.com" ]}}) 
+db.users.findOne( {"_id": ObjectId('4b2b9f67a1f631733d917a7a') } )
+
+/// $addToSet을 사용하면 중복을 피할 수 있다.
+db.users.updateOne({"_id": ObjectId('4b2b9f67a1f631733d917a7a') },
+  {"$addToSet" : {"email" : "joe@gmail.com" }}) 
+db.users.findOne( {"_id": ObjectId('4b2b9f67a1f631733d917a7a') } )
+
+
+db.users.updateOne({"_id": ObjectId('4b2b9f67a1f631733d917a7a') },
+  {"$addToSet" : {"email" : "joe@hotmail.com" }}) 
+db.users.findOne( {"_id": ObjectId('4b2b9f67a1f631733d917a7a') } )
+
+/// 고유의 값을 여러개를 추가하려면 $addToSet과 $each를 결합해야 한다.
+db.users.updateOne({"_id": ObjectId('4b2b9f67a1f631733d917a7a') },
+  {"$addToSet" : {"email" : {"$each" : ["joe@php.net", "joe@example.com", "joe@python.org"]
+}}}) 
+
+/// 배열에서 요소 제거
+db.lists.insertOne({"todo": ["dishes", "laundry", "dry clearing"]})
+db.lists.updateOne({},{"$pull" : {"todo": "laundry"} })
+db.lists.find()
+/// $pull은 도큐먼트에서 조곤과 일치하는 요소를 모두  제거 한다. 스칼라값은 변경할 수 없다.
+
