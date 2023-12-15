@@ -350,5 +350,14 @@ if (blog) {
 //// 아래 처럼 작성하면 편하게 작성할 수 있다.
 db.analyties.updateOne( { "url" : "/blog1"} , {"$inc" : {"pageViews" : 1}}, {"upsert" : true})
 
+db.analyties.updateOne({"pageViews" : 3},{"$inc": {"pageViews":1}},{"upsert":true})
+//pageViews가 3인 새로운 도큐먼트를 만들고 3만큼 증가시켜 pageViews는 4가 된다.
+//일치 하지않으면 실행되지 않는다.
 
+// 다중 도큐먼트 갱신
+db.users.insertMany([{"birthday" : "10/13/1978"},
+{"birthday" : "10/13/1978"},
+{"birthday" : "10/13/1978"}])
 
+db.users.updateMany({"birthday" : "10/13/1978"},
+{"$set":{"gift":"Happy Birthday!"}})
