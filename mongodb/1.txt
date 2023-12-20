@@ -445,10 +445,60 @@ $ne는 모든 자료형에 사용이 가능한다.
 { "_id" : ObjectId("4b2b9f67a1f631733d917a7c"), "name" : "joe", "age" : 49, "sex" : "male", "location" : "wisconsin", "birthday" : "10/13/1978" }
 
 ### 여러개 의 키를 비교
+select * from users where name = 'rhee' or birth = '10/13/1978'
+> db.users.find({"$or" : [{"name" :{"rhee"}, {"birthday" : "10/13/1978"}]})
+
+select * from users where name in (20, 40, 'rhee') or birthday = '10/13/1978'
 > db.users.find({"$or" : [{"name" :{ "$nin" : [20, 40, "rhee"]} }, {"birthday" : "10/13/1978"}]})
 { "_id" : ObjectId("4b2b9f67a1f631733d917a7a"), "name" : "joe", "age" : 65, "sex" : "male", "location" : "wisconsin", "favorite book" : [ "Green Eggs and Ham", "War and Peace", "Car's Cadle" ], "birthday" : "10/13/1978" }
 { "_id" : ObjectId("4b2b9f67a1f631733d917a7b"), "name" : "rhee", "age" : 21, "sex" : "male", "location" : "wisconsin", "birthday" : "10/13/1978" }
 { "_id" : ObjectId("4b2b9f67a1f631733d917a7c"), "name" : "joe", "age" : 49, "sex" : "male", "location" : "wisconsin", "birthday" : "10/13/1978" }
+
+
+> db.users.updateOne({"_id" : ObjectId("4b2b9f67a1f631733d917a7a")}, {"$set" : {"id_num" : 1}})
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+> db.users.updateOne({"_id" : ObjectId("4b2b9f67a1f631733d917a7b")}, {"$set" : {"id_num" : 6}})
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+> db.users.updateOne({"_id" : ObjectId("4b2b9f67a1f631733d917a7c")}, {"$set" : {"id_num" : 15}})
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+> db.users.find({"id_num" : {"$mod":[5, 1]}})
+
+###나머지 연산 
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7a"), "name" : "joe", "age" : 65, "sex" : "male", "location" : "wisconsin", "favorite book" : [ "Green Eggs and Ham", "War and Peace", "Car's Cadle" ], "birthday" : "10/13/1978", "id_num" : 1 }
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7b"), "name" : "rhee", "age" : 21, "sex" : "male", "location" : "wisconsin", "birthday" : "10/13/1978", "id_num" : 6 }
+
+#### $not
+메타조건 절이며 어더한 조건에도 적용할 수 있다.    
+> db.users.find({"id_num" : { "$not" : {"$mod":[5, 1]}}})
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7c"), "name" : "joe", "age" : 49, "sex" : "male", "location" : "wisconsin", "birthday" : "10/13/1978", "id_num" : 15 }
+
+### 형 특정 쿼리
+### null
+db.c.insertMany([
+  { "_id": ObjectId('4b2b9f67a1f631733d917a7a'), "y": null},
+  { "_id": ObjectId('4b2b9f67a1f631733d917a7b'), "y": 1, },
+  { "_id": ObjectId('4b2b9f67a1f631733d917a7c'), "y": 2, }
+])
+> db.c.find()
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7a"), "y" : null }
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7b"), "y" : 1 }
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7c"), "y" : 2 }
+
+> db.c.find({"y" : null})
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7a"), "y" : null }
+"y"키가 null인 도큐먼트를 쿼리한  결과이다.
+
+하지만 null은 '존재하지 않음'과도 일치한다. 그러므로 키가 null인 값을 쿼리하면 해당 키를 갖지 않는 도큐먼트도 반환한다.
+> db.c.find({"z" : null})
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7a"), "y" : null }
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7b"), "y" : 1 }
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7c"), "y" : 2 }
+
+# 키가 없는 경우를 제외하려면 다음과 같이  "$exists"조건절을 사용하면 된다.
+> db.c.find({"z" : {"$eq" : null , "$exists" : true}})
+
+### 배열에 쿠리하기
+
 
 
 
