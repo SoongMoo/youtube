@@ -498,6 +498,155 @@ db.c.insertMany([
 > db.c.find({"z" : {"$eq" : null , "$exists" : true}})
 
 ### 배열에 쿠리하기
+> db.food.insertOne({"fruit": ["apple","banana","peach"]})
+{
+        "acknowledged" : true,
+        "insertedId" : ObjectId("65829bfcc6cb4f06e7cd2e87")
+}
+> db.food.find({"fruit":"banana"})
+{ "_id" : ObjectId("65829bfcc6cb4f06e7cd2e87"), "fruit" : [ "apple", "banana", "peach" ] }
+
+$all연산자
+2개이상의 요소가 일치하는 배열을 찾을 때
+> db.food.insertOne({"fruit": ["apple","kumpuat","orange"]})
+> db.food.insertOne({"fruit": ["cherry","banana","apple"]})
+> db.food.find()
+{ "_id" : ObjectId("65829bfcc6cb4f06e7cd2e87"), "fruit" : [ "apple", "banana", "peach" ] }
+{ "_id" : ObjectId("65829d39c6cb4f06e7cd2e88"), "fruit" : [ "apple", "kumpuat", "orange" ] }
+{ "_id" : ObjectId("65829d47c6cb4f06e7cd2e89"), "fruit" : [ "cherry", "banana", "apple" ] }
+> db.food.find({"fruit" : {"$all" : ["apple","banana"]}})
+{ "_id" : ObjectId("65829bfcc6cb4f06e7cd2e87"), "fruit" : [ "apple", "banana", "peach" ] }
+{ "_id" : ObjectId("65829d47c6cb4f06e7cd2e89"), "fruit" : [ "cherry", "banana", "apple" ] }
+
+> db.food.find({"fruit": ["apple","banana","peach"]})
+{ "_id" : ObjectId("65829bfcc6cb4f06e7cd2e87"), "fruit" : [ "apple", "banana", "peach" ] }
+
+> db.food.find({"fruit": ["apple","banana"]})
+일치 하는 것이 없다.
+> db.food.find({"fruit": ["banana","apple","peach"]})
+마찬가지
+> db.food.find({"fruit": "peach"})
+{ "_id" : ObjectId("65829bfcc6cb4f06e7cd2e87"), "fruit" : [ "apple", "banana", "peach" ] }
+
+index가 2인 요소가 peach인것만
+> db.food.find({"fruit.2": "peach"})
+{ "_id" : ObjectId("65829bfcc6cb4f06e7cd2e87"), "fruit" : [ "apple", "banana", "peach" ] }
+
+
+$size는 특정 크기의 배열을 쿼리하는 유용한 조건절
+> db.food.find({"fruit": {"$size" : 3}})
+{ "_id" : ObjectId("65829bfcc6cb4f06e7cd2e87"), "fruit" : [ "apple", "banana", "peach" ] }
+{ "_id" : ObjectId("65829d39c6cb4f06e7cd2e88"), "fruit" : [ "apple", "kumpuat", "orange" ] }
+{ "_id" : ObjectId("65829d47c6cb4f06e7cd2e89"), "fruit" : [ "cherry", "banana", "apple" ] }
+
+배열갱신
+> var criteria = {"_id" : ObjectId("65829bfcc6cb4f06e7cd2e87")}
+> db.food.update(criteria, {"$push" : {"fruit" : "strawberry"}}  )
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+> db.food.update(criteria, {"$push" : {"fruit" : "strawberry"}, "$inc" : {"size" : 1}}  )
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.food.find()
+{ "_id" : ObjectId("65829bfcc6cb4f06e7cd2e87"), "fruit" : [ "apple", "banana", "peach", "strawberry", "strawberry" ], "size" : 1 }
+{ "_id" : ObjectId("65829d39c6cb4f06e7cd2e88"), "fruit" : [ "apple", "kumpuat", "orange" ] }
+{ "_id" : ObjectId("65829d47c6cb4f06e7cd2e89"), "fruit" : [ "cherry", "banana", "apple" ] }
+
+> db.food.find({"size" : {"$gte" : 1}}))
+{ "_id" : ObjectId("65829bfcc6cb4f06e7cd2e87"), "fruit" : [ "apple", "banana", "peach", "strawberry", "strawberry" ], "size" : 1 }
+
+$slice연산자
+find의 두 번째 매개변수에는 반환받을 키를 지정한다.
+$slice연산자를 사용해서 배열 요소의 부분 집합을 반환받을 수 있다.
+
+# comments를 2만 가지고 오기
+> db.blog.findOne({"_id" : ObjectId("657a6c86add257455351ede9")}, {"comments" : {"$slice" : 2}})
+{
+        "_id" : ObjectId("657a6c86add257455351ede9"),
+        "title" : "A blog post",
+        "content" : "....",
+        "comments" : [
+                {
+                        "comment" : "good post",
+                        "auther" : "John",
+                        "votes" : 0
+                },
+                {
+                        "comment" : "i thougnt it was too short",
+                        "auther" : "Clare",
+                        "votes" : 3
+                }
+        ]
+}
+
+# 밑에서 2개만 가지고 오기
+> db.blog.findOne({"_id" : ObjectId("657a6c86add257455351ede9")}, {"comments" : {"$slice" : -2}})
+{
+        "_id" : ObjectId("657a6c86add257455351ede9"),
+        "title" : "A blog post",
+        "content" : "....",
+        "comments" : [
+                {
+                        "comment" : "free watches",
+                        "auther" : "Alice",
+                        "votes" : -5
+                },
+                {
+                        "comment" : "vacation getways",
+                        "auther" : "Lynn",
+                        "votes" : -7
+                }
+        ]
+}
+
+# 2번까지 건너 뛰고 2개 가져오기
+> db.blog.findOne({"_id" : ObjectId("657a6c86add257455351ede9")}, {"comments" : {"$slice" : [2, 2]}})
+{
+        "_id" : ObjectId("657a6c86add257455351ede9"),
+        "title" : "A blog post",
+        "content" : "....",
+        "comments" : [
+                {
+                        "comment" : "free watches",
+                        "auther" : "Alice",
+                        "votes" : -5
+                },
+                {
+                        "comment" : "vacation getways",
+                        "auther" : "Lynn",
+                        "votes" : -7
+                }
+        ]
+}
+
+#마지막 댓글 가져온다.
+> db.blog.findOne({"_id" : ObjectId("657a6c86add257455351ede9")}, {"comments" : {"$slice" : -1}})
+{
+        "_id" : ObjectId("657a6c86add257455351ede9"),
+        "title" : "A blog post",
+        "content" : "....",
+        "comments" : [
+                {
+                        "comment" : "vacation getways",
+                        "auther" : "Lynn",
+                        "votes" : -7
+                }
+        ]
+}
+
+#comments의 auther가 John의 댓글을 하나만
+> db.blog.findOne({"comments.auther" :  "John" }, {"comments.$" : 1})
+{
+        "_id" : ObjectId("657a6c86add257455351ede9"),
+        "comments" : [
+                {
+                        "comment" : "good post",
+                        "auther" : "John",
+                        "votes" : 0
+                }
+        ]
+}
+
+
 
 
 
