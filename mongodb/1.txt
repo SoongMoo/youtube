@@ -646,6 +646,57 @@ $slice연산자를 사용해서 배열 요소의 부분 집합을 반환받을 �
         ]
 }
 
+> db.collectionName.insertOne({ 'x': 5 });
+> db.collectionName.insertOne({ 'x': 15 });
+> db.collectionName.insertOne({ 'x': 25 });
+> db.collectionName.insertOne({ 'x': [5, 25]});
+> db.collectionName.find();
+{ "_id" : ObjectId("6583e9e038416d4181fc58b1"), "x" : 5 }
+{ "_id" : ObjectId("6583e9e538416d4181fc58b2"), "x" : 15 }
+{ "_id" : ObjectId("6583e9eb38416d4181fc58b3"), "x" : 25 }
+{ "_id" : ObjectId("6583e9ef38416d4181fc58b4"), "x" : [ 5, 25 ] }
+
+> db.collectionName.find({"x" : {"$gt" : 10, "$lt" : 20}});
+{ "_id" : ObjectId("6583e9e538416d4181fc58b2"), "x" : 15 }
+{ "_id" : ObjectId("6583e9ef38416d4181fc58b4"), "x" : [ 5, 25 ] }
+5와 25는 둘 다 10과 20사이는 아니지만 25는 첫번째 절과 일치하고 (10보다 크다) 5는 두 번째 결과와 일치하기 때문(20보다 작다)에 반환된다.
+이 방법은 배열에 대한 범위 쿼리가 슬모없어진다.
+범위가 다중요소 배열과 일치하기 때문이다.
+
+> db.collectionName.find({"x" : {"$elemMatch" : {"$gt" : 10, "$lt" : 20}}});
+결과없음
+{ "x" : 15 }는 배열이 아니므로 쿼리와 일티 하지 않음
+
+> db.collectionName.insertOne({ 'x': [13, 18]});
+> db.collectionName.find({"x" : {"$elemMatch" : {"$gt" : 10, "$lt" : 20}}});
+{ "_id" : ObjectId("6583eca738416d4181fc58b5"), "x" : [ 13, 18 ] }
+$elemMatch은 배열 요소에 대한 범위 쿼리에 유용
+
+
+
+> db.people.insertOne({"name" : {"first" : "Joe" , "last" : "Schmoe"}, "age" : 45})
+> db.people.find({"name" : {"first" : "Joe", "last" : "Schmoe"}})
+{ "_id" : ObjectId("6583f1f738416d4181fc58b6"), "name" : { "first" : "Joe", "last" : "Schmoe" }, "age" : 45 }
+
+내장 도큐먼트 쿼리를 할때는 가능하다면 특정키로 쿼리하는 방법이 좋다.
+> db.people.find({"name.first" : "Joe", "name.last" : "Schmoe"})
+{ "_id" : ObjectId("6583f1f738416d4181fc58b6"), "name" : { "first" : "Joe", "last" : "Schmoe" }, "age" : 45 }
+
+
+> db.blog.find({"comments" : {"auther" : "Clare", "votes" : {"$lte" : 3}}})
+결과가 없다
+> db.blog.find({"comments.auther" : "Clare", "comments.votes" : {"$lte" : 3}})
+{ "_id" : ObjectId("657a6c86add257455351ede9"), "title" : "A blog post", "content" : "....", "comments" : [ { "comment" : "good post", "auther" : "John", "votes" : 0 }, { "comment" : "i thougnt it was too short", "auther" : "Clare", "votes" : 3 }, { "comment" : "free watches", "auther" : "Alice", "votes" : -5 }, { "comment" : "vacation getways", "auther" : "Lynn", "votes" : -7 } ] }
+> db.blog.find({"comments" : {"$elemMatch" : {"auther" : "John", "votes" : {"$lte": 3} }}})
+{ "_id" : ObjectId("657a6c86add257455351ede9"), "title" : "A blog post", "content" : "....", "comments" : [ { "comment" : "good post", "auther" : "John", "votes" : 0 }, { "comment" : "i thougnt it was too short", "auther" : "Clare", "votes" : 3 }, { "comment" : "free watches", "auther" : "Alice", "votes" : -5 }, { "comment" : "vacation getways", "auther" : "Lynn", "votes" : -7 } ] }
+>
+
+# $where쿼리
+
+
+
+
+
 
 
 
