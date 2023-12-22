@@ -692,6 +692,54 @@ $elemMatch은 배열 요소에 대한 범위 쿼리에 유용
 >
 
 # $where쿼리
+도쿠먼트 내 두 키의 값을 비교하는 쿼리에 가장 자주 쓰인다.
+두 필드 값이 동일 한 도쿠먼트를 반환받아보자. 
+
+예를 들어 두 번째 도쿠먼트에서 "spinach"와  "watermelon"이 같은 값을 가진다. 몽고DB에서는 이런 경우 $조건절을 사용할 수 없으므로 "$where"절 내 자바스크립트로 처리한다.
+
+db.foo.find({"$where" : function(){
+  for(var current in this){
+    for(var other in this){
+      if(current != other && this[current] == this[current]){
+        return true;
+      }
+    }
+  }
+  return false;
+}})
+{ "_id" : ObjectId("6584ca72100c7e7049a56fa9"), "apple" : 1, "banana" : 6, "peach" : 3 }
+{ "_id" : ObjectId("6584caa4100c7e7049a56faa"), "apple" : 8, "spinach" : 4, "watermelon" : 4 }
+함수가 true를 반환하면 해당 도큐먼트는 결과 셋에 포함되고 false를 반환하면 포함되지 않는다.
+
+특정 값보다 큰 값 찾기:
+db.collection.find({
+  $where: function() {
+    return this.fieldName > 10;
+  }
+})
+문자열 길이가 특정 값보다 큰 문서 찾기:
+db.collection.find({
+  $where: function() {
+    return this.stringField.length > 5;
+  }
+})
+
+두 필드 값을 비교하여 찾기:
+db.collection.find({
+  $where: function() {
+    return this.field1 > this.field2;
+  }
+})
+특정 문자열을 포함하는 문서 찾기:
+
+db.collection.find({
+  $where: function() {
+    return this.stringField.includes("example");
+  }
+})
+
+
+
 
 
 
