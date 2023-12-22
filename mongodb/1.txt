@@ -738,6 +738,85 @@ db.collection.find({
   }
 })
 
+커서
+결과 개수를 제한하거나, 결과 중 몇개를 건너뛰거나, 여러개를 조절한 결과를 어떤 방향으로든 정렬하는 등 다양하게 조작할 수 있다.
+> for (i = 0; i<100;i++){
+... db.collection.insertOne({"x" : i})
+... }
+{
+        "acknowledged" : true,
+        "insertedId" : ObjectId("65854344100c7e7049a5700e")
+}
+> var cursor = db.collection.find()
+> while (cursor.hasNext()){
+    obj = cursor.next() 
+    print(obj.x)
+}
+{ "_id" : ObjectId("65854344100c7e7049a5700e"), "x" : 99 }
+ # cursor.hasNext()는 다음결과가 존재하는지 확인, cursor.next() 는 그결과를 가지고 온다.
+
+> var cursor = db.people.find()
+> cursor.forEach(function(x){ print(x.name) })
+joe
+joe
+joe
+[object BSON]
+
+> var cursor = db.collection.find().sort({"x" : 1}).limit(1).skip(15)
+> cursor.hasNext()
+> var cursor = db.collection.find().limit(1).sort({"x" : 1}).skip(15)
+> cursor.hasNext()
+> var cursor = db.collection.find().skip(15).limit(1).sort({"x" : 1})
+> cursor.hasNext()
+
+# 제한과 건너 뛰기, 정렬
+반환받는 개수를 제한하거나, 몇개의 결과를 건너뛰거나, 결과를 정렬
+> db.collection.find().limit(3)
+{ "_id" : ObjectId("65854344100c7e7049a56fab"), "x" : 0 }
+{ "_id" : ObjectId("65854344100c7e7049a56fac"), "x" : 1 }
+{ "_id" : ObjectId("65854344100c7e7049a56fad"), "x" : 2 }
+> db.collection.find().skip(3)
+{ "_id" : ObjectId("65854344100c7e7049a56fae"), "x" : 3 }
+{ "_id" : ObjectId("65854344100c7e7049a56faf"), "x" : 4 }
+{ "_id" : ObjectId("65854344100c7e7049a56fb0"), "x" : 5 }
+{ "_id" : ObjectId("65854344100c7e7049a56fb1"), "x" : 6 }
+{ "_id" : ObjectId("65854344100c7e7049a56fb2"), "x" : 7 }
+{ "_id" : ObjectId("65854344100c7e7049a56fb3"), "x" : 8 }
+{ "_id" : ObjectId("65854344100c7e7049a56fb4"), "x" : 9 }
+{ "_id" : ObjectId("65854344100c7e7049a56fb5"), "x" : 10 }
+{ "_id" : ObjectId("65854344100c7e7049a56fb6"), "x" : 11 }
+{ "_id" : ObjectId("65854344100c7e7049a56fb7"), "x" : 12 }
+{ "_id" : ObjectId("65854344100c7e7049a56fb8"), "x" : 13 }
+{ "_id" : ObjectId("65854344100c7e7049a56fb9"), "x" : 14 }
+{ "_id" : ObjectId("65854344100c7e7049a56fba"), "x" : 15 }
+{ "_id" : ObjectId("65854344100c7e7049a56fbb"), "x" : 16 }
+{ "_id" : ObjectId("65854344100c7e7049a56fbc"), "x" : 17 }
+{ "_id" : ObjectId("65854344100c7e7049a56fbd"), "x" : 18 }
+{ "_id" : ObjectId("65854344100c7e7049a56fbe"), "x" : 19 }
+{ "_id" : ObjectId("65854344100c7e7049a56fbf"), "x" : 20 }
+{ "_id" : ObjectId("65854344100c7e7049a56fc0"), "x" : 21 }
+{ "_id" : ObjectId("65854344100c7e7049a56fc1"), "x" : 22 }
+
+> db.people.find({"name": "joe"}).limit(2).sort({"age": -1 })
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7a"), "name" : "joe", "age" : 65 }
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7c"), "name" : "joe", "age" : 49 }
+
+> db.people.find({"name": "joe"}).limit(3).sort({"age": -1 }).skip(1)
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7c"), "name" : "joe", "age" : 49 }
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7b"), "name" : "joe", "age" : 20 }
+> db.people.find({"name": "joe"}).limit(3).sort({"age": -1 }).skip(2)
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7b"), "name" : "joe", "age" : 20 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
