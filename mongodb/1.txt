@@ -808,6 +808,102 @@ joe
 { "_id" : ObjectId("4b2b9f67a1f631733d917a7b"), "name" : "joe", "age" : 20 }
 
 
+인덱싱
+for (i=0; i < 1000000 ; i++){
+  db.test.insertOne({
+    "i" : i,
+    "username" : "user"+i,
+    "age" : Math.floor(Math.random()*120),
+    "created" : new Date()
+  });
+}
+
+# explain함수를 이용해 쿼리ㅏ가 실행될 때 몽고DB가 무엇을 하는지 확인할 수 있다.
+explain는 명령을 감사는 커서 보조자 메서드와 사용하면 좋다. 
+explain커서 메서드는 다양한 CRUD작업의 실행 정보를 제공한다.
+executionStats모드는 인덱스를 이용한 쿼리의 효과를 이해하는 데 도움이 된다. 
+executionStats 필드의 값인 중첩된 도큐먼트를 살펴본다. 
+totalDocsExamined 는 몽고DB가 쿼리를 실행하면서 살펴본 도큐먼트의 개수이다,.
+"executionTimeMillis"는 0.4초걸렸다. 걸린 시간을 밀리초 단위로 보여준다.
+"nReturned"는 반환받은 결과의 수를 보여준다. 단 한명이므로 값은 1이다.
+db.test.find({"username" : "user101"}).explain("executionStats")
+{
+        "explainVersion" : "1",
+        "queryPlanner" : {
+                "namespace" : "admin.test",
+                "indexFilterSet" : false,
+                "parsedQuery" : {
+                        "username" : {
+                                "$eq" : "user101"
+                        }
+                },
+                "maxIndexedOrSolutionsReached" : false,
+                "maxIndexedAndSolutionsReached" : false,
+                "maxScansToExplodeReached" : false,
+                "winningPlan" : {
+                        "stage" : "COLLSCAN",
+                        "filter" : {
+                                "username" : {
+                                        "$eq" : "user101"
+                                }
+                        },
+                        "direction" : "forward"
+                },
+                "rejectedPlans" : [ ]
+        },
+        "executionStats" : {
+                "executionSuccess" : true,
+                "nReturned" : 1,
+                "executionTimeMillis" : 434,
+                "totalKeysExamined" : 0,
+                "totalDocsExamined" : 1000000,
+                "executionStages" : {
+                        "stage" : "COLLSCAN",
+                        "filter" : {
+                                "username" : {
+                                        "$eq" : "user101"
+                                }
+                        },
+                        "nReturned" : 1,
+                        "executionTimeMillisEstimate" : 4,
+                        "works" : 1000002,
+                        "advanced" : 1,
+                        "needTime" : 1000000,
+                        "needYield" : 0,
+                        "saveState" : 1000,
+                        "restoreState" : 1000,
+                        "isEOF" : 1,
+                        "direction" : "forward",
+                        "docsExamined" : 1000000
+                }
+        },
+        "command" : {
+                "find" : "test",
+                "filter" : {
+                        "username" : "user101"
+                },
+                "$db" : "admin"
+        },
+        "serverInfo" : {
+                "host" : "DESKTOP-1PD96SS",
+                "port" : 27017,
+                "version" : "5.0.23",
+                "gitVersion" : "3367195a14d0ba2734d2ba2719294fb974ad0834"
+        },
+        "serverParameters" : {
+                "internalQueryFacetBufferSizeBytes" : 104857600,
+                "internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+                "internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+                "internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+                "internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+                "internalQueryProhibitBlockingMergeOnMongoS" : 0,
+                "internalQueryMaxAddToSetBytes" : 104857600,
+                "internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+        },
+        "ok" : 1
+}
+
+
 
 
 
