@@ -967,6 +967,91 @@ age필드는 오름차순으로 정렬, 각나이에서 "username" 역시 오름
 > db.test.find({"age" : {"$gte" : 21 , "$lte" : 30}})
 
 > db.test.find({"age" : {"$gte" : 21 , "$lte" : 30}}).sort({"username" : 1})
+다중 쿼리에 정렬도 포함. 이때 username은 정렬되지 않는다. 위 쿼리보다 비효율적이다.
+
+> db.students.insertOne(
+  {
+    "_id": ObjectId('657a6c86add257455351ede9'),
+    "student_id": 0,
+    "scores": [
+       { "type": 'exam', 
+        "score": 38.0500000060199827 },
+       { "type": 'quiz', 
+        "score": 79.4507499500898700 },
+       { "type": 'homework', 
+        "score": 74.5015054869953400 },
+       { "type": 'homework', 
+        "score": 74.6838168461584500 }
+    ],
+    "class_id" : 127
+  }
+)
+> db.students.findOne()
+{
+        "_id" : ObjectId("657a6c86add257455351ede9"),
+        "student_id" : 0,
+        "scores" : [
+                {
+                        "type" : "exam",
+                        "score" : 38.050000006019985
+                },
+                {
+                        "type" : "quiz",
+                        "score" : 79.45074995008987
+                },
+                {
+                        "type" : "homework",
+                        "score" : 74.50150548699534
+                },
+                {
+                        "type" : "homework",
+                        "score" : 74.68381684615845
+                }
+        ],
+        "class_id" : 127
+}
+> db.students.createIndex({"class_id" : 1})
+{
+        "numIndexesBefore" : 1,
+        "numIndexesAfter" : 2,
+        "createdCollectionAutomatically" : false,
+        "ok" : 1
+}
+> db.students.createIndex({"student_id" : 1 , "class_id" : 1})
+{
+        "numIndexesBefore" : 2,
+        "numIndexesAfter" : 3,
+        "createdCollectionAutomatically" : false,
+        "ok" : 1
+}
+> db.students.find({"student_id"  : {"$gt" : 500000}, "class_id" : 54  }).sort({"student_id" : 1}).explain("executionStats")
+"totalKeysExamined"와 "nReturned"를 비교하면 몽고DB는 쿼리와 일치하는 도큐먼트를 찾으려고 얼마나 많은 인텍스를 통과 했는지 알 수 있다. 84만477개에서 9903개를 찾음.
+
+쿼리를 충족시키는 인덱스가 선택적이지 않았음을 의미한다.
+"executionTimeMillis"필드에 표시됐듯 쿼리를 실행하는데 4.3초가 넘게 걸린다.
+
+쿼리의 인덱스에서 잘못된 부분을 파악해보자
+"rejectedPlans" : [
+                        {
+                                "stage" : "SORT",
+...
+에서 "SORT"는 인덱스를 사용할 수 없어서 대신 인메모리 정렬을 한 것이다.
+여기서 "student_id"가 50만보다 큰 레커드를 요청하므로 광범위한 "student_id"값을 지정한다. 이;는 컬렉션에 있는 절반 이상이다.
+
+> db.students.find({"student_id"  : {"$gt" : 500000}, "class_id" : 54  }).sort({"student_id" : 1}).hint({"class_id" : 1}).explain("executionStats")
+hint를 사용하지 않고 쿼리를 효율적으로 실행하는 방법을 생각해보자
+
+"class_id" 와 "student_id"를 기반으로 하는 인덱스이다.
+> db.students.createIndex({"class_id" : 1, "student_id" : 1 })
+> db.students.find({"student_id"  : {"$gt" : 500000}, "class_id" : 54  }).sort({"student_id" : 1}).explain("executionStats")
+# index를 사용하는 것을 알 수 있다.
+
+> db.students.find({"student_id"  : {"$gt" : 500000}, "class_id" : 54  }).sort({final_grade : 1}).explain("executionStats")
+# final_grade를 사용해도 먼저 보다는 빠르지만 인메모리를 사용하므로 위 예제보다 느리다.
+
+
+
+
 
 
 
