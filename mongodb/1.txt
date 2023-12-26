@@ -903,6 +903,16 @@ db.test.find({"username" : "user101"}).explain("executionStats")
         "ok" : 1
 }
 
+인덱스를 만들려면 createIndex컬렉션 메서드를 사용한다.
+> db.test.createIndex({"username" : 1})
+{
+        "numIndexesBefore" : 1,
+        "numIndexesAfter" : 2,
+        "createdCollectionAutomatically" : false,
+        "ok" : 1
+}
+# db.test.find({"username" : "user101"}).explain("executionStats")를 실행시켜 진행률을 확인 해보자.
+
 
 
 
