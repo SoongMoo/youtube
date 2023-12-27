@@ -1066,15 +1066,34 @@ $not을 사용하는 쿼리는 대부분 테이블 스캔을 한다.
 > db.test.find({"username": {"$gt": "user5","$lt": "user8"}, "age": 47})
 > db.test.find({"username": {"$gt": "user5","$lt": "user8"}, "age": 47}).explain("executionStats")
 
+#  or쿼리
+> db.foo.createIndex({"apple" : 1})
+> db.foo.createIndex({"banana" : 1})
+
+현재 몽고DB는 하나의 쿼리에 하나의 index만 사용 할 수 있다. 
+{"apple" : 1} 와 {"banana" : 1}의 두개의 INDEX가 있는 경우 {"apple" : 1, "banana" : 6 }으로 쿼리를 실행하면 생성된 인덱스 두개 중 하나만 사용한다.
+> db.foo.find({"apple" : 1 , "banana" : 6 })
+
+하지만 &or은 잘마다 하나씩의 인덱스를 사용한다.
+> db.foo.find({"$or" : [{"apple" : 1}, {"banana" : 6 }]})
+{ "_id" : ObjectId("6584ca72100c7e7049a56fa9"), "apple" : 1, "banana" : 6, "peach" : 3 }
+> db.foo.find({"$or" : [{"apple" : 1}, {"banana" : 6 }]}).explain()
+
+# 두번 쿼리해서 병합하는 것 보다는 한번쿼리하는 것이 좋다. 그런 경우 &or보다 &in이 더 좋다.
+> db.foo.find({"apple": { "$in": [1, 8] }})
 
 
+내장 도큐먼트 index
+> db.students.find()
+> db.students.createIndex({"scores.score" : 1})
+서브도큐먼트를 쿼리 할때만 실행된다.
 
-
-
-
-
-
-
+> db.students.find({"scores.score" : 79.45074995008987 })
+> db.students.find({"scores.score" : 79.45074995008987 }).explain() 
+# 위 코드는 index르ㅓㄹ 사용한다는 것을 알 수 있다..
+> db.students.find( {"scores" : { "type" : "exam", "score" : 38.050000006019985 }})
+> db.students.find( {"scores" : { "type" : "exam", "score" : 38.050000006019985 }}).explain()
+# 하지만 위 코드는 index를 사용하지 않는다.
 
 
 
