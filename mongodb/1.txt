@@ -1113,7 +1113,7 @@ $not을 사용하는 쿼리는 대부분 테이블 스캔을 한다.
         "compony" : null,
         "financial_org" : {
             "name" : "Greylock Partners",
-            "permaLink" : "graylock"
+            "permalink" : "greylock"
         },
         "person" : null
     },
@@ -1121,7 +1121,7 @@ $not을 사용하는 쿼리는 대부분 테이블 스캔을 한다.
         "commpany" : null,
         "financial_org" : {
             "name" : "Meritech Capital Partners",
-            "permaLink" : "meritech-capital-partners"
+            "permalink" : "meritech-capital-partners"
         },
         "person" : null  
     },
@@ -1129,7 +1129,7 @@ $not을 사용하는 쿼리는 대부분 테이블 스캔을 한다.
         "commpany" : null,
         "financial_org" : {
             "name" : "Founders Fund",
-            "permaLink" : "founders-fund"
+            "permalink" : "founders-fund"
         },
         "person" : null  
     },
@@ -1137,7 +1137,7 @@ $not을 사용하는 쿼리는 대부분 테이블 스캔을 한다.
         "commpany" : null,
         "financial_org" : {
             "name" : "SV Angel",
-            "permaLink" : "sv-angel"
+            "permalink" : "sv-angel"
         },
         "person" : null 
     }]
@@ -1152,7 +1152,7 @@ $not을 사용하는 쿼리는 대부분 테이블 스캔을 한다.
         "compony" : null,
         "financial_org" : {
             "name" : "European Founders Fund",
-            "permaLink" : "european-founders-fund"
+            "permalink" : "european-founders-fund"
         },
         "person" : null
     }
@@ -1227,13 +1227,87 @@ _id필드는 제외하고 "name"과 "founded_year" 는 포함한다.
       founded_year : 1
     }}])
 
+$project
+#중첩 필드를 승격하는 방법
+
+> db.companies.aggregate([
+    {$match:{"founded_rounds.investments.financial_org.permalink" : "greylock"}},
+    {$project : {
+      _id : 0,
+      name : 1,
+      ipo : "$ipo.pub_year",
+      valuation : "$ipo.valuation_amount",
+      funders : "$funding_rounds.investments.financial_org.permalink"
+    }}])
 
 
+# id는 숨기고 name은 출력하는데 일부 중첩 필드는 승격(같이 출력)한다.
+# "ipo"와 "funding_rounds"필드에 도달할 필드 경로를 표현해 중첩된 도큐먼트 및 배열에서 값을 선택한다.
+# $는 ipo나 valuation 그리고 funders에 값을 지정하기 위해서 사용한다.
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+    {$project : {
+      _id : 0,
+      name : 1,
+      ipo : "$ipo.pub_year",
+      valuation : "$ipo.valuation_amount",
+      funders : "$funding_rounds.investments.financial_org.permalink"
+    }}])
+{ "name" : "Facebook", 
+  "ipo" : 2012, 
+  "valuation" : NumberLong("1040000000000"), 
+  "funders" : [ [ "greylock", "meritech-capital-partners", "founders-fund", "sv-angel" ], [ "european-founders-fund" ] ] }
 
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+    {$project : {
+      _id : 0,
+      name : 1,
+      ipo : "$ipo.pub_year",
+      valuation : "$ipo.valuation_amount",
+      year : "$funding_rounds.funded_year"
+    }}])
+{ "name" : "Facebook", "ipo" : 2012, "valuation" : NumberLong("1040000000000"), "year" : [ 2006, 2008 ] }
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+     {$unwind : "$funding_rounds"},
+     {$project : {
+       _id : 0,
+       name : 1,
+       ipo : "$ipo.pub_year",
+       valuation : "$ipo.valuation_amount",
+       year : "$funding_rounds.funded_year"
+     }}])
+{ "name" : "Facebook", "ipo" : 2012, "valuation" : NumberLong("1040000000000"), "year" : 2006 }
+{ "name" : "Facebook", "ipo" : 2012, "valuation" : NumberLong("1040000000000"), "year" : 2008 }
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+     {$unwind : "$funding_rounds"},
+     {$project : {
+       _id : 0,
+       name : 1,
+       funders : "$funding_rounds.investments.financial_org.permalink",
+       valuation : "$ipo.valuation_amount",
+       year : "$funding_rounds.funded_year"
+     }}])
+{ "name" : "Facebook", "funders" : [ "greylock", "meritech-capital-partners", "founders-fund", "sv-angel" ], "valuation" : NumberLong("1040000000000"), "year" : 2006 }
+{ "name" : "Facebook", "funders" : [ "european-founders-fund" ], "valuation" : NumberLong("1040000000000"), "year" : 2008 }
 
-
-
-
+#  배열 표현식
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+     {$unwind : "$funding_rounds"},
+     {$project : {
+       _id : 0,
+       name : 1,
+       funded_year : 1,
+       rounds : {$filter : {
+          input : "$funding_rounds",
+          as : "round",
+          cond : {$gte : ["$$round.raised_amount" , 10000000000]}}}
+     }},
+     {$match : {"round.investments.financial_org.permalink" : "greylock"}}
+])
 
 
 
