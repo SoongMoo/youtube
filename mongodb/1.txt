@@ -11,7 +11,7 @@ brew services restart mongodb-community@6.0
 
 ---mongosh 계정으로 접속
 mongosh admin -u rhee -p 1234
-
+mongo admin -u rhee -p 1234
 
 new Date()
 
