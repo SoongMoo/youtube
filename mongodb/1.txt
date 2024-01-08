@@ -1096,18 +1096,136 @@ $not을 사용하는 쿼리는 대부분 테이블 스캔을 한다.
 # 하지만 위 코드는 index를 사용하지 않는다.
 
 
+### name만 바꿔서 여러번 저장
+> db.companies.insertOne(
+{"_id" : ObjectId(),
+  "name" : "Facebook",
+  "category_code" : "social",
+  "founded_year" : 2004,
+  "description" : "Social network",
+  "funding_rounds" : [{
+    "id":4,
+    "round_code" : "b",
+    "raised_amount" : 27500000,
+    "raised_currency_code" : "USD",
+    "funded_year" : 2006,
+    "investments" : [{
+        "compony" : null,
+        "financial_org" : {
+            "name" : "Greylock Partners",
+            "permaLink" : "graylock"
+        },
+        "person" : null
+    },
+    {
+        "commpany" : null,
+        "financial_org" : {
+            "name" : "Meritech Capital Partners",
+            "permaLink" : "meritech-capital-partners"
+        },
+        "person" : null  
+    },
+    {
+        "commpany" : null,
+        "financial_org" : {
+            "name" : "Founders Fund",
+            "permaLink" : "founders-fund"
+        },
+        "person" : null  
+    },
+    {
+        "commpany" : null,
+        "financial_org" : {
+            "name" : "SV Angel",
+            "permaLink" : "sv-angel"
+        },
+        "person" : null 
+    }]
+  },
+  {
+    "id":2197,
+    "round_code" : "c",
+    "raised_amount" : 15000000,
+    "raised_currency_code" : "USD",
+    "funded_year" : 2008,
+    "investments" : [{
+        "compony" : null,
+        "financial_org" : {
+            "name" : "European Founders Fund",
+            "permaLink" : "european-founders-fund"
+        },
+        "person" : null
+    }
+  ]
+  }],
+"ipo" : {
+    "valuation_amount" : NumberLong("1040000000000"),
+    "valuation_curreny_code" : "USD",
+    "pub_year" : 2012,
+    "pub_month" : 5,
+    "pub_day" : 18,
+    "stock_symbol" : "NASDAQ:F8"
+}}
+)
 
+집계: 일치, 선출, 정렬, 건너뛰기, 제한
 
+2004년 설립된 회사를 모두 찾기
+> db.companies.aggregate([{$match:{founded_year : 2004}}])
+{ "_id" : ObjectId("659b7b97dc6de9da74872d03"), "name" : "Facebook", "category_code" : "social", "founded_year" : 2004, "description" : "Social network", "funding_rounds" : [ { "id" : 4, "round_code" : "b", "raised_amount" : 27500000, "raised_currency_code" : "USD", "funded_year" : 2006, "investments" : [ { "compony" : null, "financial_org" : { "name" : "Greylock Partners", "permaLink" : "graylock" }, "person" : null }, { "commpany" : null, "financial_org" : { "name" : "Meritech Capital Partners", "permaLink" : "meritech-capital-partners" }, "person" : null }, { "commpany" : null, "financial_org" : { "name" : "Founders Fund", "permaLink" : "founders-fund" }, "person" : null }, { "commpany" : null, "financial_org" : { "name" : "SV Angel", "permaLink" : "sv-angel" }, "person" : null } ] }, { "id" : 2197, "round_code" : "c", "raised_amount" : 15000000, "raised_currency_code" : "USD", "funded_year" : 2008, "investments" : [ { "compony" : null, "financial_org" : { "name" : "European Founders Fund", "permaLink" : "european-founders-fund" }, "person" : null } ] } ], "ipo" : { "valuation_amount" : NumberLong("1040000000000"), "valuation_curreny_code" : "USD", "pub_year" : 2012, "pub_month" : 5, "pub_day" : 18, "stock_symbol" : "NASDAQ:F8" } }
 
+find를 사용해도 동일 한 결과를 얻는다.
+> db.companies.find({founded_year : 2004})
+{ "_id" : ObjectId("659b7b97dc6de9da74872d03"), "name" : "Facebook", "category_code" : "social", "founded_year" : 2004, "description" : "Social network", "funding_rounds" : [ { "id" : 4, "round_code" : "b", "raised_amount" : 27500000, "raised_currency_code" : "USD", "funded_year" : 2006, "investments" : [ { "compony" : null, "financial_org" : { "name" : "Greylock Partners", "permaLink" : "graylock" }, "person" : null }, { "commpany" : null, "financial_org" : { "name" : "Meritech Capital Partners", "permaLink" : "meritech-capital-partners" }, "person" : null }, { "commpany" : null, "financial_org" : { "name" : "Founders Fund", "permaLink" : "founders-fund" }, "person" : null }, { "commpany" : null, "financial_org" : { "name" : "SV Angel", "permaLink" : "sv-angel" }, "person" : null } ] }, { "id" : 2197, "round_code" : "c", "raised_amount" : 15000000, "raised_currency_code" : "USD", "funded_year" : 2008, "investments" : [ { "compony" : null, "financial_org" : { "name" : "European Founders Fund", "permaLink" : "european-founders-fund" }, "person" : null } ] } ], "ipo" : { "valuation_amount" : NumberLong("1040000000000"), "valuation_curreny_code" : "USD", "pub_year" : 2012, "pub_month" : 5, "pub_day" : 18, "stock_symbol" : "NASDAQ:F8" } }
 
+_id필드는 제외하고 "name"과 "founded_year" 는 포함한다.
+> db.companies.aggregate([{$match:{founded_year : 2004}},
+    {$project : {
+      _id : 0,
+      name : 1,
+      founded_year : 1
+    }}])
+{ "name" : "Facebook", "founded_year" : 2004 }
 
+5개로 제한 한 후 원하는 필드만 출력
+> db.companies.aggregate([{$match:{founded_year : 2004}},
+    {$limit : 5},
+    {$project : {
+      _id : 0,
+      name : 1,
+      founded_year : 1
+    }}])
+{ "name" : "Facebook", "founded_year" : 2004 }
 
+> db.companies.aggregate([{$match:{founded_year : 2004}},
+    {$project : {
+      _id : 0,
+      name : 1,
+      founded_year : 1      
+    }},
+    {$limit : 5}
+    ])
 
+# 이름을 오름차순으로 정렬하고 5개만 출력
+> db.companies.aggregate([{$match:{founded_year : 2004}},
+    {$limit : 5},
+    {$sort : {name : 1}},
+    {$project : {
+      _id : 0,
+      name : 1,
+      founded_year : 1
+    }}]) 
 
-
-
-
-
+먼저 정렬하고 10개의 도큐먼트는 건너뛰고 5개만 출력
+> db.companies.aggregate([{$match:{founded_year : 2004}},
+    {$sort : {name : 1}},
+    {$skip : 10},
+    {$limit : 5},
+    {$project : {
+      _id : 0,
+      name : 1,
+      founded_year : 1
+    }}])
 
 
 
