@@ -1330,3 +1330,86 @@ $$는 작업 중인 표현식 내에서 정의된 변수를 참조하는데 as�
     }}
 ])
 첫번째는 $arrayElemAt에 0을 마지막은 $arrayElemAt에 -1을 준다.
+> db.companies.aggregate([
+    {$match:{"founded_year" : 2004}},
+    {$project : {
+        _id : 0,
+        name : 1,
+        founded_year : 1,
+        early_rounds : {$slice : ["$funding_rounds", 1, 3]}
+    }}
+])
+funding_rounds에서 첫줄부터 3개만
+> db.companies.aggregate([
+    {$match:{"founded_year" : 2004}},
+    {$project : {
+        _id : 0,
+        name : 1,
+        founded_year : 1,
+        total_rounds : {$size : "$funding_rounds"}
+    }}
+])
+{ "name" : "Facebook", "founded_year" : 2004, "total_rounds" : 2 }
+$size표현식은 선출 단계에서 사용될 때 배열의 요소의 갯수만 제공
+
+# 누산기 : 모든 집계함수를 누산기라고 한다.
+> db.companies.aggregate([
+    {$match:{"funding_rounds" : {$exists : true, $ne : []}}},
+    {$project : {
+        _id : 0,
+        name : 1,
+        founded_year : 1,
+        largest_round : {$max : "$funding_rounds.raised_amount"}
+    }}
+])
+{ "name" : "Facebook", "founded_year" : 2004, "largest_round" : 27500000 }
+funding_rounds의 값은 각 회사도큐먼트 내 배열이므로 누산기를 사용할 수 있다.
+선출단계에서 누산기는 배열값 필드에서 작동해야 한다.
+
+> db.companies.aggregate([
+    {$match:{"funding_rounds" : {$exists : true, $ne : []}}},
+    {$project : {
+        _id : 0,
+        name : 1,
+        founded_year : 1,
+        total_funding : {$sum : "$funding_rounds.raised_amount"}
+    }}
+])
+{ "name" : "Facebook", "founded_year" : 2004, "total_funding" : 42500000 }
+
+# 그룹화 소개
+> db.companies.aggregate([
+    {$group :{"_id" : {founded_year : "$founded_year"},
+              average_number_of_employees : {$avg : "$number_of_employees"}
+    }},
+    {$sort : { average_number_of_employees : -1} } 
+])
+{ "_id" : { "founded_year" : 2004 }, "average_number_of_employees" : null }
+# 같은 년도로 묶어서 직원수의 평균을 구한다. number_of_employees필드가 없어 null이 나온다.
+> db.companies.aggregate([
+    {$match: {number_of_employees: {$ne: null}}},
+    {$group :{"_id" : {founded_year : "$founded_year"},
+              average_number_of_employees : {$avg : "$number_of_employees"}
+    }},
+    {$sort : { average_number_of_employees : -1} } 
+])
+# number_of_employees필드가 있어야 출력
+
+> db.companies.aggregate([
+    {$match: {"relationships.person": {$ne: null}}},
+    {$project: {relationships: 1, _id: 0}},
+    {$unwind: "$relationships"},
+    {$group: {
+        "_id": "$relationships.person",
+        "count": {$sum: 1}
+    }},
+    {$sort: {count: -1}}
+])
+# relationships.person이 있을 때만 수행
+
+
+
+
+
+
+
