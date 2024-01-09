@@ -67,6 +67,8 @@ CREATE TABLE goodsIpgo (
 /* 상품 문의 */
 CREATE TABLE goods_inquire (
 	inquire_num serial,
+#오라클 사용시
+# 	inquire_num NUMBER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1)
 	goods_num VARCHAR(10) ,
 	member_Num varchar(30),
 	inquire_subject VARCHAR(100) not null,
@@ -199,6 +201,10 @@ add constraint pay_purchase_num_pk primary key(purchase_num);
 
 alter table review 
 add column review_num serial;
+# 오라클 사용시
+#alter table review 
+#add column review_num NUMBER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1)
+
 
 alter table review
 add constraint purchase_num_goods_num_pk 
