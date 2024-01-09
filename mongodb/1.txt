@@ -1294,6 +1294,7 @@ $project
 { "name" : "Facebook", "funders" : [ "european-founders-fund" ], "valuation" : NumberLong("1040000000000"), "year" : 2008 }
 
 #  배열 표현식
+# funding_round의 raised_amount가 1억이상인 요소만 선택하여라.
 > db.companies.aggregate([
     {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
      {$unwind : "$funding_rounds"},
@@ -1308,6 +1309,28 @@ $project
      }},
      {$match : {"round.investments.financial_org.permalink" : "greylock"}}
 ])
+$filter연산자는 배열 필드와 작동되게 되어 있으며 
+$filter의 첫번째 옵션은 input이며 배열을 지정한다, 
+첫번째 인자는 funding_rounds 배열을 지정했고 두번째 인자는 funding_rounds에서 사용할 변수를 지정한다
+세번째 인자는 조건을 지정한다.
+조건입력으로 지정한 배열을 필터링하는 기준을 제공해 서브셋을 선택한다,.
+조건을 지정할 때는 $$를 사용한다. 
+$$는 작업 중인 표현식 내에서 정의된 변수를 참조하는데 as절은 표현식 내의 변수를 지정한다, 
+즉 round변수는 funding_rounds필드가 된다.
+
+#첫번째 라운딩과 마자막라운딩만 꺼낸다. 
+> db.companies.aggregate([
+    {$match:{"founded_year" : 2004}},
+    {$project : {
+        _id : 0,
+        name : 1,
+        founded_year : 1,
+        first_round : {$arrayElemAt : ["$funding_rounds" , 0]},
+        last_round : {$arrayElemAt : ["$funding_rounds" , -1]}
+    }}
+])
+첫번째는 $arrayElemAt에 0을 마지막은 $arrayElemAt에 -1을 준다.
+
 
 
 
