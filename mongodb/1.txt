@@ -9,8 +9,10 @@ db.createUser({user:'rhee',pwd:'1234',roles:['root']})
 --mongodb 재시작
 brew services restart mongodb-community@6.0
 
----mongosh 계정으로 접속
+---mongosh 계정으로 접속 : mac에서 실행하는 방버
 mongosh admin -u rhee -p 1234
+
+--- windows에서 실행
 mongo admin -u rhee -p 1234
 
 new Date()
