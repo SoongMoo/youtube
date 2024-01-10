@@ -1226,9 +1226,7 @@ _id필드는 제외하고 "name"과 "founded_year" 는 포함한다.
       name : 1,
       founded_year : 1
     }}])
-
-$project
-#중첩 필드를 승격하는 방법
+$project는 중첩 필드를 승격하는 방법
 
 > db.companies.aggregate([
     {$match:{"founded_rounds.investments.financial_org.permalink" : "greylock"}},
@@ -1406,6 +1404,57 @@ funding_rounds의 값은 각 회사도큐먼트 내 배열이므로 누산기를
     {$sort: {count: -1}}
 ])
 # relationships.person이 있을 때만 수행
+
+
+> db.companies.aggregate([
+    {$match: {"founded_year": {$gte: 2004 }}},
+    {$group: {
+        _id : { founded_year : "$founded_year"},
+        companies : { $push : "$name" },
+    }},
+    {$sort: { "_id.founded_year" : 1}}
+])
+{ "_id" : { "founded_year" : 2004 }, "companies" : [ "Facebook" ] }
+
+> db.companies.aggregate([
+    {$match: {"founded_year": {$gte: 2004 }}},
+    {$group: {
+        _id : { founded_year : "$founded_year" , category_code : "$category_code"},
+        companies : { $push : "$name" },
+    }},
+    {$sort: { "_id.founded_year" : 1}}
+])
+{ "_id" : { "founded_year" : 2004, "category_code" : "social" }, "companies" : [ "Facebook" ] }
+
+> db.companies.aggregate([
+    {$group: {
+        _id : { ipo_year : "$ipo.pub_year" },
+        companies : { $push : "$name" }
+    }},
+    {$sort: { "_id.ipo_year" : 1}}
+])
+{ "_id" : { "ipo_year" : 2012 }, "companies" : [ "Facebook" ] }
+
+
+> db.companies.aggregate([
+    {$match: {"funding_rounds": {$ne: []}}},
+    {$unwind: "$funding_rounds"},
+    {$sort: { "funding_rounds.funded_year" : 1,
+              "funding_rounds.funded_month" : 1,
+              "funding_rounds.funded_day" : 1}},
+    {$group: {
+        "_id": {company : "$name"},
+        funding : {
+          $push : {
+            amount : "$funding_rounds.raised_amount",
+            year : "$funding_rounds.funded_year"
+          }
+        }
+    }}
+])
+{ "_id" : { "company" : "Facebook" }, "funding" : [ { "amount" : 27500000, "year" : 2006 }, { "amount" : 15000000, "year" : 2008 } ] }
+
+
 
 
 
