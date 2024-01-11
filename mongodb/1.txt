@@ -1293,6 +1293,28 @@ $project는 중첩 필드를 승격하는 방법
 { "name" : "Facebook", "funders" : [ "greylock", "meritech-capital-partners", "founders-fund", "sv-angel" ], "valuation" : NumberLong("1040000000000"), "year" : 2006 }
 { "name" : "Facebook", "funders" : [ "european-founders-fund" ], "valuation" : NumberLong("1040000000000"), "year" : 2008 }
 
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+     {$unwind : "$funding_rounds"},
+     {$project : {
+       _id : 0,
+       name : 1,
+       amount : "$ipo.valuation_amount",
+       year : "$funding_rounds.funded_year"
+     }}])
+
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+     {$unwind : "$funding_rounds"},
+     {$project : {
+       _id : 0,
+       name : 1,
+       funders : "$funding_rounds.investments.financial_org.permalink",
+       amount : "$ipo.valuation_amount",
+       year : "$funding_rounds.funded_year"
+     }}])
+
+
 #  배열 표현식
 # funding_round의 raised_amount가 1억이상인 요소만 선택하여라.
 > db.companies.aggregate([
