@@ -1299,7 +1299,7 @@ $project는 중첩 필드를 승격하는 방법
      {$project : {
        _id : 0,
        name : 1,
-       amount : "$ipo.valuation_amount",
+       amount : "$funding_rounds.raised_amount",
        year : "$funding_rounds.funded_year"
      }}])
 
@@ -1310,7 +1310,7 @@ $project는 중첩 필드를 승격하는 방법
        _id : 0,
        name : 1,
        funders : "$funding_rounds.investments.financial_org.permalink",
-       amount : "$ipo.valuation_amount",
+       amount : "$funding_rounds.raised_amount",
        year : "$funding_rounds.funded_year"
      }}])
 
