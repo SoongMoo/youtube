@@ -1319,7 +1319,6 @@ $project는 중첩 필드를 승격하는 방법
 # funding_round의 raised_amount가 1억이상인 요소만 선택하여라.
 > db.companies.aggregate([
     {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
-     {$unwind : "$funding_rounds"},
      {$project : {
        _id : 0,
        name : 1,
