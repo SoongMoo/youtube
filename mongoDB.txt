@@ -1,0 +1,1419 @@
+관계형 데이터베이스 시스템 : RDBMS
+oracle, my-sql,  MS-SQL, mariadb, postgresql, IBM-DB2,...
+언어 : sql  : ISO  : 90%
+
+# no - sql : 몽고디비,...
+pandas의 DataFrame과 같다.
+{ "name" : ["이숭무", "이상범","이장범" ,"오연의"],
+  "age" : [24,30,35]  
+} : 
+# DataFrame에서 하나의 행이 되는 값(Series)이 도큐먼트
+# DataFrame은 컬렉션이라고 할 수 있다.
+
+# 도큐먼트는 json과 같다
+{ "name" : ["이숭무", "이상범","이장범"] }
+
+#컬렉션은 관계형 데이터베이스에서 table과 비슷하다.
+# no-sql에서는 컬렉션에 있는 도큐먼트의 크기는 서로 달라도 된다.
+
+실행 : sysdm.cpl ,3
+
+환경변수에 있는 path에 추가
+C:\Program Files\MongoDB\Server\5.0\bin
+
+PowerShell에서 실행
+서버 실행 : mongod
+서버 접속 : mongo
+
+관리자로 이동
+> use admin
+
+사용자 계정 만들기
+> db.createUser({user:'rhee',pwd:'1234',roles:['root']})
+> exit
+
+PowerShell에서 실행
+mongo admin -u rhee -p 1234
+
+> use video # 사용하려는 데이터베이스
+> movie={"title":"star wars","director":"george" ,"year":1997} # 도큐먼트
+> db.movies.insertOne(movie) # 컬렉션에 도큐먼트 저장
+insert into movies(title, director, year)
+values('star wars', 'george' , 1997)
+
+> db.movies.find() # 컬렉션에 있는 내용 출력
+select * from movies
+
+> db.movies.drop()
+delete from movies
+
+>db.movies.insertOne({"title":"star wars","director":"george" ,"year":1997})
+
+> db.movies.findOne({"title" : "star wars"})
+select * from movies
+where title = 'star wars'
+
+# 하나만 변경 : 첫번째 도큐먼트만 변경
+# 갱신은 키가 있으면 수정이 되고 키가 없으면 추가가 된다. 
+> db.movies.updateOne({'title' : 'star wars'},
+		      {$set : {'title' : 'star wars- IV'}})
+update movies
+set title = 'star wars- IV'
+where title = 'star wars'
+> db.movies.find()
+> db.movies.updateOne({'title' : 'star wars'},
+		      {$set : { 'reviews':[]}})
+> db.movies.find()
+{ "_id" : ObjectId("659b6d4edc6de9da74872d00"), "title" : "star wars- IV", "director" : "george", "year" : 1997 }
+{ "_id" : ObjectId("659b6dcddc6de9da74872d01"), "title" : "star wars", "director" : "george", "year" : 1997, "reviews" : [ ] }
+
+삭제 
+> db.movies.deleteOne({'title' : 'star wars'})
+delete from movies
+where title = 'star wars'
+> db.movies.find()
+# 3장 : 생성, 갱신, 삭제
+> db.movies.insertOne({"title" : "Stand by me"})
+> db.movies.find()
+> db.movies.drop()
+> db.movies.find()
+### 여러개의 데이터를 삽입
+> db.movies.insertOne([{"title" : "Stand by me"}]) # 오류 발생([]사용x)
+> db.movies.insertMany([{"title" : "Stand by me"}])
+> db.movies.find()
+{ "_id" : ObjectId("659b8918dc6de9da74872d08"), "title" : "Stand by me" }
+> db.movies.drop()
+> db.movies.find()
+
+# 중복된 id는 저장되지 않는다.
+> db.movies.insertMany([{"_id": 0, "title": "Top Gun"}, 
+		       {"_id": 1, "title": "백투더 퓨처"},
+		       {"_id": 2, "title": "Gremnlins"},
+		       {"_id": 4, "title": "Aliens"}])
+> db.movies.insertMany([{"_id": 5, "title": "Top Gun"}, 
+		       {"_id": 6, "title": "백투더 퓨처"},
+		       {"_id": 6, "title": "Gremnlins"},
+		       {"_id": 7, "title": "Aliens"}])
+> db.movies.find()
+# id를 이용하거나 속성을 이용해서 삭제가 가능하다.
+# 하나의 도큐먼트 삭제
+> db.movies.deleteOne({'_id' : 4})
+delete from movies
+where _id = 4
+
+> db.movies.find()
+# 여러개의 도큐먼트 삭제
+> db.movies.deleteMany({"title": "Top Gun"})
+delete from movies
+where title = 'Top Gun'
+
+> db.movies.find()
+{ "_id" : 1, "title" : "백투더 퓨처" }
+{ "_id" : 2, "title" : "Gremnlins" }
+{ "_id" : 6, "title" : "백투더 퓨처" }
+# 같은 데이터가 여러개 있어도 첫번째에 있는 데이터만 삭제
+> db.movies.deleteOne({"title" : "백투더 퓨처"})
+> db.movies.find()
+{ "_id" : 2, "title" : "Gremnlins" }
+{ "_id" : 6, "title" : "백투더 퓨처" }
+
+# 컬렉션에 있는 모든 도큐먼트 삭제
+> db.movies.deleteMany({}) # 조건부가 있어야 한다.
+> db.movies.drop()
+> db.movies.find()
+
+# 도큐먼트 갱신
+> db.people.drop()
+> db.people.insertOne({ "_id" : ObjectId(), 
+		     "name" : "joe", 
+		     "friends" : 32,
+		     "enemies" : 2})
+> var joe = db.people.findOne({"name" : "joe"})
+### 서브 듀큐먼트 만들기
+> joe.relationships = {"friends" : joe.friends , "enemies" : joe.enemies }
+> joe
+> joe.username = joe.name
+joe
+> joe
+> delete joe.friends
+> joe
+> delete joe.name
+> joe
+> delete joe.enemies
+> joe
+> db.people.replaceOne({"name" : "joe"}, joe)
+> db.people.findOne({"username" : "joe"})
+{
+        "_id" : ObjectId("659b9388dc6de9da74872d09"),
+        "relationships" : {
+                "friends" : 32,
+                "enemies" : 2
+        },
+        "username" : "joe"
+}
+> db.people.updateOne({"username" : "joe"},
+		      {$set : {"age" : 20}})
+> db.people.findOne({"username" : "joe"})
+> var joe = db.people.findOne({"username" : "joe"})
+> joe.age++
+> joe
+{
+        "_id" : ObjectId("659b9388dc6de9da74872d09"),
+        "relationships" : {
+                "friends" : 32,
+                "enemies" : 2
+        },
+        "username" : "joe",
+        "age" : 21
+}
+> db.people.replaceOne({"username" : "joe"}, joe)
+> db.people.replaceOne({"name" : "joe"}, joe)
+{ "acknowledged" : true, "matchedCount" : 0, "modifiedCount" : 0 }
+> db.people.replaceOne({"_id" : ObjectId("659b9388dc6de9da74872d09")},
+		       joe)
+# 갱신 연산자.
+# inc 연산자 : 증감 연산자.
+> db.people.findOne()
+{
+        "_id" : ObjectId("659b9388dc6de9da74872d09"),
+        "relationships" : {
+                "friends" : 32,
+                "enemies" : 2
+        },
+        "username" : "joe",
+        "age" : 21
+}
+> db.people.updateOne({"username" : "joe"},
+  {"$inc" : {"age" : 2}
+})
+update people
+set age = age + 2
+where username = 'joe'
+> db.people.findOne()
+{
+        "_id" : ObjectId("659b9388dc6de9da74872d09"),
+        "relationships" : {
+                "friends" : 32,
+                "enemies" : 2
+        },
+        "username" : "joe",
+        "age" : 23
+}
+# set연산자 : 필드(속성:키)가 없는 경우 필드가 추가
+> db.people.updateOne({"username" : "joe"} ,
+		{$set : {"location" : "서울"}})
+> db.people.findOne()
+> db.people.updateOne({"username" : "joe"} ,
+		{$set : {"favorite book" : "war and peace"}})
+> db.people.findOne() 
+> db.people.updateOne({"username" : "joe"} ,
+		{$set : {"favorite book" : "war and peace"}})
+> db.people.updateOne({"_id" : ObjectId("659b9388dc6de9da74872d09")} ,
+		 {$set : {"favorite book" : "Green Eggs and Ham"}})
+> db.people.updateOne({"username" : "joe"} ,
+		{$set : {"favorite book" : ["war and peace"
+			  	       ,'Green Eggs and Ham',	
+				      "Car's Cadle"]
+}})
+> db.people.findOne()
+# $unset : 필드 삭제
+> db.people.updateOne({"username" : "joe"} ,
+		{$unset : {"favorite book" : 1}})
+> db.people.findOne()
+> db.people.updateOne({"relationships.friends" : 32},
+	                   {$inc : {"relationships.enemies" : 1}})
+# inc연산자나 set연산자를 사용하지 않아 오류
+> db.people.updateOne({"relationships.friends" : 32},
+	                   {"relationships.enemies" : 1})
+> db.people.insertOne(
+{       "_id" : ObjectId(),
+        "relationships" : {
+                "friends" : 32,
+                "enemies" : 3
+        },
+        "username" : "joe",
+        "age" : 23,
+        "location" : "서울"
+       }
+)
+> db.people.find()
+### 증가와 감소 : $inc 연산자
+# $inc연산자는 증가감만을 하는 것이 아니라 
+# 필드가 없으면 필드를 추가한다.
+> db.people.updateOne({"username" : "joe", "location" : "서울"},
+		 {$inc : {"score" :  50}})
+> db.people.findOne()
+{
+        "_id" : ObjectId("659b9388dc6de9da74872d09"),
+        "relationships" : {
+                "friends" : 32,
+                "enemies" : 3
+        },
+        "username" : "joe",
+        "age" : 23,
+        "location" : "서울",
+        "score" : 50
+}
+> db.people.updateOne({"username" : "joe", "location" : "서울"},
+		 {$inc : {"score" :  10000}})
+> db.people.findOne()
+{
+        "_id" : ObjectId("659b9388dc6de9da74872d09"),
+        "relationships" : {
+                "friends" : 32,
+                "enemies" : 3
+        },
+        "username" : "joe",
+        "age" : 23,
+        "location" : "서울",
+        "score" : 10050
+}
+update people
+set score = score + 10000
+where username = 'joe' and location = '서울'
+
+> db.people.updateOne({"username" : "joe", "location" : "서울"},
+		 {$inc : {"score" :  "10000"}})
+#$inc연산자를 사용하는 경우에는 필드의 값이나  갱신해야 하는
+값이 숫자이어야만 한다. 
+$inc는 int , long, double, decimal타입값에만 사용할 수 있다. 키 값은 무조건 숫자여야 한다,
+null, 불리언, 문자열로 나타낸 숫자와 같이 여러 언어에서 숫자로  변환되는 
+데이터형의 값에서는 사용할 수 없다.
+
+배열연산자
+> db.blog.posts.insertOne(
+{ "_id": ObjectId(),
+  "title" : "A blog post",
+  "content" : "...."}
+)
+> db.blog.posts.findOne({"title" : "A blog post"})
+{
+        "_id" : ObjectId("659c95aa434582cd39addf21"),
+        "title" : "A blog post",
+        "content" : "...."
+}
+# 댓글 추가
+# $push는 도큐먼트 추가
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		           {$push : {"contents" :
+                                    {"name":"joe", "email" : "joe@example.com","content":"nice post."}
+}})
+> db.blog.posts.findOne({"title" : "A blog post"})
+{
+        "_id" : ObjectId("659c95aa434582cd39addf21"),
+        "title" : "A blog post",
+        "content" : "....",
+        "contents" : [
+                {
+                        "name" : "joe",
+                        "email" : "joe@example.com",
+                        "content" : "nice post."
+                }
+        ]
+}
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		           {$push : {"contents" :
+                                    {"name":"bob", "email" : "bob@example.com","content":"good post."}
+}})
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		           {$set : {"top10" : ["Green Eggs and Ham"]}}
+)
+# 한번에 여러개의 값을 추가할 수 있다. : $each
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		           {$push : {
+				"top10" : {
+					$each: ["Nightmare on Elm Street", "Saw"]
+					}
+			          }
+		           })
+
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		           {$push : {
+				"top10" : {
+					$each: ["스타워치", "겨울왕국", "증인"] ,
+					$slice : -10
+					}
+			          }
+		           })
+$slice에 -10은 도큐먼트가 10개 이내이면 추가를 하고 10가 되면 멈추도록 해라.
+10개가 넘가면 앞에것은 삭제를 한다.
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		           {$set : {"top10" : "..."}})
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		           {$push : {
+				"top10" : {
+					$each: ["Nightmare on Elm Street", "Saw"]
+					}
+			          }
+		           })
+$each를 사용하기 위해서는 필드가 배열 이어야 한다.
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		           {$set : {"top10" : []}})
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		           {$push : {
+				"top10" : {
+					$each: [{"name" : "이숭무" , "rating" : 4.3},
+					          {"name" : "saw" , "rating" : 6.6}] ,
+                                                                $slice : -10,
+					$sort : {"rating" : -1 }
+					}
+			          }
+		           })
+$slice와 $sort 는 $each와 같이 사용해야 한다.
+
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		           {
+			$push : {
+				"hourly" : {
+					 $each : [123,526,444,555,965,445]
+					}
+			           }
+		           }
+		         )
+##  중복데이터가 없이 추가
+> db.users.insertOne({"_id" : ObjectId(),
+		   "username" : "joe",
+		   "email" : ["joe@excample.com","joe@naver.com","joe@daum.net"]
+})
+> db.users.updateOne({"username" : "joe"},
+		    {$addToSet : {"email" : "joe@excample.com"}}
+		)
+> db.users.findOne({"username" : "joe"})
+{
+        "_id" : ObjectId("659ca43c434582cd39addf22"),
+        "username" : "joe",
+        "email" : [
+                "joe@excample.com",
+                "joe@naver.com",
+                "joe@daum.net"
+        ]
+}
+# 값이 중복이 되면 추가되지 않는다.
+> db.users.updateOne({"username" : "joe"},
+		    {$addToSet : {"email" : "joe@nate.com"}}
+		)
+> db.users.findOne({"username" : "joe"})
+{
+        "_id" : ObjectId("659ca43c434582cd39addf22"),
+        "username" : "joe",
+        "email" : [
+                "joe@excample.com",
+                "joe@naver.com",
+                "joe@daum.net",
+                "joe@nate.com"
+        ]
+}
+/// 고유의 값을 여러개를 추가하려면 $addToSet과 $each를 결합하면된다.
+> db.users.updateOne({"username" : "joe"}, 
+		    {
+			$addToSet : {
+				 "email" : { 
+					$each : ["joe@php.net",
+						"joe@example.com",
+						"joe@python.org"]
+					}
+				     }
+		    }
+)
+# 요소제거 : $pull
+> db.users.updateOne({},
+		  {$pull  : {"email" : "joe@python.org"}
+		   }) 
+// 배열의 위치(index) 기반 변경
+> db.blog.posts.findOne({"title" : "A blog post"})
+> db.blog.posts.updateOne({"title" : "A blog post"},{$push : {"contents" : {"name" : "rhee","email" : "rhee@example.com","content" : "rhee post."}}})
+> db.blog.posts.updateOne({"title" : "A blog post"},{$push : {"contents" : {"name" : "jang","email" : "jang@example.com","content" : "jang post."}}})
+> db.blog.posts.updateOne({"title" : "A blog post"},
+		            {$set : {"contents.1.name" : "이숭무"}}
+)
+> db.blog.posts.updateOne({"contents.name" : "이숭무"},
+			{$set : {"contents.$.email" : "이숭무@example.com"}}
+)
+$는 조건에 맞는 index를 가져온다.
+> db.blog.posts.findOne({"title": "A blog post"})
+> var post_id = 10 
+> db.blog.posts.updateOne(
+  		{"title": "A blog post"},
+  		{
+    			$set: {"top10.$[elem].hidden": true }
+  		},
+  		{
+    		arrayFilters: [
+      			{"elem.rating": {$lte : 5}}
+    		]
+ 		}
+)
+update posts
+set subject = "제목"
+where title = 'A blog post' and rating <= 5
+> db.blog.posts.findOne({"title": "A blog post"})
+
+
+#갱신 입력(병합) # oracle : merge
+var blog = db.analytics.findOne({ url: "/blog" });
+if (blog) {
+	db.analyties.updateOne( { url: "/blog" },
+    			      { $inc: { pageViews: 1 } }
+  );
+}else{
+	db.analytics.insertOne({ url: "/blog", pageViews: 1 });
+}
+> db.analytics.drop()
+> db.analytics.insertOne(
+{ "_id" : ObjectId(), 
+ "url" : "www.example.com", 
+"pageViews" : 53 }
+)
+> db.analytics.updateOne({"url" : "www.example.com"},
+		         {$inc : {"rep" : 3}},
+		         {"upset" : true}	
+)
+db.analytics.find()
+{ 
+	"_id" : ObjectId("659cb234434582cd39addf24"), 
+	"url" : "www.example.com", 
+	"pageViews" : 53, 
+	"rep" : 3
+}
+> db.analytics.updateOne({"url" : "www.example.com"},
+		         {$inc : {"rep" : 3}},
+		         {"upset" : true}	
+)
+
+> db.users.drop()
+> db.users.insertMany([
+  { "_id": ObjectId(), "name": 'joe', "age": 65 , "sex" : "male", "location" : "wisconsin"},
+  { "_id": ObjectId(), "name": 'joe', "age": 21 , "sex" : "male", "location" : "wisconsin"},
+  { "_id": ObjectId(), "name": 'joe', "age": 49 , "sex" : "male", "location" : "wisconsin"}
+])
+
+#다중 도큐먼트 갱신
+> db.users.find()
+> db.users.updateMany({"name": 'joe'},
+		      {$set : {"gift" : "Happy Birthday!"}})
+> db.users.find()
+
+# 쿼리 : find()
+> db.people.find()
+# score가 10050인 것만 출력
+> db.people.find({"score" : 10050})
+# age가 65인 것만 출력
+> db.users.find({"age" : 65})
+# name가 joe 이고 age가 65인 것만 출력
+> db.users.find({"name": "joe" , "age" : 65})
+
+#select name, age, location
+#from users
+> db.users.find({}, {"name":1, "age" : 1, "location" : 1})
+#_id는 제거
+> db.users.find({}, {"name":1, "age" : 1, "location" : 1, "_id" : 0})
+# _id만 제거하고 모두 출력
+> db.users.find({},{"_id" : 0})
+# name 만 빼고 모두
+> db.users.find({},{"name" : 0})
+# _id제외하고 name제외
+> db.users.find({},{"_id" : 0, "name" : 0})
+# 쿼리 조건절
+<, <=, >, >=을 "$lt" ,"$lte", "$gt", "$gte"
+
+# select * from users
+# where age between 18 and 30
+> db.users.find({"age" : {"$gte" : 18, "$lte" : 30}})
+# age가 21아닌 것만 모두 출력
+# select * from users
+# where age != 21
+> db.users.find({"age" : {"$ne" : 21}})
+
+# select * from  users
+# where age in (21, 65)
+# select * from  users
+# where age = 21 or age = 65)
+
+> db.users.find({"age" : {"$in" : [21, 65]}  })
+# select & from users
+# where name  = "joe" or name = 1234
+> db.users.find({"name" : {"$in" : ["joe", 1234]}  }) 
+
+> db.users.updateMany({"name" : "joe"},
+		      {"$set" : {"birthday" : "10/13/1978"}})
+> db.users.find({"birthday":{ "$lt" : "2007/01/01"}})
+> start = new Date("01/01/2007")
+> db.users.find({"birthday":{ "$lt" : start}})
+# 출력죄지 않음. 미리초까지 표현이 되어 있어서 비교할 수 없음
+> db.users.find({"birthday":{ "$ne" : start}})
+
+# 나이가 21, 65가 아닌 사람만 출력
+select * from users
+where age not in (21, 65)
+> db.users.find({"age" : {"$nin" : [21,65]}})
+
+> db.users.updateOne({"age" : 49},{$set : {"location" : "서울"}})
+> db.users.updateOne({"age" : 21},{$set : {"location" : "부산"}})
+### 여러개의 필드를 비교
+select * from users
+where age = 49 or location = '부산'
+> db.users.find({"$or" : [{"age":49} , {"location" : "부산"}]}) 
+select * from users where age not in (49, 21) or location = '부산'
+> db.users.find({"$or" : [{"age" : {$nin : [49,21]}}, {"location" : "부산"}]})
+
+#### $not 
+# 나머지
+select * from users
+where mod(age, 5) = 1 
+> db.users.find({"age" : {"$mod" : [5, 1]}})
+select * from users
+where mod(age, 5) != 1
+> db.users.find({"age" : {"$not" : {"$mod": [5, 1]}}})
+
+### 형 특정 쿼리
+### null
+> db.c.insertMany([
+  { "_id": ObjectId(), "y": null},
+  { "_id": ObjectId(), "y": 1, },
+  { "_id": ObjectId(), "y": 2, }
+])
+select * from c
+where y is null
+> db.c.find({"y" : null})
+> db.c.find({"z" : null})
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7a"), "y" : null }
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7b"), "y" : 1 }
+{ "_id" : ObjectId("4b2b9f67a1f631733d917a7c"), "y" : 2 }
+
+# 필드가 존재하는 경우에만 출력
+> db.c.find({"z" : { "$eq" : null , "$exists" : true}})
+> db.c.find({"y" : { "$eq" : null , "$exists" : true}})
+
+# 배열에 쿼리하기
+> db.food.insertOne({"fruit": ["apple","banana","peach"]})
+> db.food.find()
+> db.food.find({"fruit" : "banana"})
+
+# 2개이상의 요소가 일치하는 배열을 찾을 때
+> db.food.insertMany([ {"fruit": ["apple","kumpuat","orange"]},
+	   	     {"fruit": ["cherry","banana"  ,"apple" ]} ])
+> db.food.find({"fruit" : "banana"})
+select * from
+where  fruit = "apple" and fruit = "banana"
+> db.food.find({"fruit" : { "$all" : ["apple", "banana"] }})
+> db.food.find({"fruit" : { "$all" : ["apple", "orange"] }})
+# 배열 요소의 순서가 일치하는 경우
+> db.food.find({"fruit": ["apple","kumpuat","orange"]})]
+# 배열 요소의 순서가 일치하지 않는 경우
+> db.food.find({"fruit": ["apple","orange","kumpuat"]})
+# 요소의 순서와 상관없이 요소가 있는 경우에 출력
+> db.food.find({"fruit" : { "$all" : ["apple","orange","kumpuat"] }})
+
+# index가 2인 요소가 peach인것만
+> db.food.find({"fruit" : "peach"})
+> db.food.find({"fruit.2" : "peach"})
+{ "_id" : ObjectId("659ce3932b63c0681a4ad6e0"), "fruit" : [ "apple", "banana", "peach" ] }
+> db.food.find({"fruit.1" : "peach"})
+
+> db.food.updateOne(
+  {"fruit.2": "peach"},
+  {"$push": {"fruit": "kiwi"}}
+)
+# 배열의 사이즈로 
+> db.food.find({"fruit" : {$size : 3}})
+> db.food.find({"fruit" : {$size : 4}})
+# 배열 갱신
+> db.food.update({"fruit":"banana"}, {"$push" : {"fruit" : "strawberry"}}  )
+> var criteria = {"fruit":"banana"}
+> db.food.update(criteria, {"$push" : {"fruit" : "strawberry"} }  )
+
+> var criteria = {"fruit":"kumpuat"}
+> db.food.update(
+ criteria,
+ {
+    "$push": {"fruit": "strawberry"},
+    "$inc": {"size": 1}
+ }
+)
+
+# size필드의 값이 1보다 큰 것만 출력
+select * from food
+where size >= 1
+> db.food.find({"size" : {"$gte" : 1}})
+
+# $Slice연산자.
+> db.blog.posts.findOne({"title" : "A blog post"})
+# 2개뛰고 2개 가져오기 
+> db.blog.posts.findOne({"title" : "A blog post"}, {"contents" : {$slice : [2, 2]}})
+# 위에서 두개 가져오기
+> db.blog.posts.findOne({"title" : "A blog post"}, {"contents" : {$slice : 2}})
+# 밑에서 두개 가져오기
+> db.blog.posts.findOne({"title" : "A blog post"}, {"contents" : {$slice : -2}})
+#  "name"이 "jang"사람의 댓글만 가져오기
+> db.blog.posts.findOne({"contents.name" : "jang"})
+> db.blog.posts.findOne({"contents.name" : "jang"}, {"contents.$" : 1})
+
+# 배열 및 범위쿼리의 상호 작용
+> db.collectionName.insertOne({ 'x': 5 })
+> db.collectionName.insertOne({ 'x': 15 })
+> db.collectionName.insertOne({ 'x': 25 })
+> db.collectionName.insertOne({ 'x': [5, 25]})
+> db.collectionName.find()
+
+select * from collectionName
+where 'x' > 10 and 'x' < 20
+> db.collectionName.find({'x' : {"$gt" : 10 , "$lt" : 20}})
+[ 5, 25 ] 는 둘다 5는 20보다 작다에 들어가고 25는 10보다 크다 들어가 때문에
+배열이므로 원하지 않는 데이터가 같이 출력
+
+> db.collectionName.find({'x' : {"$elemMatch" :   {"$gt" : 10 , "$lt" : 20}  } })
+'x': 15는 배열이 아니라 출력이 되지 않는다.
+
+> db.collectionName.insertOne({ 'x': [13, 18]})
+> db.collectionName.find({'x' : {"$elemMatch" :   {"$gt" : 10 , "$lt" : 20}  } })
+# 배열안에 있는 값이 모두 조건에 만족해야 출력
+
+
+# 내장 도큐먼트에 쿼리
+> db.blog.posts.findOne({"title" : "A blog post"})
+> db.blog.posts.find({"contents.name" : "joe", "contents.email" : "joe@example.com"  })
+> db.blog.posts.find({"contents" : {"name" : "joe" ,  "email" : "joe@example.com"} })
+# 결과가 없다
+> db.blog.posts.find({"top10" : {"name" : "이숭무" , "rating" : {"$lt" : 5}}})
+# 결과가 없다
+> db.blog.posts.find({"top10.name" : "이숭무", "top10.rating" : {"$lt" : 5}})
+
+# 제한, 건너뛰기, 정렬
+> db.c.find()
+> db.c.find().limit(2)
+> db.c.find().skip(2)
+> db.c.find().skip(1)
+> db.users.find()
+> db.users.find().sort({"age" : 1})  # 오름 차순
+> db.users.find().sort({"age" : -1}) # 내림차순
+> db.users.find().sort({"name" : 1 , "age" : -1})
+select * from users
+order by name asc, age desc
+> db.users.find().sort({"age" : 1}).limit(2) 
+> db.users.find().limit(2) .sort({"age" : 1})
+> db.users.find().limit(2) .sort({"age" : 1}).skip(1)
+
+# 커서
+> for (i = 0; i < 100 ; i++){
+	db.test.insertOne({"x" : i})
+}
+> var cursor= db.test.find()
+> while (cursor.hasNext()){
+	obj = cursor.next()
+	print(obj.x)
+}
+> var cursor= db.test.find()
+> cursor.forEach(function(obj){print(obj.x)})
+> var cursor= db.users.find()
+> cursor.forEach(function(obj){print(obj.age)})
+> var cursor= db.test.find().sort({"x" : -1}).limit(10).skip(15)
+> cursor.forEach(function(obj){print(obj.x)})
+
+> var cursor= db.test.find().limit(10).sort({"x" : -1}).skip(15)
+> cursor.forEach(function(obj){print(obj.x)})
+
+> var cursor= db.test.find().skip(15).limit(10).sort({"x" : -1})
+> cursor.forEach(function(obj){print(obj.x)})
+
+# indexing
+> db.test.drop()
+> for (i = 0; i < 1000000 ; i++){
+	db.test.insertOne({
+		"i" : i,
+		"username" : "user" + i,
+		"age" : Math.floor(Math.random()*120),
+		"created" : new Date()
+	})
+}
+
+> db.test.find({"username" : "user101"}).explain("executionStats")
+explain커서 메서드는 다양한 CRUD작업의 실행 정보를 제공한다.
+executionStats는 인덱스를 이용한 쿼리 효과를 이해하도록 도와줌
+executionTimeMillis 는 실행 시감을 ms로 표현: 0.936초
+
+> db.test.createIndex({"username" : 1}) 
+> db.test.find({"username" : "user101"}).explain("executionStats")
+executionTimeMillis는 0.009초 걸린걸 확인 할 수 있다.
+IXSCAN은 index를 이용했다는 것을 알 수 있다.
+
+> db.test.find({"age" : 74}).explain("executionStats")
+index가 없는 필드이므로 풀스캔을 해서 속도가 느리다.
+
+# 복합 인덱스 :  여러개의 필드에 index를 사용
+> db.test.find({"username" : "user101" , "age" : 47}).explain("executionStats")
+"username"은 index가 있어서 index를 사용
+
+> db.test.find({"age" : 47 , "username" : "user101"}).explain("executionStats")
+select * from test
+where age = 47 and username = "user101"
+
+> db.test.createIndex({"age" : 1, "username" : 1})
+> db.test.find({"age" : 21 , "username" : "user101"}) #index를 사용
+select * from test
+where age = 21 and username = 'user101'
+> db.test.find({"age" : 21}).sort({"username" : -1})
+select * from test
+where age = 21
+order by username desc
+#  오라클에서 index는 where조건절에만 사용한다.
+
+select * from test
+where age >= 21 and age <= 30
+> db.test.find({"age" : {"$gte" : 21 , "$lte" : 30}})
+> db.test.find({"age" : {"$gte" : 21 , "$lte" : 30}}).explain("executionStats")
+> db.test.find({"age" : {"$gte" : 21 , "$lte" : 30}}).sort({"username" : 1})
+select * from test
+where age >= 21 and age <= 30  # index 사용 :"age" : 1,"username" : 1
+order by username asc
+
+> db.students.insertOne({
+    "_id": ObjectId(),
+    "student_id": 0,
+    "scores": [
+       { "type": 'exam', 
+        "score": 38.0500000060199827 },
+       { "type": 'quiz', 
+        "score": 79.4507499500898700 },
+       { "type": 'homework', 
+        "score": 74.5015054869953400 },
+       { "type": 'homework', 
+        "score": 74.6838168461584500 }
+    ],
+    "class_id" : 127
+  })
+select * from students
+where class_id = 127
+여기에 맞게 index를 만들어 보자
+> db.students.find({ "class_id" : 127 })
+> db.students.createIndex({"class_id" : 1})
+> db.students.find({ "student_id" : 0 ,  "class_id" : 127 })
+select * from students
+where student_id = 0 and class_id = 127
+> db.students.createIndex({"student_id" : 1, "class_id" : 1})
+
+select * from students
+where student_id < 500000 and  class_id = 127
+order by  student_id asc
+> db.students.find({"student_id " : {"$lt" : 500000} , "class_id " : 127}).sort({"student_id":1})
+# 범위가 크면 index효과를 얻을 수없다.
+# 검사하는 범위가 전체 크기에서 4 ~ 5% 미만인 경우에만 index를 만들어서 사용한다. 
+
+
+{"student_id" : 1, "class_id" : 1}
+{"student_id" : 1}, {"student_id" : 1, "class_id" : 1}
+
+# index가 필요 없는 경우
+select * from test
+where i != 3
+> db.test.find({"i" : {"$ne" : 3}})
+$ne 또는 $not 은 컬렉션에 있는 모든 도큐먼트를 검사해야 하므로 index는 비효율적임
+
+select * from test
+where age = 47 and username > user5 and username  < user8
+> db.test.find({"age": 47, "username": {"$gt": "user5","$lt": "user8"}})
+> db.test.find({"age": 47, "username": {"$gt": "user5","$lt": "user8"}}).explain("executionStats")
+select * from test
+where username > user5 and username  < user8 and age = 47
+> db.test.find({"username": {"$gt": "user5","$lt": "user8"}, "age": 47})
+> db.test.find({"username": {"$gt": "user5","$lt": "user8"}, "age": 47}).explain("executionStats")
+
+> db.foo.insertOne(
+{ "_id" : ObjectId(), "apple" : 1, "banana" : 6, "peach" : 3 }
+)
+> db.foo.insertOne(
+{ "_id" : ObjectId(), "apple" : 8, "spinach" : 4, "watermelon" : 4 }
+)
+> db.foo.find()
+
+select * from foo
+where apple = 8  # index
+select * from foo
+where banana = 6 # index
+
+select * from foo
+where apple = 8 or  banana = 6
+> db.foo.find({"$or" : [{"apple" : 8}, {"banana" : 6}]})
+{ "_id" : ObjectId("659e0a2f989d831b4fa858f0"), "apple" : 1, "banana" : 6, "peach" : 3 }
+{ "_id" : ObjectId("659e0a34989d831b4fa858f1"), "apple" : 8, "spinach" : 4, "watermelon" : 4 }
+
+> db.foo.find({"apple" : 1, "banana" : 6})
+select * from foo
+where apple = 1 and banana = 6
+{ "_id" : ObjectId("659e0a2f989d831b4fa858f0"), "apple" : 1, "banana" : 6, "peach" : 3 }
+
+> db.foo.find({"$or" : [{"apple" : 8}, {"banana" : 6}]}).explain("executionStats")
+> db.foo.find({"apple" : 1, "banana" : 6}).explain("executionStats")
+
+> db.foo.createIndex({"apple" : 1})
+> db.foo.createIndex({"banana" : 1})
+> db.foo.find({"$or" : [{"apple" : 8}, {"banana" : 6}]}).explain("executionStats")
+# 각 조건마다 하나씩 index를 사용한다.
+> db.foo.find({"$or" : [{"banana" : 6} , {"apple" : 8} ]}).explain("executionStats")
+
+select * from foo
+where apple = 1 or apple = 8
+> db.foo.find({"$or" : [{"apple" : 1}, {"apple" : 8}]})
+> db.foo.find({"$or" : [{"apple" : 1}, {"apple" : 8}]}).explain("executionStats")
+
+select * from foo
+where apple in (1, 8)
+> db.foo.find({"apple" : {"$in" : [1, 8]}})
+> db.foo.find({"apple" : {"$in" : [1, 8]}}).explain("executionStats")
+
+# 내장 도큐먼트 index
+> db.students.findOne()
+> db.students.find({"scores.score" : 79.45074995008987 })
+> db.students.find({"scores.score" : 79.45074995008987 }).explain("executionStats")
+
+### 
+> db.students.createIndex({"scores.score" : 1})
+### 권장함, index를 사용한다.
+> db.students.find({"scores.score" : 79.45074995008987 })
+> db.students.find({"scores.score" : 79.45074995008987 }).explain("executionStats")
+
+
+> db.students.findOne()
+### 권장하지 않음 , index를 사용하지 않음
+> db.students.find({"scores"  : {"type" : "exam" , "score" : 38.050000006019985}})
+> db.students.find({"scores"  : {"type" : "exam" , "score" : 38.050000006019985}}).explain("executionStats")
+
+> db.students.findOne({"scores.score" : 79.45074995008987 })
+> db.students.findOne({"scores.score" : 100.000000000000 })
+
+# 요소번호에 해당되는 값이 있는 것만 출력
+> db.students.findOne({"scores.2.score" : 74.50150548699534 })
+2는 배열의 요소번호 (요소번호는 0번 부터 시작
+> db.students.findOne({"scores.3.score" : 74.50150548699534 })
+null
+3는 배열의 요소번호
+> db.students.find({"scores.score" : 79.45074995008987 }).explain("executionStats")
+# index사용
+> db.students.find({"scores.2.score":74.50150548699534}).explain("executionStats")
+# 내부도규먼트에  index를 만들어 줘도  배열의 요소번호를 사용할 경우 index를 사용하지 못함.
+# index에는 배열의 요소번호를 포함하고 있지 않다.
+
+# 배열 인덱싱 : 배열의 요소번호를 포함하는 index를 만들자.
+> db.students.createIndex({"scores.2.score" : 1})
+# 배열의 요소번호 2번에 index를 만들어 줌.
+> db.students.find({"scores.2.score":74.50150548699534}).explain("executionStats")
+# index를 사용한다.
+> db.students.findOne({"scores.3.score" : 74.68381684615845 })
+> db.students.find({"scores.3.score" : 74.68381684615845 }).explain("executionStats")
+
+# 집계: 일치, 선출, 정렬, 건너뛰기, 제한
+> db.companies.insertOne(
+{"_id" : ObjectId(),
+  "name" : "Facebook",
+  "category_code" : "social",
+  "founded_year" : 2004,
+  "description" : "Social network",
+  "funding_rounds" : [{
+    "id":4,
+    "round_code" : "b",
+    "raised_amount" : 27500000,
+    "raised_currency_code" : "USD",
+    "funded_year" : 2006,
+    "investments" : [{
+        "compony" : null,
+        "financial_org" : {
+            "name" : "Greylock Partners",
+            "permalink" : "greylock"
+        },
+        "person" : null
+    },{
+        "compony" : null,
+        "financial_org" : {
+            "name" : "Meritech Capital Partners",
+            "permalink" : "meritech-capital-partners"
+        },
+        "person" : null
+    },{
+        "compony" : null,
+        "financial_org" : {
+            "name" : "Founders Fund",
+            "permalink" : "founders-fund"
+        },
+        "person" : null
+    },{
+        "compony" : null,
+        "financial_org" : {
+            "name" : "SV Angel",
+            "permalink" : "sv-angel"
+        },
+        "person" : null
+    }
+]} 
+,{
+    "id":2197,
+    "round_code" : "c",
+    "raised_amount" : 15000000,
+    "raised_currency_code" : "USD",
+    "funded_year" : 2008,
+    "investments" : [{
+        "compony" : null,
+        "financial_org" : {
+            "name" : "European Founders Fund",
+            "permalink" : "european-founders-fund"
+        },
+        "person" : null
+    }
+  ]
+  }],
+"ipo" : {
+    "valuation_amount" : NumberLong("1040000000000"),
+    "valuation_currency_code" : "USD",
+    "pub_year" : 2012,
+    "pub_month" : 5,
+    "pub_day" : 18,
+    "stock_symbol" : "NASDAQ:F8"
+}}
+)
+> db.companies.findOne()
+
+# 일치 : $match
+# 설립년도가 2004인 모든 회사를 출력하시오.
+select * from companies
+where founded_year = 2004
+
+> db.companies.find({"founded_year" : 2004})
+> db.companies.aggregate([{  $match : { "founded_year" : 2004} } ])
+
+select name, founded_year  from companies
+where founded_year = 2004
+> db.companies.find({"founded_year" : 2004} , {"name": 1 , "founded_year" : 1 , "_id" : 0 })
+> db.companies.aggregate([{  $match : { "founded_year" : 2004} },
+		           { $project  : {
+				_id : 0,
+				name : 1,
+				founded_year : 1	
+		           }}	
+ ])
+
+select rownum , name, founded_year  from companies
+where founded_year = 2004 and rownum < 3
+> db.companies.find({"founded_year" : 2004} , {"name": 1 , "founded_year" : 1 , "_id" : 0 }).limit(3)
+> db.companies.aggregate([{  $match : { "founded_year" : 2004} },
+		           { $project  : {
+				_id : 0,
+				name : 1,
+				founded_year : 1	
+		           }}	,
+		           {$limit : 2}
+ ])
+> db.companies.aggregate([{  $match : { "founded_year" : 2004} },
+		           {$limit : 2},
+		           { $project  : {
+				_id : 0,
+				name : 1,
+				founded_year : 1	
+		           }}	
+		           
+ ])
+select rownum , name, founded_year  from companies
+where founded_year = 2004 and rownum < 3
+oreder by name asc
+> db.companies.find({"founded_year" : 2004}, {"name": 1 , "founded_year" : 1 , "_id" : 0 }).limit(3).sort({"name" : 1})
+> db.companies.aggregate([{  $match : { "founded_year" : 2004} },
+		           {$limit : 2},
+		           {$sort : {name : 1}},
+		           { $project  : {
+				_id : 0,
+				name : 1,
+				founded_year : 1	
+		           }}	
+		           
+ ])
+먼저 정렬하고 10개의 도큐먼트는 건너뛰고 5개만 출력
+> db.companies.find({"founded_year" : 2004}, {"name": 1 , "founded_year" : 1 , "_id" : 0 }).limit(5).sort({"name" : 1}).skip(10)
+> db.companies.aggregate([{  $match : { "founded_year" : 2004} },
+		           {$limit : 2},
+		           {$skip : 10},
+		           {$sort : {name : 1}},
+		           { $project  : {
+				_id : 0,
+				name : 1,
+				founded_year : 1	
+		           }}	
+		           
+ ])
+
+# founded_rounds필드에 있는 서브 도큐먼트에 있는 investments필드에 있는 도규먼트에 financial_org필드가 있고
+financial_org필드에 있는 도규먼트에 있는 permalink필드의 값이 greylock인 것을 출력하시오
+이때 name , ipo.pub_year ,  ipo.valuation_amount, funding_rounds.investments.financial_org.permalink 출력
+findOne이용하기
+
+
+> db.companies.find({"funding_rounds.investments.financial_org.permalink" : "greylock"}, 
+		 {"name": 1 ,"ipo.pub_year" : 1,  "ipo.valuation_amount" : 1, 
+		  "funding_rounds.investments.financial_org.permalink" : 1 , "_id" : 0})
+
+# founded_rounds필드에 있는 서브 도큐먼트에 있는 investments필드에 있는 도규먼트에 financial_org필드가 있고
+financial_org필드에 있는 도규먼트에 있는 permalink필드의 값이 greylock인 것을 출력하시오
+이때 name , ipo.pub_year ,  ipo.valuation_amount, funding_rounds.investments.financial_org.permalink 출력
+findOne이용하기
+
+
+> db.companies.find({"funding_rounds.investments.financial_org.permalink" : "greylock"}, 
+		 {"name": 1 ,"ipo.pub_year" : 1,  "ipo.valuation_amount" : 1, 
+		  "funding_rounds.investments.financial_org.permalink" : 1 , "_id" : 0})
+name, ipo.pub_year, ipo.valuation_amount, funding_rounds.investments.financial_org.permalink
+
+> db.companies.aggregate([
+	{$match : {"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+	{$project : {
+		_id : 0,
+		name : 1,
+		ipo : "$ipo.pub_year",
+		valuation : "$ipo.valuation_amount",
+		funders : "$funding_rounds.investments.financial_org.permalink" 
+	}}
+])
+# 일부 중첩 필드는 승격(같이 출력)한다.
+# "ipo"와 "funding_rounds"필드에 도달할 필드 경로를 표현해 
+#   중첩된 도큐먼트 및 배열에서 값을 선택한다.
+# 이름을 지정하여 필드값을 출력할 경우에는 필드에 "$"를 붙여서 사용해주면 된다.
+select name, ipo.pub_year as ipo , 
+	    ipo.valuation_amount as valuation , 
+	    funding_rounds.investments.financial_org.permalink as funders 
+from companies
+where funding_rounds.investments.financial_org.permalink = "greylock"
+
+# name , ipo.pub_year, ipo.valuation_amount, funding_rounds.funded_year
+# 조건은 {"funding_rounds.investments.financial_org.permalink" : "greylock"}
+# find로 출력
+>  db.companies.find({"funding_rounds.investments.financial_org.permalink" : "greylock"},
+	{"name" : 1, "ipo.pub_year" : 1, "ipo.valuation_amount" : 1, "funding_rounds.funded_year" : 1, "_id" : 0})
+
+select name, ipo.pub_year as ipo , 
+	   ipo.valuation_amount as valuation  , 
+	   funding_rounds.funded_year as year
+from companies
+where funding_rounds.investments.financial_org.permalink = "greylock"
+$project에서 필드명을 줘서 출력
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+    {$project : {
+      _id : 0,
+      name : 1,
+      ipo : "$ipo.pub_year",
+      valuation : "$ipo.valuation_amount",
+      year : "$funding_rounds.funded_year"
+    }}])
+
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}}, 
+    {$unwind : "$funding_rounds"},
+    {$project : {
+      _id : 0,
+      name : 1,
+      ipo : "$ipo.pub_year",
+      valuation : "$ipo.valuation_amount",
+      year : "$funding_rounds.funded_year"
+    }}])
+
+# name , ipo.valuation_amount, funding_rounds.funded_year를 출력
+# 조건은 {"funding_rounds.investments.financial_org.permalink" : "greylock"}
+# find로 출력
+> db.companies.find({"funding_rounds.investments.financial_org.permalink" : "greylock"},
+		{"name" : 1 , "ipo.valuation_amount" : 1, "funding_rounds.funded_year" : 1 ,"_id" : 0})
+# aggregate로 출력
+amount  : ipo.valuation_amount,  year  :  funding_rounds.funded_year
+db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+     {$unwind : "$funding_rounds"},
+     {$project : {
+       _id : 0,
+       name : 1,
+       amount : "$ipo.valuation_amount",
+       year : "$funding_rounds.funded_year"
+     }}])
+
+## name, funding_rounds.raised_amount, funding_rounds.funded_year를 출력
+# 조건은 {"funding_rounds.investments.financial_org.permalink" : "greylock"}
+# find로 출력
+> db.companies.find({"funding_rounds.investments.financial_org.permalink" : "greylock"},
+		{"name" : 1 , "funding_rounds.raised_amount" : 1, "funding_rounds.funded_year" : 1 ,"_id" : 0})
+# aggregate로 출력
+amount   : funding_rounds.raised_amount , year  :  funding_rounds.funded_year
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+     {$project : {
+       _id : 0,
+       name : 1,
+       amount : "$funding_rounds.raised_amount",
+       year : "$funding_rounds.funded_year"
+     }}])
+
+> db.companies.aggregate([
+    {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}}, 
+    {$unwind : "$funding_rounds"},
+     {$project : {
+       _id : 0,
+       name : 1,
+       amount : "$funding_rounds.raised_amount",
+       year : "$funding_rounds.funded_year"
+     }}])
+
+
+select name , funded_year , funding_rounds.id, funding_rounds.round_code , funding_rounds.raised_amount
+from companies
+where funding_rounds.investments.financial_org.permalink = greylock
+and funding_rounds.raised_amount >= 100000000
+# find로 출력
+> db.companies.find({"funding_rounds.investments.financial_org.permalink" : "greylock" 
+		, "funding_rounds.raised_amount" : {"$lte" : 100000000}},
+		{"name" : 1, "funding_rounds.funded_year" : 1 , "funding_rounds.id" : 1, "funding_rounds.round_code" : 1, 
+		 "funding_rounds.raised_amount" : 1})
+> db.companies.aggregate(
+	 {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+	 {$match:{"funding_rounds.raised_amount" : {"$lte" : 100000000}}},
+	{$project : {
+		_id : 0,
+		name : 1,
+		year : "$funding_rounds.funded_year",
+		id : "$funding_rounds.id",
+		code : "$funding_rounds.round_code",
+		amoun : "$funding_rounds.raised_amount"
+	}}
+)
+> db.companies.aggregate(
+	 {$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+	 {$match:{"funding_rounds.raised_amount" : {"$lte" : 100000000}}},
+	{$unwind : "$funding_rounds"},
+	{$project : {
+		_id : 0,
+		name : 1,
+		year : "$funding_rounds.funded_year",
+		id : "$funding_rounds.id",
+		code : "$funding_rounds.round_code",
+		amoun : "$funding_rounds.raised_amount"
+	}}
+)
+
+
+
+> db.companies.aggregate([
+	{$match:{"funding_rounds.investments.financial_org.permalink" : "greylock"}},
+	{$project : {
+		_id : 0,
+		name : 1,
+		funded_year : 1,
+		rounds : { $filter : {
+		input : "$funding_rounds",
+		as : "round",
+		cond : { $lte : ["$$round.raised_amount" , 100000000 ]}}}
+	}}
+])
+# $fiter는 배열 필드일 경우에만 가능
+# $filter의 첫번째 옵션은 input이며 배열을 지정한다
+# 두번째  옵션 as 는 input에 있는 필드명에 대한 변수를 지정한다
+# 세번째 옵션 cond은 condition의 약자로 input에 대한 조건을 준다.
+# cond에 조건을 사용하는 경우 as에 있는 변수명을 사용할 경우 "$$"를 사용해야 한다.
+
+
+#첫번째 라운딩과 마자막 라운딩만 꺼낸다. ($arrayElemAt)
+# 배열에 있는 첫번째 값과 마지막 값을 꺼내기.
+> db.companies.aggregate([
+	{$match : {"founded_year" : 2004}},
+	{$project : {
+		_id : 0,
+		name : 1,
+		founded_year : 1,
+		first_round : {$arrayElemAt : ["$funding_rounds" , 0]},
+		last_round : {$arrayElemAt : ["$funding_rounds" , -1]},
+	}}
+])
+# 첫번째는 $arrayElemAt에 0을 마지막은 $arrayElemAt에 -1을 준다.
+
+# funding_rounds에서 첫줄부터 3개만
+> db.companies.aggregate([
+	{$match : {"founded_year" : 2004}},
+	{$project : {
+		_id : 0,
+		name : 1,
+		founded_year : 1,
+		early_rounds: {$slice : ["$funding_rounds" , 1, 3]}
+	}}
+])
+
+# funding_rounds의 배열의 크기
+> db.companies.aggregate([
+	{$match : {"founded_year" : 2004}},
+	{$project : {
+		_id : 0,
+		name : 1,
+		founded_year : 1,
+		total_rounds : {$size : ["$funding_rounds"]}
+	}}
+])
+
+# 누산기 : 모든 집계함수를 누산기라고 한다.
+select founded_year, max(funding_rounds.raised_amount)
+from companies
+group by founded_year
+
+select max(funding_rounds.raised_amount)
+from companies
+where founded_year = 2004
+
+> db.companies.aggregate([
+	 {$match:{"founded_year" : 2004}},
+	{$match:{"funding_rounds" : {$exists : true, $ne : []}}},
+	{$project: {
+		_id : 0,
+		name : 1,
+		founded_year : 1,
+		largest_round : {$max : "$funding_rounds.raised_amount"}
+	}}
+])
+
+> db.companies.aggregate([
+	 {$match:{"founded_year" : 2004}},
+	{$match:{"funding_rounds" : {$exists : true, $ne : []}}},
+	{$project: {
+		_id : 0,
+		name : 1,
+		founded_year : 1,
+		largest_round : {$sum : "$funding_rounds.raised_amount"}
+	}}
+])
+
+> db.companies.aggregate([
+	 {$match:{"founded_year" : 2004}},
+	{$match:{"funding_rounds" : {$exists : true, $ne : []}}},
+	{$project: {
+		_id : 0,
+		name : 1,
+		founded_year : 1,
+		largest_round : {$min : "$funding_rounds.raised_amount"}
+	}}
+])
+
+> db.companies.aggregate([
+	 {$match:{"founded_year" : 2004}},
+	{$match:{"funding_rounds" : {$exists : true, $ne : []}}},
+	{$project: {
+		_id : 0,
+		name : 1,
+		founded_year : 1,
+		largest_round : {$avg : "$funding_rounds.raised_amount"}
+	}}
+])
+
+# 그룹화 소개
+
+select department_id, sum(salary), max(salary), min(salary), avg(salary)  ,count(department_id) ,count(salary)
+from departments
+group by department_id
+# select 절에는 집계합수 이외에 group by절에 없는 컬럼은 쓸 수 없다.
+# 단 집계함수는 null 을 포함하지 않는다,
+
+select founded_year, avg(funding_rounds.raised_amount)
+from companies
+group by  founded_yea
+
+> db.companies.aggregate([
+	{$unwind: "$funding_rounds"}, 
+	{$group: {
+		_id: {founded_year: "$founded_year"},
+		avg_amount: {$avg: "$funding_rounds.raised_amount"}
+	}}
+])
+# $group를 사용하는 경우에는 $funding_rounds가 배열이라 배열 안에 있는 값을 집계할 수 없어서 null이 나온다.
+# 이 문제를 해결하는 방법으로는 $unwind를 사용하여 배열을 풀어주면 된다.
+
+> db.companies.aggregate([
+	{$unwind: "$funding_rounds"}, 
+	{$group: {
+		_id: {founded_year: "$founded_year"},
+		avg_amount: {$avg: "$funding_rounds.raised_amount"}
+	}}
+])
+
+> db.companies.aggregate([
+	{$match: {"funding_rounds.raised_amount" : {$ne : null}}},
+	{$unwind: "$funding_rounds"}, 
+	{$group: {
+		_id: {founded_year: "$founded_year"},
+		avg_amount: {$avg: "$funding_rounds.raised_amount"}
+	}},
+	{$sort : {avg_amount : -1}}
+])
+
+> db.companies.aggregate([
+	{$match: {"funding_rounds.raised_amount" : {$ne : null}}},
+	{$unwind: "$funding_rounds"}, 
+	{$project : {
+		_id : 0,
+		funding_rounds : 1
+	}},
+	{$group : {
+		_id :  "$funding_rounds", # "$relationships.person"에 있는 필드를 모두 출력
+		count : {$sum : 1}
+	}},
+	{$sort : { count  : -1}}
+])
+# relationships.person이 있을 때만 수행
+
+relationships.person필드 이름에 대한 도큐먼트를 가진다.
+person필드안에 있는 도큐먼트는 first_name, last_name, permalink필드를 가진 도큐먼트이다. 
+
+# founded_year, name를 출력하는 데 founded_year가 2004에 대해서만 출력하세요.
+#find로 출력
+> db.companies.find({"founded_year" : {"$gte" : 2004}}, {"founded_year" : 1, "name" : 1, "_id" : 0})
+{ "name" : "Facebook", "founded_year" : 2004 }
+{ "name" : "Facebook", "founded_year" : 2004 }
+# group 연산자를 이용해서 위와 같은 결과를 얻어보자.
+
+>  db.companies.aggregate([
+    {$match: {"founded_year": {$gte: 2004 }}},
+    {$group: {
+        _id : { founded_year : "$founded_year" , category_code : "$category_code"},
+        companies : { $push : "$name" },
+    }},
+    {$sort: { "_id.founded_year" : 1}}
+])
+
+select departme_id, job_id, sum(salary), max(salary)
+from departments
+group by departme_id, job_id
+
+select ipo.pub_year, name
+from companies
+order by ipo.pub_year asc
+
+> db.companies.find({},{"ipo.pub_year" : 1, "name" : 1 }).sort({"ipo.pub_year" : 1})
+> db.companies.aggregate([
+    {$group: {
+        _id : { ipo_year : "$ipo.pub_year" },
+        companies : { $push : "$name" }
+    }},
+    {$sort: { "_id.ipo_year" : 1}}
+])
+
+select funding_rounds.raised_amount  , funding_rounds.funded_year
+from companies
+order by funding_rounds.funded_year asc, funding_rounds.funded_month asc, funding_rounds.funded_day asc
+
+find로 출력
+> db.companies.find({}, {"name" : 1, "funding_rounds.raised_amount" : 1, "funding_rounds.funded_year" : 1, "_id" : 0}).sort({"funding_rounds.funded_year" : 1, "funding_rounds.funded_month" : 1, "funding_rounds.funded_day" : 1})
+{ "funding_rounds" : [ { "raised_amount" : 27500000, "funded_year" : 2006 }, 
+		   { "raised_amount" : 15000000, "funded_year" : 2008 } ] }
+{ "name" : "Facebook", "funding_rounds" : [ { "raised_amount" : 27500000, "funded_year" : 2006 }, 
+				     { "raised_amount" : 15000000, "funded_year" : 2008 } ] }
+> db.companies.aggregate([
+    {$match : {"funding_rounds": {$ne: []}}}
+    {$unwind: "$funding_rounds"},
+    {$sort : {"funding_rounds.funded_year" : 1, "funding_rounds.funded_month" : 1, "funding_rounds.funded_day" : 1}},
+    {$group: {
+        "_id": {company : "$name"},
+        funding : {
+          $push : {
+            amount : "$funding_rounds.raised_amount",
+            year : "$funding_rounds.funded_year"
+          }
+        }
+    }}
+])
+{ "_id" : { "company" : "Facebook" }, "funding" : [ { "amount" : 27500000, "year" : 2006 }, { "amount" : 27500000, "year" : 2006 },
+				            { "amount" : 15000000, "year" : 2008 }, { "amount" : 15000000, "year" : 2008 } ] }
