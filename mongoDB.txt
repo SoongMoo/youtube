@@ -1,6 +1,6 @@
 관계형 데이터베이스 시스템 : RDBMS
 oracle, my-sql,  MS-SQL, mariadb, postgresql, IBM-DB2,...
-언어 : sql  : ISO  : 90%
+언어 : sql  : ISO  
 
 # no - sql : 몽고디비,...
 pandas의 DataFrame과 같다.
