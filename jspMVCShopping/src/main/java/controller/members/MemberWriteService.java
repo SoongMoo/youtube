@@ -25,7 +25,7 @@ public class MemberWriteService {
 		String memberPost = request.getParameter("memberPost");
 
 		Date date = null;
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		try {
 			date = sdf.parse(memberBirth);
 		} catch (ParseException e) {
