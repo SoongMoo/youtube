@@ -25,7 +25,7 @@ create TABLE  ANSWER(
     survey_num NUMBER,
     question_num NUMBER,
     answer_writer VARCHAR2(50),
-    options_num NUMBER,
+    options_num VARCHAR2(50),
     answer_location VARCHAR2(200),
     answer_age number
 );
