@@ -75,7 +75,7 @@ SELECT
 FROM 
     answer
 where  (SURVEY_NUM , SURVEY_WRITER, QUESTION_NUM) in 
-        (select q.SURVEY_NUM SURVEY_NUM, q.SURVEY_WRITER, q.QUESTION_NUM
+        (select q.SURVEY_NUM , q.SURVEY_WRITER, q.QUESTION_NUM
         from question q left outer join options o   
         on q.QUESTION_NUM = o.QUESTION_NUM  
         where q.SURVEY_NUM = #{surveyNum} and q.SURVEY_WRITER = #{surveyWriter} 
