@@ -10,7 +10,10 @@
 <body>
 <p>응답 내용</p>
 <p>설문자 : ${ansData.surveyWriter }</p>
-  
+  	<c:forEach items="${ansData.responses }" var="response" 
+		varStatus="status">
+		${response.key }번 문항 : ${response.value } <br />
+	</c:forEach>    
 	<p>응답자 위치: ${ansData.res.location }</p>
 	<p>응답자 위치: ${ansData.res.userName }</p>
 	<p>응답자 나이: ${ansData.res.age }
