@@ -1,0 +1,34 @@
+CREATE TABLE survey(
+    survey_num NUMBER,
+    survey_subject VARCHAR2(100),
+    survey_writer VARCHAR2(2000),
+    survey_start TIMESTAMP,
+    survey_end TIMESTAMP
+);
+CREATE TABLE question(
+    survey_num NUMBER,
+    question_num NUMBER,
+    survey_writer VARCHAR2(50),
+    question_title VARCHAR2(300)
+);
+
+create table options(
+    survey_num NUMBER,
+    survey_writer VARCHAR2(50),
+    question_num NUMBER,
+    options_num NUMBER,
+    options_content VARCHAR2(300)
+);
+
+create TABLE  ANSWER(
+    survey_writer VARCHAR2(50),
+    survey_num NUMBER,
+    question_num NUMBER,
+    answer_writer VARCHAR2(50),
+    options_num NUMBER,
+    answer_location VARCHAR2(200),
+    answer_age number
+);
+
+alter table ANSWER
+add constraint ANSWER_PK primary key (survey_writer,survey_num,question_num,answer_writer);

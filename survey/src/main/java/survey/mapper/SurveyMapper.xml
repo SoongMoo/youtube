@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="survey.mapper.SurveyMapper">
+<select id="surveyNum"  resultType="int">
+	select nvl(max(survey_Num),0) + 1 from survey where survey_writer = #{surveyWriter}
+</select>
+<insert id="surveyInsert" parameterType="survey" >
+	insert into survey(survey_num, survey_subject, survey_writer, survey_start, survey_end)
+	values(#{surveyNum},#{surveySubject},#{surveyWriter},#{surveyStart},#{surveyEnd})
+</insert>
+<insert id="questionInsert" parameterType="questionDTO">
+	insert into question(survey_num, question_num, question_title, survey_writer)
+	values(#{surveyNum},#{questionNum},#{questionTitle},#{surveyWriter})
+</insert>
+<select id="questionNumSelect" resultType="int" >
+	select nvl(max(question_num),0) + 1 from question 
+	where survey_num = #{surveyNum} and survey_writer = #{surveyWriter}
+</select>
+<select id="optionsInsert" parameterType="optionDTO" >
+	insert into options(survey_num, survey_writer, Question_num, options_num, options_content)
+	values(#{surveyNum},#{surveyWriter},#{questionNum},#{optionsNum},#{optionsContent})
+</select>
+<select id="selectSurvey" resultType="survey">
+	select survey_num surveynum, survey_writer surveywriter, survey_subject surveysubject, survey_start surveystart, survey_end surveyend
+	,CASE 
+        WHEN SYSDATE BETWEEN survey_start AND survey_end THEN '진행 중'
+        WHEN SYSDATE &lt; survey_start THEN '진행 예정'
+        ELSE '만료' 
+    END AS surveystatus
+	from survey
+</select>
+<resultMap type="questions" id="questionsMap">
+	<association property="question" javaType="questionDTO">
+		<id column="SURVEY_NUM" jdbcType="BIGINT" property="surveyNum"/>
+		<id column="SURVEY_WRITER" jdbcType="VARCHAR" property="surveyWriter"/>
+		<id column="QUESTION_NUM" jdbcType="BIGINT" property="questionNum"/>
+		<result column="QUESTION_TITLE" jdbcType="VARCHAR" property="questionTitle"/>
+	</association>
+	<association property="option" javaType="optionDTO">
+		<id column="OPTIONS_NUM" jdbcType="BIGINT" property="optionsNum"/>
+		<result column="OPTIONS_CONTENT" jdbcType="VARCHAR" property="optionsContent"/>
+	</association>
+</resultMap>
+<select id="surveySelectAll" resultMap="questionsMap"> 
+select q.SURVEY_NUM SURVEY_NUM, q.SURVEY_WRITER, q.QUESTION_NUM, QUESTION_TITLE          
+     , OPTIONS_NUM, OPTIONS_CONTENT  
+from question q left outer join options o   
+on q.QUESTION_NUM = o.QUESTION_NUM  
+where q.SURVEY_NUM = #{surveyNum} and q.SURVEY_WRITER = #{surveyWriter}
+order by q.QUESTION_NUM,  OPTIONS_NUM
+</select>
+<insert id="answerInsert" parameterType="list">
+	insert all
+		 <foreach collection="list" item="item" >
+		 	into ANSWER(survey_writer, survey_num, question_num,answer_writer,options_num
+		 			  , answer_location, answer_age )
+		 		values(#{item.surveyWriter}, #{item.surveyNum}, #{item.questionNum}
+		 			  ,#{item.answerWriter},#{item.optionsNum},#{item.answerLocation}
+		 			  ,#{item.answerAge})	  
+		 </foreach>
+	select * from dual
+</insert>
+
+<select id="answerProbability" resultType="answerProbabilityDTO">
+SELECT 
+    QUESTION_NUM questionNum, 
+    SUM(CASE WHEN OPTIONS_NUM = 1 THEN 1 ELSE 0 END) AS option1Count,
+    ROUND(SUM(CASE WHEN OPTIONS_NUM = 1 THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS option1Probability,
+    SUM(CASE WHEN OPTIONS_NUM = 2 THEN 1 ELSE 0 END) AS option2Count,
+    ROUND(SUM(CASE WHEN OPTIONS_NUM = 2 THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS option2Probability,
+    SUM(CASE WHEN OPTIONS_NUM = 3 THEN 1 ELSE 0 END) AS option3Count,
+    ROUND(SUM(CASE WHEN OPTIONS_NUM = 3 THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS option3Probability,
+    SUM(CASE WHEN OPTIONS_NUM = 4 THEN 1 ELSE 0 END) AS option4Count,
+    ROUND(SUM(CASE WHEN OPTIONS_NUM = 4 THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS option4Probability
+FROM 
+    answer
+where  (SURVEY_NUM , SURVEY_WRITER, QUESTION_NUM) in 
+        (select q.SURVEY_NUM SURVEY_NUM, q.SURVEY_WRITER, q.QUESTION_NUM
+        from question q left outer join options o   
+        on q.QUESTION_NUM = o.QUESTION_NUM  
+        where q.SURVEY_NUM = #{surveyNum} and q.SURVEY_WRITER = #{surveyWriter} 
+          and o.OPTIONS_NUM is not null)
+GROUP BY 
+    QUESTION_NUM
+</select>
+</mapper>
