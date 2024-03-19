@@ -5,33 +5,53 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>goodsList.jsp</title>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.1.min.js"></script>
+<script type="text/javascript">
+function goodsItem(goodsNum, goodsName){
+	// 매개변수의 값을 부모창에 보내야 한다. $(opener.document).find()
+	$(opener.document).find("#goodsNum").val(goodsNum);
+	$(opener.document).find("#goodsName").val(goodsName);
+	//var name= $(opener.document).find().val();
+	window.self.close();
+}
+</script>
 </head>
 <body>
-<ul><!-- 이번에는 상품 입고를 보겠습니다. -->
-	<li><a href="goodsWrite.goods">상품 추가</a></li>
-	<li><a href="goodsIpgo.ipgo">상품 입고</a></li>
-	<li><a href="goodsIpgoList.ipgo">상품 입고 현황</a></li>
-</ul>
-상품 목록<br/>
+<c:if test="${empty vw }">
+	<ul>
+		<li><a href="goodsWrite.goods">상품 추가</a></li>
+		<li><a href="goodsIpgo.ipgo">상품 입고</a></li>
+		<li><a href="goodsIpgoList.ipgo">상품 입고 현황</a></li>
+	</ul>
+</c:if>
 <table border=1 width="600" align="center">
-	<tr><td>번호</td><td>상품번호</td><td>상품명</td>
-		    <td>상품가격</td><td>등록일</td></tr>
+	<caption>상품 목록</caption>
+	<tr>
+		<td colspan="4">
+			<c:if test="${empty vw }">
+			<form action="goodsList.goods" method="get" >
+			</c:if>
+			<c:if test="${!empty vw }">
+			<form action="goodsItem.ipgo" method="get" >
+			</c:if>
+				검색 : <input type="text" name="search" value="${search }"/>
+				<input type="submit" value="검색">
+			</form>
+		</td>
+	</tr>
+	<tr><th>번호</th><th>상품번호</th><th>상품명</th><th>상품가격</th></tr>
 	<c:forEach items="${dtos }" var="dto" varStatus="status">
-	<tr><td>${status.count }</td>
-		<td><a href="goodsDetail.goods?goodsNum=${dto.goodsNum }">${dto.goodsNum }</a></td>
-		<td>${dto.goodsName }</td>
-		<td>${dto.goodsPrice }</td><td>${dto.goodsRegist }</td></tr>
-	</c:forEach>	  
+	<tr><th>${status.count }</th>
+		<c:if test="${empty vw }">
+		<th><a href="goodsDetail.goods?goodsNum=${dto.goodsNum }" >${dto.goodsNum }</a></th>
+		</c:if>
+		<c:if test="${!empty vw }">
+		<th><a href="javascript:goodsItem('${dto.goodsNum }','${dto.goodsName }')">${dto.goodsNum }</a></th>
+		</c:if>
+		<th>${dto.goodsName }</th>
+		<th>${dto.goodsPrice }</th></tr>
+	</c:forEach>
 </table>
 </body>
 </html>
-<!-- 먼저 관리자로 로그인을 한다. -->
-<!-- 상품 상세보기 | 상품 정보 수정 | 상품 삭제를 해보자. -->
-
-
-
-
-
-
-

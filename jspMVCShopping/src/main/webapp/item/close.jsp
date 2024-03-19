@@ -1,15 +1,6 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
+<!-- 
+Ãë¼Ò Ã³¸®·Î Overlay Ã¢À» ´İ¾ÆÁÖ´Â ¿ªÈ°À» ÇÏ´Â ÆäÀÌÁö
+ÇÊ¿ä ½Ã °¡¸ÍÁ¡ ·ÎÁ÷ Ãß°¡ÇÏ¿© Ã³¸®
+-->
 
-<!-- ì´ë‹ˆì‹œìŠ¤ ì½”ë“œ -->
-<script language="javascript" type="text/javascript" 
-			src="https://stgstdpay.inicis.com/stdjs/INIStdPay_close.js" charset="UTF-8"></script>
-</body>
-</html>
+<script language="javascript" type="text/javascript" src="https://stgstdpay.inicis.com/stdjs/INIStdPay_close.js" charset="UTF-8"></script>

@@ -1,5 +1,6 @@
 package controller.ipgo;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,12 +34,16 @@ public class GoodsIpgoService {
 		dto.setIpgoPrice(Integer.parseInt(ipgoPrice));
 		dto.setIpgoQty(Integer.parseInt(ipgoQty));
 		// 문자열인 날짜를 날짜로 형변환
+		SimpleDateFormat tsdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date date = null;
-		// 
 		try {
-			date = sdf.parse(madeDate); // 생산 날짜
-			dto.setMadeDate(date);
+			date = tsdf.parse(madeDate); // 생산 날짜
+			// 날짜를  타임스템프로 변환
+			Timestamp timestamp = new Timestamp(date.getTime());
+			dto.setMadeDate(timestamp);
+			
 			date = sdf.parse(ipgoDate); // 일고 날짜
 			dto.setIpgoDate(date);
 		} catch (ParseException e) {

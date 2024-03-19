@@ -6,8 +6,8 @@ public class WishListDTO {
 	String goodsNum;
 	String goodsMainStore;
 	String goodsName;
-	Date wishDate;
 	Integer goodsPrice;
+	Date wishDate;
 	public String getGoodsNum() {
 		return goodsNum;
 	}
@@ -26,17 +26,16 @@ public class WishListDTO {
 	public void setGoodsName(String goodsName) {
 		this.goodsName = goodsName;
 	}
-	public Date getWishDate() {
-		return wishDate;
-	}
-	public void setWishDate(Date wishDate) {
-		this.wishDate = wishDate;
-	}
 	public Integer getGoodsPrice() {
 		return goodsPrice;
 	}
 	public void setGoodsPrice(Integer goodsPrice) {
 		this.goodsPrice = goodsPrice;
 	}
-	
+	public Date getWishDate() {
+		return wishDate;
+	}
+	public void setWishDate(Date wishDate) {
+		this.wishDate = wishDate;
+	}
 }

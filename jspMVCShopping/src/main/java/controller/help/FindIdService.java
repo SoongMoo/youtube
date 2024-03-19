@@ -1,15 +1,22 @@
 package controller.help;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import model.dao.FindDAO;
 
 public class FindIdService {
 	public void execute(HttpServletRequest request) {
-		String userPhone = request.getParameter("userPhone");
+		try {
+			request.setCharacterEncoding("utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		String userName = request.getParameter("userName");
 		String userEmail = request.getParameter("userEmail");
 		FindDAO dao = new FindDAO();
-		String userId = dao.findId(userPhone, userEmail);
+		String userId = dao.findId(userName,userEmail);
 		request.setAttribute("userId", userId);
 	}
 }

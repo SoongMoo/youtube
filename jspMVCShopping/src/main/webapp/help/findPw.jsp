@@ -7,15 +7,16 @@
 <title>Insert title here</title>
 </head>
 <body>
-<form action="findPwOk.help" name="frm" id="frm" method="post">
-	<table border="1" width="600" align="center">
-		<tr><th>아이디</th>
-		    <td><input type="text" name="userId" required="required"/></td></tr>
-		<tr><th>전화번호</th>
-		    <td><input type="text" name="userPhone" required="required"/></td></tr>
-		
-		<tr><th colspan="2"><input type="submit" value="비밀번호 찾기"/></th></tr>
-	</table>
+비밀번호 찾기<br />
+<form action="findPwOk.help" method="post" >
+<table border="1" width="600" align="center">
+	<tr><td>아이디</td>
+		<td><input type="text" name="userId" required="required"/></td></tr>
+	<tr><td>전화번호</td>
+		<td><input type="text" name="userPhone" required="required"/>
+			<input type="submit" value="비밀번호 찾기"/>
+			</td></tr>
+</table>
 </form>
 </body>
 </html>

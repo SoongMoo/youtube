@@ -2,8 +2,8 @@
     pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-<head><!-- css와 jsp파일 내용은 이니시스로 부터 받은 내용이므로 github에서 해당 페이지 소스를 가져가는 것이 좋겠습니다. -->
-<meta charset="UTF-8">
+    <head>
+        <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport"
             content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,17 +11,17 @@
         <link rel="stylesheet" href="css/style.css">
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		
-		<!--테스트 JS-->
-		<script language="javascript" type="text/javascript" src="https://stgstdpay.inicis.com/stdjs/INIStdPay.js" 
-					charset="UTF-8"></script>
+		<!--테스트 JS--><script language="javascript" type="text/javascript" src="https://stgstdpay.inicis.com/stdjs/INIStdPay.js" charset="UTF-8"></script>
 		<!--운영 JS> <script language="javascript" type="text/javascript" src="https://stdpay.inicis.com/stdjs/INIStdPay.js" charset="UTF-8"></script> -->
         <script type="text/javascript">
             function paybtn() {
                 INIStdPay.pay('SendPayForm_id');
             }
         </script>
-</head>
-<body class="wrap"> <!-- 이 페이지에서 필요한 값들은 IniPayReqService.java에서 더 받아올 수 있게 코드를추가해주면 됩니다. -->
+    </head>
+
+    <body class="wrap">
+
         <!-- 본문 -->
         <main class="col-8 cont" id="bill-01">
             <!-- 페이지타이틀 -->
@@ -32,6 +32,7 @@
                 </div>
             </section>
             <!-- //페이지타이틀 -->
+
 
             <!-- 카드CONTENTS -->
             <section class="menu_cont mb-5">
@@ -45,11 +46,8 @@
                         <h4>※ 유의사항</h4>
                         <ul>
                             <li>테스트MID 결제시 실 승인되며, 당일 자정(24:00) 이전에 자동으로 취소처리 됩니다.</li>
-							<li>가상계좌 채번 후 입금할 경우 자동환불되지 않사오니, 
-								가맹점관리자 내 "입금통보테스트" 메뉴를 이용부탁드립니다.<br>
-								(실 입금하신 경우 별도로 환불요청해주셔야 합니다.)</li>
-							<li>국민카드 정책상 테스트 결제가 불가하여 오류가 발생될 수 있습니다. 
-								국민, 카카오뱅크 외 다른 카드로 테스트결제 부탁드립니다.</li>
+							<li>가상계좌 채번 후 입금할 경우 자동환불되지 않사오니, 가맹점관리자 내 "입금통보테스트" 메뉴를 이용부탁드립니다.<br>(실 입금하신 경우 별도로 환불요청해주셔야 합니다.)</li>
+							<li>국민카드 정책상 테스트 결제가 불가하여 오류가 발생될 수 있습니다. 국민, 카카오뱅크 외 다른 카드로 테스트결제 부탁드립니다.</li>
                         </ul>
                     </div>
                     <!-- //유의사항 -->
@@ -70,17 +68,17 @@
 				    		
 				    		<label class="col-10 col-sm-2 input param" style="border:none;">mid</label>
                             <label class="col-10 col-sm-9 input">
-                                <input type="text" name="mid" value="${mid }"> <!-- 이름이나 EL은 바꾸지 않고 사용했음 -->
+                                <input type="text" name="mid" value="${mid}">
                             </label>
 				    
                             <label class="col-10 col-sm-2 input param" style="border:none;">oid</label>
                             <label class="col-10 col-sm-9 input">
-                                <input type="text" name="oid" value="${orderNumber }">
+                                <input type="text" name="oid" value="${orderNumber}">
                             </label>
 				    		
 				    		<label class="col-10 col-sm-2 input param" style="border:none;">price</label>
                             <label class="col-10 col-sm-9 input">
-                                <input type="text" name="price" value="${price }">
+                                <input type="text" name="price" value="${price}">
                             </label>
 				    		
 				    		<label class="col-10 col-sm-2 input param" style="border:none;">timestamp</label>
@@ -89,33 +87,31 @@
                             </label>
 				    
 				    
-                            <input type="hidden" name="signature" value="${signature }">
-				    		<input type="hidden" name="mKey" value="${mKey }">
+                            <input type="hidden" name="signature" value="${signature}">
+				    		<input type="hidden" name="mKey" value="${mKey}">
                             <input type="hidden" name="currency" value="WON">
 				    		
 				    		
-				    		<label class="col-10 col-sm-2 input param" style="border:none;">goodname</label>
+				    		<label class="col-10 col-sm-2 input param" style="border:none;">${purchaseName }</label>
                             <label class="col-10 col-sm-9 input">
-                                <input type="text" name="goodname" value="${goodsName }">
+                                <input type="text" name="goodname" value="${purchaseName }">
                             </label>
 				    		
-				    		<label class="col-10 col-sm-2 input param" style="border:none;">buyername</label>
+				    		<label class="col-10 col-sm-2 input param" style="border:none;">${deliveryName }</label>
                             <label class="col-10 col-sm-9 input">
-                                <input type="text" name="buyername" value="테스터">
+                                <input type="text" name="buyername" value="${deliveryName }">
                             </label>
 				    		
-				    		<label class="col-10 col-sm-2 input param" style="border:none;">buyertel</label>
+				    		<label class="col-10 col-sm-2 input param" style="border:none;">${deliveryPhone }</label>
                             <label class="col-10 col-sm-9 input">
-                                <input type="text" name="buyertel" value="01012345678">
+                                <input type="text" name="buyertel" value="${deliveryPhone }">
                             </label>
 				    		
 				    		<label class="col-10 col-sm-2 input param" style="border:none;">buyeremail</label>
                             <label class="col-10 col-sm-9 input">
                                 <input type="text" name="buyeremail" value="test@test.com">
                             </label>
-				    		                                          <!-- 여기 주소만 맞게 변경합니다. -->
-				    		                                          <!-- 이니시스체서 결제 후 정보를 전달 해주는 주소 -->
-				    		                                          <!-- 이니시스로 부터 정보를 받을 수 있는 주소를 적어줍니다. -->
+				    		
 				    		<input type="hidden" name="returnUrl" value="http://localhost:8080/jspMVCShopping/INIstdpay_pc_return.item">
                             <input type="hidden" name="closeUrl" value="http://localhost:8080/jspMVCShopping/close.item">
                             

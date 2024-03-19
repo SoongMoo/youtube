@@ -4,12 +4,13 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>userAgree.jsp</title>
 </head>
 <body>
-<form action="userWrite.nhn" method="post" name="frm">
-	<input type="checkbox" required="required"/>
-	<input type="submit" value="동의" />
+회원가입 동의서<br />
+<form action="userWrite.nhn" method="post" >
+	<input type="checkbox" required="required">
+	<input type="submit" value="동의">
 </form>
 </body>
 </html>

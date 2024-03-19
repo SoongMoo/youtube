@@ -7,6 +7,7 @@ public class CartDTO {
 	String goodsNum;
 	Integer cartQty;
 	Date cartDate;
+	
 	public String getMemberNum() {
 		return memberNum;
 	}
@@ -31,4 +32,5 @@ public class CartDTO {
 	public void setCartDate(Date cartDate) {
 		this.cartDate = cartDate;
 	}
+	
 }

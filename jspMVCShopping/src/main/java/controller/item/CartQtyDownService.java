@@ -4,19 +4,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import model.dao.ItemDAO;
-import model.dao.MemberMyDAO;
+import model.dao.MemberDAO;
 import model.dto.AuthInfoDTO;
-import model.dto.MemberDTO;
 
 public class CartQtyDownService {
 	public void execute(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		AuthInfoDTO authInfo = (AuthInfoDTO)session.getAttribute("auth");
-		MemberMyDAO memDao = new MemberMyDAO();
-		MemberDTO memDTO = memDao.memberInfo(authInfo.getUserId());
-		
 		String goodsNum = request.getParameter("goodsNum");
+		
+		HttpSession session = request.getSession();
+		AuthInfoDTO auth = (AuthInfoDTO)session.getAttribute("auth");
+		MemberDAO memDao = new MemberDAO();
+		String memberNum = memDao.memberNumSelect(auth.getUserId());
+		
 		ItemDAO dao = new ItemDAO();
-		dao.itemQtyDown(goodsNum, memDTO.getMemberNum());
+		dao.itemQtyDown(goodsNum, memberNum);
 	}
 }

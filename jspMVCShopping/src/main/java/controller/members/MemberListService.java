@@ -10,7 +10,7 @@ import model.dto.MemberDTO;
 public class MemberListService {
 	public void execute(HttpServletRequest request) {
 		MemberDAO dao = new MemberDAO();
-		List<MemberDTO> list = dao.selectAll();
+		List<MemberDTO> list = dao.memberSelectAll();
 		request.setAttribute("list", list);
 	}
 }

@@ -8,19 +8,20 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.catalina.authenticator.DigestAuthenticator.AuthDigest;
-
 import com.inicis.std.util.HttpUtil;
 import com.inicis.std.util.ParseUtil;
 import com.inicis.std.util.SignatureUtil;
 
 import model.dao.ItemDAO;
+import model.dao.MemberDAO;
+import model.dao.UserDAO;
 import model.dto.AuthInfoDTO;
+import model.dto.MemberDTO;
 import model.dto.PaymentDTO;
+import model.dto.PurchaseDTO;
 
 public class INIstdpayPcReturn {
 	public void execute(HttpServletRequest request) {
-		// 아래 코드도 이니시스로 부터 받아온 코드입니다.
 		Map<String, String> resultMap = new HashMap<String, String>();
 
 		try{
@@ -88,7 +89,8 @@ public class INIstdpayPcReturn {
 
 
 				HttpUtil httpUtil = new HttpUtil();
-
+				
+				
 				try{
 					//#####################
 					// 4.API 통신 시작
@@ -102,19 +104,15 @@ public class INIstdpayPcReturn {
 					//5.API 통신결과 처리(***가맹점 개발수정***)
 					//############################################################
 					
-					String test = authResultString.replace(",", "&").replace(":", "=")
-												  .replace("\"", "").replace(" ","")
-												  .replace("\n", "").replace("}", "")
-												  .replace("{", "");
-													
+					String test = authResultString.replace(",", "&").replace(":", "=").replace("\"", "").replace(" ","").replace("\n", "").replace("}", "").replace("{", "");
+					
+								
 					resultMap = ParseUtil.parseStringToMap(test); //문자열을 MAP형식으로 파싱
 					
 					
 				  // 수신결과를 파싱후 resultCode가 "0000"이면 승인성공 이외 실패
 
 				  //throw new Exception("강제 Exception");
-					// 여기에 결제 후 디비에 저장할 코드를 작성합니다.
-					// resultMap에 이니시스로 부터 받은 값들이 있으므로 resultMap에서 필요한 값들을 가지고 옵니다.
 					PaymentDTO dto = new PaymentDTO();
 					dto.setApplDate(resultMap.get("applDate"));
 					dto.setApplTime(resultMap.get("applTime"));
@@ -126,14 +124,19 @@ public class INIstdpayPcReturn {
 					dto.setTid(resultMap.get("tid"));
 					dto.setTotalPrice(resultMap.get("TotPrice"));
 					dto.setPurchaseName(resultMap.get("goodsName"));
-					// 결제 정보를 디비에 저장합니다.
 					ItemDAO dao = new ItemDAO();
 					dao.paymentInsert(dto);
+					//// 로그인 session 생성
+					PurchaseDTO pdto = dao.purchaseSelectOne(resultMap.get("MOID"));
+					MemberDAO  mDao = new MemberDAO();
+					MemberDTO memDto = mDao.memberSelectOne(pdto.getMemberNum());
+					UserDAO uDao = new UserDAO();
+					AuthInfoDTO auth = uDao.loginSelect(memDto.getMemberId());
 					HttpSession session = request.getSession();
-					AuthInfoDTO auth = (AuthInfoDTO)session.getAttribute("auth");
-					request.setAttribute("userId", auth.getUserId());
+					session.setAttribute("auth", auth);
+					/////
+					request.setAttribute("userId", memDto.getMemberId());
 					request.setAttribute("price", resultMap.get("TotPrice"));
-					
 				} catch (Exception ex) {
 
 					//####################################
@@ -147,18 +150,12 @@ public class INIstdpayPcReturn {
 					// 망취소 API
 					//#####################
 					String netcancelResultString = httpUtil.processHTTP(authMap, netCancel);	// 망취소 요청 API url(고정, 임의 세팅 금지)
-
-					//out.println("## 망취소 API 결과 ##");
-
-					// 취소 결과 확인
-					//out.println("<p>"+netcancelResultString.replaceAll("<", "&lt;").replaceAll(">", "&gt;")+"</p>");
 				}
-
 			}else{
-			
 				resultMap.put("resultCode", paramMap.get("resultCode"));
 				resultMap.put("resultMsg", paramMap.get("resultMsg"));
 			}
+
 		}catch(Exception e){
 
 			System.out.println(e);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" version="4.0">
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd" version="5.0">
   <display-name>jspMVCShopping</display-name>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
@@ -8,14 +8,16 @@
     <welcome-file>default.html</welcome-file>
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
+    <welcome-file>rhee.jsp</welcome-file>
   </welcome-file-list>
+
   <servlet>
-  	<servlet-name>main</servlet-name>
-  	<servlet-class>controller.main.MainFrontController</servlet-class>
+  	<servlet-name>mem</servlet-name>
+  	<servlet-class>controller.members.MemberFrontController</servlet-class>
   </servlet>
   <servlet-mapping>
-  	<servlet-name>main</servlet-name>
-  	<url-pattern>*.main</url-pattern>
+  	<servlet-name>mem</servlet-name>
+  	<url-pattern>*.mem</url-pattern>
   </servlet-mapping>
   
   <servlet>
@@ -26,16 +28,6 @@
   	<servlet-name>employee</servlet-name>
   	<url-pattern>*.emp</url-pattern>
   </servlet-mapping>
-
-  <servlet>
-  	<servlet-name>members</servlet-name>
-  	<servlet-class>controller.members.MemberFrontController</servlet-class>
-  </servlet>
-  <servlet-mapping>
-  	<servlet-name>members</servlet-name>
-  	<url-pattern>*.mem</url-pattern>
-  </servlet-mapping>
-
   
   <servlet>
   	<servlet-name>user</servlet-name>
@@ -57,22 +49,22 @@
   
   <servlet>
   	<servlet-name>help</servlet-name>
-  	<servlet-class>controller.help.HelpFrontController</servlet-class>
+ 	<servlet-class>controller.help.HelpFrontController</servlet-class>
   </servlet>
   <servlet-mapping>
   	<servlet-name>help</servlet-name>
   	<url-pattern>*.help</url-pattern>
-  </servlet-mapping>  
+  </servlet-mapping>
   
-   
+  
   <servlet>
-  	<servlet-name>myPage</servlet-name>
-  	<servlet-class>controller.memberMyPage.MemberMyPageFrontController</servlet-class>
+  	<servlet-name>my</servlet-name>
+  	<servlet-class>controller.myPage.MyPageFrontController</servlet-class>
   </servlet>
   <servlet-mapping>
-  	<servlet-name>myPage</servlet-name>
+  	<servlet-name>my</servlet-name>
   	<url-pattern>*.my</url-pattern>
-  </servlet-mapping>  
+  </servlet-mapping>
   
   <servlet>
   	<servlet-name>goods</servlet-name>
@@ -93,6 +85,15 @@
   </servlet-mapping>
   
   <servlet>
+  	<servlet-name>main</servlet-name>
+  	<servlet-class>controller.main.MainFrontController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>main</servlet-name>
+  	<url-pattern></url-pattern>
+  </servlet-mapping> 
+  
+  <servlet>
   	<servlet-name>item</servlet-name>
   	<servlet-class>controller.item.ItemFrontController</servlet-class>
   </servlet>
@@ -102,10 +103,31 @@
   </servlet-mapping>
   
   
+  <servlet>
+  	<servlet-name>deli</servlet-name>
+  	<servlet-class>controller.delivery.DeliveryFrontController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>deli</servlet-name>
+  	<url-pattern>*.deli</url-pattern>
+  </servlet-mapping>  
   
+  <servlet>
+  	<servlet-name>review</servlet-name>
+  	<servlet-class>controller.review.ReviewFrontController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>review</servlet-name>
+  	<url-pattern>*.review</url-pattern>
+  </servlet-mapping>
   
-  
-  
-  
+  <servlet>
+  	<servlet-name>inquire</servlet-name>
+  	<servlet-class>controller.inquire.InquireFrontController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>inquire</servlet-name>
+  	<url-pattern>*.inq</url-pattern>
+  </servlet-mapping> 
   
 </web-app>

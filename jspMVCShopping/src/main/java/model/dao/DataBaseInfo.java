@@ -11,24 +11,24 @@ public class DataBaseInfo {
 	Connection con;
 	PreparedStatement pstmt;
 	ResultSet rs;
-	String sql;
-	public  DataBaseInfo() {
-		jdbcDriver = "org.postgresql.Driver";
-		jdbcURL = "jdbc:postgresql://localhost:5432/hkshopping";
+	String sql;	
+	public DataBaseInfo() {
+		jdbcDriver = "oracle.jdbc.driver.OracleDriver";
+		jdbcURL ="jdbc:oracle:thin:@localhost:1521:xe";
 	}
 	public Connection getConnection() {
-		Connection conn= null;
+		Connection co = null;
 		try {
 			Class.forName(jdbcDriver);
-			conn = DriverManager.getConnection(jdbcURL,"postgres","1234");
-		} catch (Exception e) {
+			co = DriverManager.getConnection(jdbcURL, "rhee", "1234");
+		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		return conn;
+		return co;
 	}
 	public void close() {
-		if(rs != null) try{rs.close();}catch(Exception e) {}
-		if(pstmt != null) try{pstmt.close();}catch(Exception e) {}
-		if(con != null) try{con.close();}catch(Exception e) {}
+		if(rs != null) try {rs.close();}catch(Exception e) {}
+		if(pstmt != null) try {pstmt.close();}catch(Exception e) {}
+		if(con != null) try {con.close();}catch(Exception e) {}
 	}
 }

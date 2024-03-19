@@ -1,25 +1,27 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>wishList.jsp</title>
+</head>
 <script type="text/javascript">
 function wishDelete(goodsNum){
 	location.href="wishDelete.item?goodsNum="+goodsNum;
 }
 </script>
-</head>
 <body>
+관심상품<br />
 <table width="600" >
-<tr><th>상품번호<br />이미지/상품명</th><th>가격</th><th>등록일</th></tr>
-<tr><th colspan="3"><hr /></th></tr>
-<c:forEach items="${dtos }" var="dto">
-<tr><th>${dto.goodsNum }<br /><img src="goods/images/${dto.goodsMainStore }" width="30"/>/${dto.goodsName }</th>
-	<th>${dto.goodsPrice }</th>
-	<th>${dto.wishDate } | <button onclick="wishDelete('${dto.goodsNum }')" >삭제하기</button></th></tr>
+	<tr><td>상품번호</td><td>이미지/상품명</td><td>가격</td><td>등록일</td></tr>
+<c:forEach items="${list }" var="dto" >
+	<tr><td>${dto.goodsNum }</td>
+		<td><img src="goods/images/${dto.goodsMainStore }"  width="30" />
+			/${dto.goodsName }</td>
+		<td>${dto.goodsPrice }</td>
+		<td>${dto.wishDate } <button type="button" onclick="wishDelete('${dto.goodsNum }');">삭제하기</button></td></tr>
 </c:forEach>
 </table>
 </body>

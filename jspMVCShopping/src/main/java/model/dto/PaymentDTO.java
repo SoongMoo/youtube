@@ -1,5 +1,6 @@
 package model.dto;
 
+
 public class PaymentDTO {
 	String purchaseNum;
 	String confirmNumber; // applNum :승인번호
@@ -71,6 +72,5 @@ public class PaymentDTO {
 	public void setPurchaseName(String purchaseName) {
 		this.purchaseName = purchaseName;
 	}
-	
 	
 }

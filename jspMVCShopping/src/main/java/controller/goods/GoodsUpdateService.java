@@ -11,30 +11,35 @@ import model.dto.AuthInfoDTO;
 import model.dto.GoodsDTO;
 
 public class GoodsUpdateService {
-	public void execute(HttpServletRequest request){
+	public void execute(HttpServletRequest request) {
 		try {
 			request.setCharacterEncoding("utf-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		String goodsNum = request.getParameter("goodsNum");
-		String goodsName = request.getParameter("goodsName");
+
 		String goodsPrice = request.getParameter("goodsPrice");
-		String goodscontent = request.getParameter("goodsContent");
 		String deliveryCost = request.getParameter("deliveryCost");
+		
 		GoodsDTO dto = new GoodsDTO();
-		dto.setGoodsContent(goodscontent);
-		dto.setGoodsName(goodsName);
-		dto.setGoodsNum(goodsNum);
+		dto.setGoodsContent(request.getParameter("goodsContent"));
+		dto.setGoodsName(request.getParameter("goodsName"));
+		dto.setGoodsNum(request.getParameter("goodsNum"));
 		dto.setGoodsPrice(Integer.parseInt(goodsPrice));
 		dto.setDeliveryCost(Integer.parseInt(deliveryCost));
+		
 		HttpSession session = request.getSession();
 		AuthInfoDTO auth = (AuthInfoDTO)session.getAttribute("auth");
-		String empId = auth.getUserId();
 		EmployeeDAO empDao = new EmployeeDAO();
-		String empNum = empDao.getEmpNum(empId);
+		String empNum = empDao.getEmpNum(auth.getUserId());
+		
 		dto.setUpdateEmpNum(empNum);
+		
 		GoodsDAO dao = new GoodsDAO();
 		dao.goodsUpdate(dto);
+		
 	}
 }
+
+
+

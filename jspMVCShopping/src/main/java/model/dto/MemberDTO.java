@@ -1,8 +1,9 @@
 package model.dto;
 
 import java.util.Date;
-
+// DTO/VO
 public class MemberDTO {
+	//VO
 	String memberNum;
 	String memberId;
 	String memberPw;
@@ -12,10 +13,22 @@ public class MemberDTO {
 	String memberAddr;
 	String memberAddrDetail;
 	String memberPost;
-	String memberEmail;
 	String memberGender;
+	String memberEmail;
 	Date memberBirth;
+	
 	Date memberRegist;
+	
+	//DTO
+	public Date getMemberRegist() {
+		return memberRegist;
+	}
+	public void setMemberRegist(Date memberRegist) {
+		this.memberRegist = memberRegist;
+	}
+	
+	
+	
 	public String getMemberNum() {
 		return memberNum;
 	}
@@ -70,28 +83,22 @@ public class MemberDTO {
 	public void setMemberPost(String memberPost) {
 		this.memberPost = memberPost;
 	}
-	public String getMemberEmail() {
-		return memberEmail;
-	}
-	public void setMemberEmail(String memberEmail) {
-		this.memberEmail = memberEmail;
-	}
 	public String getMemberGender() {
 		return memberGender;
 	}
 	public void setMemberGender(String memberGender) {
 		this.memberGender = memberGender;
 	}
+	public String getMemberEmail() {
+		return memberEmail;
+	}
+	public void setMemberEmail(String memberEmail) {
+		this.memberEmail = memberEmail;
+	}
 	public Date getMemberBirth() {
 		return memberBirth;
 	}
 	public void setMemberBirth(Date memberBirth) {
 		this.memberBirth = memberBirth;
-	}
-	public Date getMemberRegist() {
-		return memberRegist;
-	}
-	public void setMemberRegist(Date memberRegist) {
-		this.memberRegist = memberRegist;
-	}
+	}	
 }

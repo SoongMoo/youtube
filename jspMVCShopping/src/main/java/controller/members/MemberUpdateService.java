@@ -1,6 +1,5 @@
 package controller.members;
 
-import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,11 +11,10 @@ import model.dto.MemberDTO;
 
 public class MemberUpdateService {
 	public void execute(HttpServletRequest request) {
-		try {
+		try {		
 			request.setCharacterEncoding("utf-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+		}catch(Exception e) {}
+		
 		String memberNum = request.getParameter("memberNum");
 		String memberId = request.getParameter("memberId");
 		String memberPw = request.getParameter("memberPw");
@@ -25,10 +23,12 @@ public class MemberUpdateService {
 		String memberPhone2 = request.getParameter("memberPhone2");
 		String memberAddr = request.getParameter("memberAddr");
 		String memberAddrDetail = request.getParameter("memberAddrDetail");
-		String memberGender = request.getParameter("memberGender");
-		String memberBirth = request.getParameter("memberBirth");
-		String memberEmail = request.getParameter("memberEmail");
 		String memberPost = request.getParameter("memberPost");
+		String memberGender = request.getParameter("memberGender");
+		String memberEmail = request.getParameter("memberEmail");
+		
+		String memberBirth = request.getParameter("memberBirth");
+		/// 자바에서 문자열을 날짜로 형변환
 		Date date = null;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		try {
@@ -36,9 +36,11 @@ public class MemberUpdateService {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		
 		MemberDTO dto = new MemberDTO();
 		dto.setMemberAddr(memberAddr);
 		dto.setMemberAddrDetail(memberAddrDetail);
+		dto.setMemberBirth(date);
 		dto.setMemberEmail(memberEmail);
 		dto.setMemberGender(memberGender);
 		dto.setMemberId(memberId);
@@ -46,11 +48,10 @@ public class MemberUpdateService {
 		dto.setMemberNum(memberNum);
 		dto.setMemberPhone1(memberPhone1);
 		dto.setMemberPhone2(memberPhone2);
-		dto.setMemberPw(memberPw);
-		dto.setMemberBirth(date);
 		dto.setMemberPost(memberPost);
+		dto.setMemberPw(memberPw);
 		
 		MemberDAO dao = new MemberDAO();
-		dao.memberUpdate(dto);	
+		dao.memberUpdate(dto);
 	}
 }

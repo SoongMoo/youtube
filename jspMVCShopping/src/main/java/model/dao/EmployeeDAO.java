@@ -10,8 +10,8 @@ public class EmployeeDAO extends DataBaseInfo {
 	public String empAutoNum() {
 		String empNum = "";
 		con = getConnection();
-		sql = "select concat('emp',coalesce(substr(max(emp_num),4)::integer,1000000) + 1)"
-				+ "from employees";
+		sql = " select concat('emp',nvl(substr(max(emp_num),4),1000000) + 1) "
+			+ " from employees ";
 		try {
 			pstmt = con.prepareStatement(sql);
 			rs = pstmt.executeQuery();
@@ -20,7 +20,6 @@ public class EmployeeDAO extends DataBaseInfo {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
 		return empNum;
 	}
 	public void employeeInsert(EmployeeDTO dto) {

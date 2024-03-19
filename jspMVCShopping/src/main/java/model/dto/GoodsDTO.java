@@ -7,17 +7,81 @@ public class GoodsDTO {
 	String goodsName;
 	int goodsPrice;
 	String goodsContent;
-	String goodsMainStore;
-	String goodsMainStoreImg;
-	String goodsImages;
-	String goodsImagesImg;
 	int deliveryCost;
-	int visitCount;
 	
-	String employeeNum;
+	String empNum;
+	
+	int visitCount;
 	Date goodsRegist;
 	String updateEmpNum;
 	Date goodsUpdateDate;
+	
+	String goodsMainStore;
+	String goodsMainStoreImg;
+	
+	String goodsImages;
+	String goodsImagesImg;
+	public String getGoodsImages() {
+		return goodsImages;
+	}
+	public void setGoodsImages(String goodsImages) {
+		this.goodsImages = goodsImages;
+	}
+	public String getGoodsImagesImg() {
+		return goodsImagesImg;
+	}
+	public void setGoodsImagesImg(String goodsImagesImg) {
+		this.goodsImagesImg = goodsImagesImg;
+	}
+	
+	
+	
+	public String getGoodsMainStore() {
+		return goodsMainStore;
+	}
+	public void setGoodsMainStore(String goodsMainStore) {
+		this.goodsMainStore = goodsMainStore;
+	}
+	public String getGoodsMainStoreImg() {
+		return goodsMainStoreImg;
+	}
+	public void setGoodsMainStoreImg(String goodsMainStoreImg) {
+		this.goodsMainStoreImg = goodsMainStoreImg;
+	}
+	
+	
+	
+	public int getVisitCount() {
+		return visitCount;
+	}
+	public void setVisitCount(int visitCount) {
+		this.visitCount = visitCount;
+	}
+	public Date getGoodsRegist() {
+		return goodsRegist;
+	}
+	public void setGoodsRegist(Date goodsRegist) {
+		this.goodsRegist = goodsRegist;
+	}
+	public String getUpdateEmpNum() {
+		return updateEmpNum;
+	}
+	public void setUpdateEmpNum(String updateEmpNum) {
+		this.updateEmpNum = updateEmpNum;
+	}
+	public Date getGoodsUpdateDate() {
+		return goodsUpdateDate;
+	}
+	public void setGoodsUpdateDate(Date goodsUpdateDate) {
+		this.goodsUpdateDate = goodsUpdateDate;
+	}
+	public String getEmpNum() {
+		return empNum;
+	}
+	public void setEmpNum(String empNum) {
+		this.empNum = empNum;
+	}
+	
 	public String getGoodsNum() {
 		return goodsNum;
 	}
@@ -42,64 +106,10 @@ public class GoodsDTO {
 	public void setGoodsContent(String goodsContent) {
 		this.goodsContent = goodsContent;
 	}
-	public String getGoodsMainStore() {
-		return goodsMainStore;
-	}
-	public void setGoodsMainStore(String goodsMainStore) {
-		this.goodsMainStore = goodsMainStore;
-	}
-	public String getGoodsMainStoreImg() {
-		return goodsMainStoreImg;
-	}
-	public void setGoodsMainStoreImg(String goodsMainStoreImg) {
-		this.goodsMainStoreImg = goodsMainStoreImg;
-	}
-	public String getGoodsImages() {
-		return goodsImages;
-	}
-	public void setGoodsImages(String goodsImages) {
-		this.goodsImages = goodsImages;
-	}
-	public String getGoodsImagesImg() {
-		return goodsImagesImg;
-	}
-	public void setGoodsImagesImg(String goodsImagesImg) {
-		this.goodsImagesImg = goodsImagesImg;
-	}
 	public int getDeliveryCost() {
 		return deliveryCost;
 	}
 	public void setDeliveryCost(int deliveryCost) {
 		this.deliveryCost = deliveryCost;
-	}
-	public int getVisitCount() {
-		return visitCount;
-	}
-	public void setVisitCount(int visitCount) {
-		this.visitCount = visitCount;
-	}
-	public String getEmployeeNum() {
-		return employeeNum;
-	}
-	public void setEmployeeNum(String employeeNum) {
-		this.employeeNum = employeeNum;
-	}
-	public Date getGoodsRegist() {
-		return goodsRegist;
-	}
-	public void setGoodsRegist(Date goodsRegist) {
-		this.goodsRegist = goodsRegist;
-	}
-	public String getUpdateEmpNum() {
-		return updateEmpNum;
-	}
-	public void setUpdateEmpNum(String updateEmpNum) {
-		this.updateEmpNum = updateEmpNum;
-	}
-	public Date getGoodsUpdateDate() {
-		return goodsUpdateDate;
-	}
-	public void setGoodsUpdateDate(Date goodsUpdateDate) {
-		this.goodsUpdateDate = goodsUpdateDate;
 	}
 }

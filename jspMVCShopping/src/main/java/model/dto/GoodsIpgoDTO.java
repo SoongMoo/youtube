@@ -1,5 +1,6 @@
 package model.dto;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class GoodsIpgoDTO {
@@ -7,7 +8,7 @@ public class GoodsIpgoDTO {
 	String goodsNum;
 	Date ipgoDate;
 	Integer ipgoPrice;
-	Date madeDate;
+	Timestamp madeDate;
 	String empNum;
 	Integer ipgoQty;
 	
@@ -44,10 +45,10 @@ public class GoodsIpgoDTO {
 	public void setIpgoPrice(Integer ipgoPrice) {
 		this.ipgoPrice = ipgoPrice;
 	}
-	public Date getMadeDate() {
+	public Timestamp getMadeDate() {
 		return madeDate;
 	}
-	public void setMadeDate(Date madeDate) {
+	public void setMadeDate(Timestamp madeDate) {
 		this.madeDate = madeDate;
 	}
 	public String getEmpNum() {

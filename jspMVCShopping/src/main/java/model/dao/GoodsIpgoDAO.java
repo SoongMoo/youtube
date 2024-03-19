@@ -10,14 +10,14 @@ public class GoodsIpgoDAO extends DataBaseInfo{
 	public void goodsIpgoInsert(GoodsIpgoDTO dto) {
 		con = getConnection();
 		sql = " insert into goodsipgo(ipgo_num, goods_num, ipgo_qty"
-				+ "                      ,made_date,ipgo_price,ipgo_date,emp_num)"
+				+ "                  ,made_date,ipgo_price,ipgo_date,emp_num)"
 				+ " values(?,?,?,?,?,?,?)";
 		try {
 			pstmt = con.prepareStatement(sql);
 			pstmt.setString(1, dto.getGoodsIpgoNum());
 			pstmt.setString(2, dto.getGoodsNum());
 			pstmt.setInt(3, dto.getIpgoQty());
-			pstmt.setDate(4, new java.sql.Date(dto.getMadeDate().getTime()));
+			pstmt.setTimestamp(4, dto.getMadeDate());
 			pstmt.setInt(5, dto.getIpgoPrice());
 			pstmt.setDate(6, new java.sql.Date(dto.getIpgoDate().getTime()));
 			pstmt.setString(7, dto.getEmpNum());
@@ -44,7 +44,7 @@ public class GoodsIpgoDAO extends DataBaseInfo{
 				dto.setGoodsIpgoNum(rs.getString("ipgo_num"));
 				dto.setGoodsNum(rs.getString(2)); //select절에 있는 컬럼의 순서번호나 컬럼명 사용
 				dto.setIpgoQty(rs.getInt(3));     // 컬럼 번호는 앞에서 1부터 1씩 증가하는 값을 갖는다
-				dto.setMadeDate(rs.getDate(4));
+				dto.setMadeDate(rs.getTimestamp(4));
 				dto.setIpgoPrice(rs.getInt(5));
 				dto.setIpgoDate(rs.getDate(6));
 				dto.setEmpNum(rs.getString(7));
@@ -63,13 +63,13 @@ public class GoodsIpgoDAO extends DataBaseInfo{
 		sql = " select ipgo_num, i.goods_num, ipgo_qty, made_date"
 			+ "		  ,ipgo_price, ipgo_date, i.emp_num " //입고정보
 			+ "       , goods_name "
-			+ " from goodsIpgo i, goods g "
-			+ " where i.goods_num = g.goods_num "
-			+ "   and i.ipgo_num = ? and i.goods_num = ? ";//상품정보
+			+ " from goodsIpgo i join goods g "
+			+ " on i.goods_num = g.goods_num "
+			+ " where i.ipgo_num = ? and g.goods_num = ? ";//상품정보
 		try {
 			pstmt = con.prepareStatement(sql);
-			pstmt.setString(2, goodsNum);
 			pstmt.setString(1, ipgoNum);
+			pstmt.setString(2, goodsNum);
 			rs = pstmt.executeQuery();
 			rs.next();
 			dto.setEmpNum(rs.getString("emp_num"));
@@ -79,7 +79,7 @@ public class GoodsIpgoDAO extends DataBaseInfo{
 			dto.setIpgoDate(rs.getDate("ipgo_date"));
 			dto.setIpgoPrice(rs.getInt("ipgo_price"));
 			dto.setIpgoQty(rs.getInt("ipgo_qty"));
-			dto.setMadeDate(rs.getDate("made_date"));
+			dto.setMadeDate(rs.getTimestamp("made_date"));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
@@ -115,9 +115,10 @@ public class GoodsIpgoDAO extends DataBaseInfo{
 			pstmt = con.prepareStatement(sql);
 			pstmt.setDate(1, new java.sql.Date(dto.getIpgoDate().getTime()));
 			pstmt.setInt(2, dto.getIpgoQty());
-			pstmt.setDate(3, new java.sql.Date(dto.getMadeDate().getTime()));
+			pstmt.setTimestamp(3, dto.getMadeDate());
 			pstmt.setInt(4, dto.getIpgoPrice());
 			pstmt.setString(5, dto.getGoodsIpgoNum());
+			//////////////////			
 			pstmt.setString(6, dto.getGoodsNum());
 			int i = pstmt.executeUpdate();
 			System.out.println(i + "개 행이(가) 수정되었습니다.");

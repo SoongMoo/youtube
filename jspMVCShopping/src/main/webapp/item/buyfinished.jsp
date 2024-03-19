@@ -9,6 +9,8 @@
 </head>
 <body>
 ${userId }님 ${price }원이 결제 완료되었습니다.<br />
-<a href="purchaseList.item">구매리스트로 가기</a> | <a href="<c:url value='/' />" >홈</a>
+${auth.grade }<br />
+<a href="purchaseList.item">구매리스트로 가기</a> | 
+<a href="<c:url value='/' />" >홈</a>
 </body>
 </html>

@@ -7,10 +7,10 @@
 <title>Insert title here</title>
 </head>
 <body>
-<form action="goodsRegist.goods" method="post" enctype="multipart/form-data" >
+<form action="goodsRegist.goods" method="POST" enctype="multipart/form-data" >
 <table border = "1" width ="600" align="center">
 	<tr><th width="100">상품번호</th>
-		<td><input type="text" name="goodsNum" value="${goodsNum }" />번호자동부여</td></tr>
+		<td><input type="text" name="goodsNum" value="${goodsNum }" readonly="readonly" />번호자동부여</td></tr>
 	<tr><th>상품명</th>
 		<td><input type="text" name="goodsName"/></td></tr>
 	<tr><th>상품가격</th>
@@ -20,11 +20,9 @@
 	<tr><th>상품설명</th>
 		<td><textarea rows="10" cols="50" name="goodsContent"></textarea></td></tr>
 	<tr><th>대문이미지</th>
-		<td><input type="file" name="mainImage"/></td></tr>
-	<!-- 상품 정보는 저장이 되므로 상품이미지등을 저장하도록해 보자. -->
-	<!-- 대문이미지와 설명이미지 3개를 upload해보자. -->
+		<td><input type="file" name="mainImage"></td></tr>
 	<tr><th>상품설명이미지</th>
-		<td><input type="file" name="image1"/>
+		<td><input type="file" name="image1">
 			<input type="file" name="image2"/>
 			<input type="file" name="image3"/></td></tr>
 	<tr><th colspan="2"><input type="submit" value="상품등록" /></th></tr>

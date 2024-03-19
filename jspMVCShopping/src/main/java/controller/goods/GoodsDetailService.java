@@ -5,33 +5,32 @@ import javax.servlet.http.HttpSession;
 
 import model.dao.GoodsDAO;
 import model.dao.ItemDAO;
-import model.dao.MemberMyDAO;
+import model.dao.MemberDAO;
 import model.dto.AuthInfoDTO;
 import model.dto.GoodsDTO;
-import model.dto.MemberDTO;
 
 public class GoodsDetailService {
 	public void execute(HttpServletRequest request) {
 		String goodsNum = request.getParameter("goodsNum");
 		GoodsDAO dao = new GoodsDAO();
-		dao.visitCount(goodsNum); 
-		// 방문자수를 먼저 update 한후에 정보 가져오기
-		GoodsDTO dto = dao.selectOne(goodsNum);
+		GoodsDTO dto = dao.goodsSelectOne(goodsNum);
+		
 		request.setAttribute("dto", dto);
 		request.setAttribute("newLine", "\n");
 		
-		
+		// 제품 페이지에서 관심상품 등록되었는지 확인
 		HttpSession session = request.getSession();
 		AuthInfoDTO auth = (AuthInfoDTO)session.getAttribute("auth");
 		
-		int i = 0; // 상세페이지로 들어 왔을 때 로그인 되어 있는 지 확인하고 로그인 되어 있으면 해당 상품의 관심상품인지 확인
-		if (auth != null) {
-			MemberMyDAO memDao = new MemberMyDAO();
-			MemberDTO memDTO = memDao.memberInfo(auth.getUserId());
-			
+		if(auth != null) {
+			MemberDAO memDao = new MemberDAO();
+			String memberNum =  memDao.memberNumSelect(auth.getUserId());
 			ItemDAO itemDao = new ItemDAO();
-			i = itemDao.goodsSelect(goodsNum, memDTO.getMemberNum());
+			int i = itemDao.wishSelectOne(memberNum,goodsNum);
+			if(i == 1) {
+				request.setAttribute("isTrue", i);
+			}
 		}
-		request.setAttribute("isTrue", i);
+		
 	}
 }

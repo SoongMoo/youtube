@@ -1,5 +1,6 @@
 package controller.ipgo;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,13 +25,18 @@ public class GoodsIpgoUpdateService {
 		dto.setIpgoPrice(Integer.parseInt(ipgoPrice));
 		dto.setIpgoQty(Integer.parseInt(ipgoQty));
 		
+		SimpleDateFormat tsdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date date = null;
 		try {
+			date = tsdf.parse(madeDate);
+			
+			Timestamp timestamp = new Timestamp(date.getTime());
+			dto.setMadeDate(timestamp);
+			
 			date = sdf.parse(ipgoDate);
 			dto.setIpgoDate(date);
-			date = sdf.parse(madeDate);
-			dto.setMadeDate(date);
+			
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

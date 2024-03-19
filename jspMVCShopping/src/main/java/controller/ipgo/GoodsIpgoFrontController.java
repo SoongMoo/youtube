@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import controller.goods.GoodsListService;
+
 public class GoodsIpgoFrontController extends HttpServlet 
 		implements Servlet{
 	
@@ -56,6 +58,13 @@ public class GoodsIpgoFrontController extends HttpServlet
 					 			 + request.getParameter("goodsIpgoNum") 
  								 +"&num="
  								+ request.getParameter("goodsNum"));
+		}else if(command.equals("/goodsItem.ipgo")) {
+			GoodsListService action = new GoodsListService();
+			action.execute(request);
+			request.setAttribute("vw",true);
+			RequestDispatcher dispatcher =
+					request.getRequestDispatcher("goods/goodsList.jsp");
+			dispatcher.forward(request, response);
 		}
 	}
 	@Override

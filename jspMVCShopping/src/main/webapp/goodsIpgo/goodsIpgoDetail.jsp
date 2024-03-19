@@ -22,6 +22,7 @@ function ipgoDelte(){
 입고 수량 : ${dto.ipgoQty }<br />
 제조일 : ${dto.madeDate }<br />
 가격 : ${dto.ipgoPrice }<br />
+등록한 사원 : ${dto.empNum }<br />
 <button type="button" onclick="ipgoUpdate();">입고 수정</button> | 
 <button type="button" onclick="ipgoDelte();">입고 삭제</button>
 </body>

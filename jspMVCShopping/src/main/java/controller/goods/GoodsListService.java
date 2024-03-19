@@ -15,10 +15,11 @@ public class GoodsListService {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		String goodsWord = request.getParameter("goodsWord");
+		String goodsWord = request.getParameter("search");
 		GoodsDAO dao = new GoodsDAO();
-		List<GoodsDTO> list = dao.allSelect(goodsWord);	
+		List<GoodsDTO> list = dao.goodsSelectList(goodsWord);
 		request.setAttribute("dtos", list);
-		request.setAttribute("goodsWord", goodsWord);
+		System.out.println("GoodsListService" + list.size());
+		request.setAttribute("search", goodsWord);
 	}
 }

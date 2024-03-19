@@ -16,8 +16,10 @@
 				value="${dto.goodsName }" /><br />
 입고일 : <input type="date" name="ipgoDate" value="${dto.ipgoDate }" /><br />
 입고 수량 : <input type="number" name="ipgoQty" value="${dto.ipgoQty }"/><br />
-제조일 : <input type="date" name="madeDate" value="${dto.madeDate }"/><br />
+제조일 : <input type="datetime-local" name="madeDate" value="${dto.madeDate }"/><br />
 가격 : <input type="number" name="ipgoPrice" value="${dto.ipgoPrice }"/><br />
+등록한 사원 : <input type="text"  value="${dto.empNum }" readonly="readonly"/><br />
+
 <input type="submit" value="수정완료" />
 </form>
 </body>
