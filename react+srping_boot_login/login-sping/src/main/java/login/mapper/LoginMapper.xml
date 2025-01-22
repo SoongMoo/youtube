@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="login.mapper.LoginMapper">
+<select id="idCheckSelectOne"  resultType="integer">
+    select 1 from members where member_id = #{userId}
+    union
+    select 1 from employees where emp_id = #{userId}
+</select>
+<select id="emailCheckSelectOne" parameterType="string" resultType="integer">
+	select 1  from members where member_email = #{userEmail}
+	union
+	select 1 from employees where emp_email = #{userEmail}
+</select>
+<resultMap type="auth" id="authResultMap">
+	<result column="member_id" property="userId" jdbcType="VARCHAR"/>
+	<result column="member_pw" property="userPw" jdbcType="VARCHAR"/>
+	<result column="member_name" property="userName" jdbcType="VARCHAR"/>
+	<result column="member_email" property="userEmail" jdbcType="VARCHAR"/>
+	<result column="grade" property="grade" jdbcType="VARCHAR"/>
+</resultMap>
+<select id="loginSelectOne" parameterType="string" resultMap="authResultMap">
+select member_id , member_pw , member_name ,member_email , 'mem' as grade
+from members
+where member_id = #{userId} and MEMBER_EMAIL_CONF is not null
+union
+select emp_id    , emp_pw    , emp_name    , emp_email   , 'emp'
+from employees
+where emp_id = #{userId}
+</select>
+
+
+
+
+
+</mapper>
