@@ -1,1 +1,7 @@
-dfhfdhfdh
+npm init vite login-app -- --template react-ts
+cd login-app
+
+npm install react-router-dom
+npm install axios
+npm install jwt-decode
+npm run dev
