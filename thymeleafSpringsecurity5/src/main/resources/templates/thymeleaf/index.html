@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>홈 페이지</title>
+</head>
+<body>
+    <h1>홈 페이지</h1>
+
+    <!-- 인증되지 않은 사용자에게 표시 -->
+    <div sec:authorize="!isAuthenticated()">
+        로그인이 필요합니다. <a th:href="@{/login}">로그인 페이지로 이동</a>
+    </div>
+
+    <!-- 인증된 사용자에게 표시 -->
+    <div sec:authorize="isAuthenticated()">
+        환영합니다, <span sec:authentication="name"></span>님!<br/>
+        (권한: <span sec:authentication="principal.authorities"></span>)<br/>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit">로그아웃</button>
+        </form>
+    </div>
+
+    <!-- ROLE_USER 권한을 가진 사용자에게만 표시 -->
+    <div sec:authorize="hasRole('ROLE_USER')">
+        <p>사용자 권한 전용 컨텐츠입니다.
+        	<a th:href="@{/mypage}">마이페이지</a>
+        </p>
+    </div>
+
+    <!-- ROLE_ADMIN 권한을 가진 사용자에게만 표시 -->
+    <div sec:authorize="hasRole('ROLE_ADMIN')">
+        <p>관리자 권한 전용 컨텐츠입니다.</p>
+    </div>
+</body>
+</html>
