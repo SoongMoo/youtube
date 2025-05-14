@@ -1,3 +1,22 @@
+nmp 설치
+01. Node.js 홈페이지 방문
+https://nodejs.org/ko/
+
+02. Node.js 다운로드
+자신의 운영체제에 맞는 버전으로 제공합니다.
+현재버전 : 지금까지 나온 버전 들 중 최신 버전.  
+LTS : 지금까지 나온 버전들 중 많은 사람들이 사용하면서 나온 버그들을 패치하여 가장 안정적인 버전
+
+03. Node.js 설치
+다운로드 받으신 파일을 설치해주세요.
+
+04. Node.js 버전 확인
+cmd> node -v
+
+05. npm 버전 확인
+cmd> npm -v
+
+
 npm init vite login-app -- --template react-ts
 cd login-app
 
